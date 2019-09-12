@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
 <meta property="og:description" content="日志记录软件运行中发生的的事件，其中包括（产生时间，产生位置，日志等级，内容）。其中日志等级如下：    日志等级 描述    CRITICAL 当发生严重错误，导致应用程序不能继续运行时记录的信息   ERROR 由于一个更严重的问题导致某些功能不能正常运行时记录的信息   WARNING 当某些不期望的事情发生时记录的信息（如，磁盘可用空间较低），但是此时应用程序还是正常运行的   INFO">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-02-21T07:06:26.000Z">
+<meta property="og:updated_time" content="2019-09-12T03:07:08.343Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="logging 配置">
 <meta name="twitter:description" content="日志记录软件运行中发生的的事件，其中包括（产生时间，产生位置，日志等级，内容）。其中日志等级如下：    日志等级 描述    CRITICAL 当发生严重错误，导致应用程序不能继续运行时记录的信息   ERROR 由于一个更严重的问题导致某些功能不能正常运行时记录的信息   WARNING 当某些不期望的事情发生时记录的信息（如，磁盘可用空间较低），但是此时应用程序还是正常运行的   INFO">
@@ -408,7 +408,100 @@
 </tr>
 </tbody></table>
 <p>format 格式字符串中字段如下：</p>
-<p>|字段 |     使用格式 | 描述|<br>| - | - |<br>| asctime    | %(asctime)s    | 日志事件发生的时间–人类可读时间，如：2003-07-08 16:49:45,896|<br>| created    | %(created)f    | 日志事件发生的时间–时间戳，就是当时调用time.time()函数返回的值|<br>| relativeCreated    | %(relativeCreated)d    | 日志事件发生的时间相对于logging模块加载时间的相对毫秒数（目前还不知道干嘛用的）|<br>| msecs    | %(msecs)d    | 日志事件发生事件的毫秒部分|<br>| levelname    | %(levelname)s    | 该日志记录的文字形式的日志级别（’DEBUG’, ‘INFO’, ‘WARNING’, ‘ERROR’, ‘CRITICAL’）|<br>| levelno    | %(levelno)s    | 该日志记录的数字形式的日志级别（10, 20, 30, 40, 50）|<br>| name    | %(name)s    | 所使用的日志器名称，默认是’root’，因为默认使用的是 rootLogger|<br>| message    | %(message)s    | 日志记录的文本内容，通过 msg % args计算得到的|<br>| pathname    | %(pathname)s    | 调用日志记录函数的源码文件的全路径|<br>| filename    | %(filename)s|     pathname的文件名部分，包含文件后缀|<br>| module    | %(module)s    | filename的名称部分，不包含后缀|<br>| lineno    | %(lineno)d    | 调用日志记录函数的源代码所在的行号|<br>| funcName    | %(funcName)s    | 调用日志记录函数的函数名|<br>| process    | %(process)d|     进程ID|<br>| processName    | %(processName)s    | 进程名称，Python 3.1新增|<br>| thread    | %(thread)d    | 线程ID|<br>| threadName    | %(thread)s|     线程名称| </p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>使用格式</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>asctime</td>
+<td>%(asctime)s</td>
+<td>日志事件发生的时间–人类可读时间，如：2003-07-08 16:49:45,896</td>
+</tr>
+<tr>
+<td>created</td>
+<td>%(created)f</td>
+<td>日志事件发生的时间–时间戳，就是当时调用time.time()函数返回的值</td>
+</tr>
+<tr>
+<td>relativeCreated</td>
+<td>%(relativeCreated)d</td>
+<td>日志事件发生的时间相对于logging模块加载时间的相对毫秒数（目前还不知道干嘛用的）</td>
+</tr>
+<tr>
+<td>msecs</td>
+<td>%(msecs)d</td>
+<td>日志事件发生事件的毫秒部分</td>
+</tr>
+<tr>
+<td>levelname</td>
+<td>%(levelname)s</td>
+<td>该日志记录的文字形式的日志级别（’DEBUG’, ‘INFO’, ‘WARNING’, ‘ERROR’, ‘CRITICAL’）</td>
+</tr>
+<tr>
+<td>levelno</td>
+<td>%(levelno)s</td>
+<td>该日志记录的数字形式的日志级别（10, 20, 30, 40, 50）</td>
+</tr>
+<tr>
+<td>name</td>
+<td>%(name)s</td>
+<td>所使用的日志器名称，默认是’root’，因为默认使用的是 rootLogger</td>
+</tr>
+<tr>
+<td>message</td>
+<td>%(message)s</td>
+<td>日志记录的文本内容，通过 msg % args计算得到的</td>
+</tr>
+<tr>
+<td>pathname</td>
+<td>%(pathname)s</td>
+<td>调用日志记录函数的源码文件的全路径</td>
+</tr>
+<tr>
+<td>filename</td>
+<td>%(filename)s</td>
+<td>pathname的文件名部分，包含文件后缀</td>
+</tr>
+<tr>
+<td>module</td>
+<td>%(module)s</td>
+<td>filename的名称部分，不包含后缀</td>
+</tr>
+<tr>
+<td>lineno</td>
+<td>%(lineno)d</td>
+<td>调用日志记录函数的源代码所在的行号</td>
+</tr>
+<tr>
+<td>funcName</td>
+<td>%(funcName)s</td>
+<td>调用日志记录函数的函数名</td>
+</tr>
+<tr>
+<td>process</td>
+<td>%(process)d</td>
+<td>进程ID</td>
+</tr>
+<tr>
+<td>processName</td>
+<td>%(processName)s</td>
+<td>进程名称，Python 3.1新增</td>
+</tr>
+<tr>
+<td>thread</td>
+<td>%(thread)d</td>
+<td>线程ID</td>
+</tr>
+<tr>
+<td>threadName</td>
+<td>%(thread)s</td>
+<td>线程名称</td>
+</tr>
+</tbody></table>
 <p>定义FileHandler，输出到指定格式的日志文件</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span><br><span class="line">errmsg = <span class="string">'xx'</span></span><br><span class="line"><span class="comment"># 创建一个日志器logger并设置其日志级别为DEBUG</span></span><br><span class="line">logger = logging.getLogger()</span><br><span class="line">logger.setLevel(logging.DEBUG)</span><br><span class="line"><span class="comment"># 创建一个处理器将日志消息发送到磁盘文件,并设置其日志级别为DEBUG</span></span><br><span class="line">fh = logging.FileHandler(<span class="string">'/var/log/supervisor/Even_login_err.log'</span>)</span><br><span class="line">formatter = logging.Formatter(<span class="string">'%(asctime)s - %(name)s - %(levelname)s - %(message)s'</span>)</span><br><span class="line">fh.setFormatter(formatter)</span><br><span class="line">logger.addHandler(fh)</span><br><span class="line">logger.debug(errmsg)</span><br></pre></td></tr></table></figure>
 
@@ -566,7 +659,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">37</span>
+                  <span class="site-state-item-count">38</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

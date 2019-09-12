@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="alembic,">
+  <meta name="keywords" content="mysql,">
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="数据库版本化 Alembic 文档 Alembic github 对于关系型数据库，alembic 进行版本管理，随意升级和降级。 1 pip 安装 1pip install alembic  2 查看当前版本 1&amp;gt; select * from alembic_version       # mysql 操作 alembic 迁移过才会有这个表   或者： 1alembic current">
-<meta name="keywords" content="alembic">
+<meta name="description" content="先说结论，以后无论是写代码还是查bug，都要认真写啊 最近发现一个接口因为数据量大导致查询时间长，需要优化，我就去查了，其中最耗时的是一个类似这样的查询: 123456obj = db.session.query(A.id, D.name).filter(B.student_id == student_id, B.status=2).filter(A.student_id == B.student">
+<meta name="keywords" content="mysql">
 <meta property="og:type" content="article">
-<meta property="og:title" content="alembic 使用经验">
-<meta property="og:url" content="http://yoursite.com/2018/02/26/alembic/index.html">
+<meta property="og:title" content="mysql 喂，你的索引没有用到诶">
+<meta property="og:url" content="http://yoursite.com/2019/09/12/mysql-index/index.html">
 <meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
-<meta property="og:description" content="数据库版本化 Alembic 文档 Alembic github 对于关系型数据库，alembic 进行版本管理，随意升级和降级。 1 pip 安装 1pip install alembic  2 查看当前版本 1&amp;gt; select * from alembic_version       # mysql 操作 alembic 迁移过才会有这个表   或者： 1alembic current">
+<meta property="og:description" content="先说结论，以后无论是写代码还是查bug，都要认真写啊 最近发现一个接口因为数据量大导致查询时间长，需要优化，我就去查了，其中最耗时的是一个类似这样的查询: 123456obj = db.session.query(A.id, D.name).filter(B.student_id == student_id, B.status=2).filter(A.student_id == B.student">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-02-21T07:06:26.000Z">
+<meta property="og:updated_time" content="2019-09-12T03:36:51.070Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="alembic 使用经验">
-<meta name="twitter:description" content="数据库版本化 Alembic 文档 Alembic github 对于关系型数据库，alembic 进行版本管理，随意升级和降级。 1 pip 安装 1pip install alembic  2 查看当前版本 1&amp;gt; select * from alembic_version       # mysql 操作 alembic 迁移过才会有这个表   或者： 1alembic current">
+<meta name="twitter:title" content="mysql 喂，你的索引没有用到诶">
+<meta name="twitter:description" content="先说结论，以后无论是写代码还是查bug，都要认真写啊 最近发现一个接口因为数据量大导致查询时间长，需要优化，我就去查了，其中最耗时的是一个类似这样的查询: 123456obj = db.session.query(A.id, D.name).filter(B.student_id == student_id, B.status=2).filter(A.student_id == B.student">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/02/26/alembic/">
+  <link rel="canonical" href="http://yoursite.com/2019/09/12/mysql-index/">
 
 
 
 
 
-  <title>alembic 使用经验 | 我想，吃饭睡觉，走走停停</title>
+  <title>mysql 喂，你的索引没有用到诶 | 我想，吃饭睡觉，走走停停</title>
   
 
 
@@ -263,7 +263,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/26/alembic/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/12/mysql-index/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="sichuyoudang">
@@ -280,7 +280,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">alembic 使用经验</h1>
+          <h1 class="post-title" itemprop="name headline">mysql 喂，你的索引没有用到诶</h1>
         
 
         <div class="post-meta">
@@ -292,8 +292,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-02-26T14:27:57+08:00">
-                2018-02-26
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-12T10:07:53+08:00">
+                2019-09-12
               </time>
             
 
@@ -330,34 +330,64 @@
       
 
       
-        <p>数据库版本化</p>
-<p><a href="https://alembic.sqlalchemy.org/en/latest/" target="_blank" rel="noopener">Alembic 文档</a></p>
-<p><a href="https://github.com/alembic/alembic" target="_blank" rel="noopener">Alembic github</a></p>
-<p>对于关系型数据库，alembic 进行版本管理，随意升级和降级。</p>
-<p>1 pip 安装</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install alembic</span><br></pre></td></tr></table></figure>
+        <p>先说结论，以后无论是写代码还是查bug，都要认真写啊</p>
+<p>最近发现一个接口因为数据量大导致查询时间长，需要优化，我就去查了，其中最耗时的是一个类似这样的查询:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">obj = db.session.query(A.id, D.name)</span><br><span class="line">.filter(B.student_id == student_id, B.status=2)</span><br><span class="line">.filter(A.student_id == B.student_id, A.status&gt;0)</span><br><span class="line">.filter(B.teacher_id == C.id)</span><br><span class="line">.filter(C.class_id == D.id)</span><br><span class="line">.all()</span><br></pre></td></tr></table></figure>
 
-<p>2 查看当前版本</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; select * from alembic_version       # mysql 操作 alembic 迁移过才会有这个表</span><br></pre></td></tr></table></figure>
+<p>看了代码，没什么问题嘛，用 MySQL 提供的 EXPLAIN 命令分析一下，结果如下:</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>table</th>
+<th>type</th>
+<th>possible_keys</th>
+<th>key</th>
+<th>ref</th>
+<th>rows</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>d</td>
+<td>eq_ref</td>
+<td>PRIMARY</td>
+<td>PRIMARY</td>
+<td><subquery2>.class_id</subquery2></td>
+<td>10000</td>
+</tr>
+<tr>
+<td>1</td>
+<td>a</td>
+<td>index</td>
+<td>-</td>
+<td>student_id</td>
+<td>-</td>
+<td>10000</td>
+</tr>
+<tr>
+<td>2</td>
+<td>b</td>
+<td>ALL</td>
+<td>teacher_id</td>
+<td>-</td>
+<td>-</td>
+<td>1000000</td>
+</tr>
+<tr>
+<td>2</td>
+<td>c</td>
+<td>eq_ref</td>
+<td>PRIMARY, class_id</td>
+<td>PRIMARY</td>
+<td>b.teacher_id</td>
+<td>10000</td>
+</tr>
+</tbody></table>
+<p>诶，数据量百万级的 B 竟然是全文搜索，怪不得要10s才查出来，没有索引吗，查了一下数据库， A.student_id, B.teacher_id, C.class_id 都创建了索引，那筛选 student_id 的时候都没有用到索引，那筛选改到 A 上面，改成如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">obj = db.session.query(A.id, D.name)</span><br><span class="line">.filter(A.student_id == student_id, A.status&gt;0 )</span><br><span class="line">.filter(A.student_id == B.student_id, B.status=2)</span><br><span class="line">.filter(B.teacher_id == C.id)</span><br><span class="line">.filter(C.class_id == D.id)</span><br><span class="line">.all()</span><br></pre></td></tr></table></figure>
 
-
-<p>或者：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alembic current</span><br></pre></td></tr></table></figure>
-
-<p>3 生成新版本</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">alembic revision -m &quot;new version&quot;     # 生成新版本空文件，需要自己添加字段</span><br><span class="line">alembic revision --autogenerate -m &quot;new version&quot;   # 生成自动填充的新版本文件</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">INFO  [alembic.runtime.migration] Context impl MySQLImpl.</span><br><span class="line">INFO  [alembic.runtime.migration] Will assume non-transactional DDL.</span><br><span class="line">ERROR [alembic.util.messaging] Target database is not up to date.</span><br><span class="line">FAILED: Target database is not up to date.</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alembic stamp head</span><br></pre></td></tr></table></figure>
-
-<p>4 版本操作</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">alembic upgrade head      # 升级到最新版本</span><br><span class="line">alembic upgrade  xxxx     # 升级到指定版本</span><br><span class="line">alembic downgrade   xxxx  # 降级到指定版本</span><br><span class="line">alembic downgrade   base  # 降级到最初版本</span><br></pre></td></tr></table></figure>
-
-<p>4 查看历史操作</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alembic history</span><br></pre></td></tr></table></figure>
-
-<p>就酱。</p>
+<p>结果果然快多了，整个查询降到了1s，，接下来看看其他语句吧<br>就酱。</p>
 
       
     </div>
@@ -375,7 +405,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/alembic/" rel="tag"># alembic</a>
+            <a href="/tags/mysql/" rel="tag"># mysql</a>
           
         </div>
       
@@ -388,8 +418,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/02/24/hello-world/" rel="next" title="Hello World">
-                <i class="fa fa-chevron-left"></i> Hello World
+              <a href="/2019/09/06/closure/" rel="next" title="闭包">
+                <i class="fa fa-chevron-left"></i> 闭包
               </a>
             
           </div>
@@ -397,10 +427,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/02/28/python-dict/" rel="prev" title="python 组合特定字段 dict">
-                python 组合特定字段 dict <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
