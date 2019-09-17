@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="python,">
+  <meta name="keywords" content="fluent_python,">
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="添加文件路径 123import osimport syssys.path.append(os.getenv(&apos;EVEN_HOME&apos;))  添加环境变量 EVEN_HOME">
-<meta name="keywords" content="python">
+<meta name="description" content="浅复制复制列表 123456789101112l1 = [3, [55, 66, 77], (88, 99)]l2 = list(l1)l1.append(100)l1[1].remove(55)l1      # [3, [66, 77], (88, 99), 100]l2      # [3, [66, 77], (88, 99)]l2[1] += [33, 32]l1      # [3,">
+<meta name="keywords" content="fluent_python">
 <meta property="og:type" content="article">
-<meta property="og:title" content="python 添加环境路径">
-<meta property="og:url" content="http://yoursite.com/2018/09/06/add-path/index.html">
+<meta property="og:title" content="python 复制">
+<meta property="og:url" content="http://yoursite.com/2019/09/17/copy/index.html">
 <meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
-<meta property="og:description" content="添加文件路径 123import osimport syssys.path.append(os.getenv(&apos;EVEN_HOME&apos;))  添加环境变量 EVEN_HOME">
+<meta property="og:description" content="浅复制复制列表 123456789101112l1 = [3, [55, 66, 77], (88, 99)]l2 = list(l1)l1.append(100)l1[1].remove(55)l1      # [3, [66, 77], (88, 99), 100]l2      # [3, [66, 77], (88, 99)]l2[1] += [33, 32]l1      # [3,">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-02-21T07:06:26.000Z">
+<meta property="og:updated_time" content="2019-09-17T06:00:48.420Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="python 添加环境路径">
-<meta name="twitter:description" content="添加文件路径 123import osimport syssys.path.append(os.getenv(&apos;EVEN_HOME&apos;))  添加环境变量 EVEN_HOME">
+<meta name="twitter:title" content="python 复制">
+<meta name="twitter:description" content="浅复制复制列表 123456789101112l1 = [3, [55, 66, 77], (88, 99)]l2 = list(l1)l1.append(100)l1[1].remove(55)l1      # [3, [66, 77], (88, 99), 100]l2      # [3, [66, 77], (88, 99)]l2[1] += [33, 32]l1      # [3,">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/09/06/add-path/">
+  <link rel="canonical" href="http://yoursite.com/2019/09/17/copy/">
 
 
 
 
 
-  <title>python 添加环境路径 | 我想，吃饭睡觉，走走停停</title>
+  <title>python 复制 | 我想，吃饭睡觉，走走停停</title>
   
 
 
@@ -263,7 +263,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/06/add-path/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/17/copy/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="sichuyoudang">
@@ -280,7 +280,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">python 添加环境路径</h1>
+          <h1 class="post-title" itemprop="name headline">python 复制</h1>
         
 
         <div class="post-meta">
@@ -292,8 +292,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-06T16:44:41+08:00">
-                2018-09-06
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-17T11:48:40+08:00">
+                2019-09-17
               </time>
             
 
@@ -330,10 +330,20 @@
       
 
       
-        <p>添加文件路径</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">sys.path.append(os.getenv(<span class="string">'EVEN_HOME'</span>))</span><br></pre></td></tr></table></figure>
+        <h1 id="浅复制"><a href="#浅复制" class="headerlink" title="浅复制"></a>浅复制</h1><p>复制列表</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">l1 = [<span class="number">3</span>, [<span class="number">55</span>, <span class="number">66</span>, <span class="number">77</span>], (<span class="number">88</span>, <span class="number">99</span>)]</span><br><span class="line">l2 = list(l1)</span><br><span class="line">l1.append(<span class="number">100</span>)</span><br><span class="line">l1[<span class="number">1</span>].remove(<span class="number">55</span>)</span><br><span class="line">l1      <span class="comment"># [3, [66, 77], (88, 99), 100]</span></span><br><span class="line">l2      <span class="comment"># [3, [66, 77], (88, 99)]</span></span><br><span class="line">l2[<span class="number">1</span>] += [<span class="number">33</span>, <span class="number">32</span>]</span><br><span class="line">l1      <span class="comment"># [3, [66, 77, 33, 32], (88, 99), 100]</span></span><br><span class="line">l2 		<span class="comment"># [3, [66, 77, 33, 32], (88, 99)]</span></span><br><span class="line">l2[<span class="number">2</span>] += (<span class="number">10</span>, <span class="number">11</span>) </span><br><span class="line">l1			<span class="comment"># [3, [66, 77, 33, 32], (88, 99), 100]</span></span><br><span class="line">l2 		<span class="comment"># [3, [66, 77, 33, 32], (88, 99, 10, 11)]</span></span><br></pre></td></tr></table></figure>
 
-<p>添加环境变量 <code>EVEN_HOME</code></p>
+<p>这个包含一个列表，一个元祖的列表。<br>l1追加100这个元素对l2没有影响，删除55有影响，因为l2[1]绑定的列表与l1[1]是同一个。</p>
+<p>对于可变对象来说，+= 运算符就地修改列表，这次修改在l1[1]中也有体现，因为它是l2[1]的别名。</p>
+<p>对于元祖来说，+= 运算符创建一个新元祖，然后重新绑定给变量l2[2]。这等同于l2[2] = l2[2] + (10, 11)。现在，l1 和 l2 中最后位置上的元祖不是同一个对象。</p>
+<h1 id="深复制"><a href="#深复制" class="headerlink" title="深复制"></a>深复制</h1><p>深复制，即副本不共享内部对象的引用。copy 模块提供的 deepcopy 和 copy 函数能为任意对象做深复制和浅复制。</p>
+<p>创建一个公交车上下车的类</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bus</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, passengers=None)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> passengers <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            self.passengers = []</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self.passengers = list(passengers)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pick</span><span class="params">(self, name)</span>:</span></span><br><span class="line">    	self.passengers.append(name)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">drop</span><span class="params">(self, name)</span>:</span></span><br><span class="line">    	self.passengers.remove(name)</span><br></pre></td></tr></table></figure>
+
+<p>然后创建一个实例，2个副本</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">4</span>]: <span class="keyword">import</span> copy</span><br><span class="line">In[<span class="number">5</span>]: bus1 = Bus([<span class="string">"alice"</span>, <span class="string">"bill"</span>, <span class="string">"cliare"</span>, <span class="string">"david"</span>])</span><br><span class="line">In[<span class="number">6</span>]: bus2 = copy.copy(bus1)</span><br><span class="line">In[<span class="number">7</span>]: bus3 = copy.deepcopy(bus1)</span><br><span class="line">In[<span class="number">8</span>]: id(bus1), id(bus2), id(bus3)</span><br><span class="line">Out[<span class="number">8</span>]: (<span class="number">4342669832</span>, <span class="number">4342629208</span>, <span class="number">4320004360</span>)</span><br><span class="line">In[<span class="number">9</span>]: bus1.drop(<span class="string">'bill'</span>)</span><br><span class="line">In[<span class="number">10</span>]: bus2.passengers</span><br><span class="line">Out[<span class="number">10</span>]: [<span class="string">'alice'</span>, <span class="string">'cliare'</span>, <span class="string">'david'</span>]</span><br><span class="line">In[<span class="number">11</span>]: bus3.passengers</span><br><span class="line">Out[<span class="number">11</span>]: [<span class="string">'alice'</span>, <span class="string">'bill'</span>, <span class="string">'cliare'</span>, <span class="string">'david'</span>]</span><br><span class="line">In[<span class="number">12</span>]: id(bus1.passengers), id(bus2.passengers), id(bus3.passengers)</span><br><span class="line">Out[<span class="number">12</span>]: (<span class="number">4342638088</span>, <span class="number">4342638088</span>, <span class="number">4342640520</span>)</span><br></pre></td></tr></table></figure>
+
+<p>bus1 和 bus2 共享一个列表对象，因为 bus2 是 bus1 的浅复制，bus3 是 bus1 的深复制副本，因此它的 passengers 属性指代另一个列表。</p>
 
       
     </div>
@@ -351,7 +361,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/python/" rel="tag"># python</a>
+            <a href="/tags/fluent-python/" rel="tag"># fluent_python</a>
           
         </div>
       
@@ -364,8 +374,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/08/13/docker-mysql/" rel="next" title="docker mysql 中文支持">
-                <i class="fa fa-chevron-left"></i> docker mysql 中文支持
+              <a href="/2019/09/12/mysql-index/" rel="next" title="mysql 喂，你的索引没有用到诶">
+                <i class="fa fa-chevron-left"></i> mysql 喂，你的索引没有用到诶
               </a>
             
           </div>
@@ -373,10 +383,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/09/06/pdb/" rel="prev" title="pdb">
-                pdb <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -428,8 +434,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -482,6 +497,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#浅复制"><span class="nav-number">1.</span> <span class="nav-text">浅复制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#深复制"><span class="nav-number">2.</span> <span class="nav-text">深复制</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       

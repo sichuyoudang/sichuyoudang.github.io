@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
 <meta property="og:description" content="1 子查询 subquery在一个查询语句中想要对某个字段进行计算（统计/求和），可以用子查询实现。 例如2张表，一张表Book里面是数据信息，另一个张表BookTrading里面记录每次书籍售出数据，现在要获取书籍信息以及统计每种书籍各卖了多少钱 1234trading_subquery = db.session.query(func.ifnull(func.sum(BookTrading.to">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-08-15T11:04:35.222Z">
+<meta property="og:updated_time" content="2019-09-17T06:00:51.766Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="sqlalchemy 查询">
 <meta name="twitter:description" content="1 子查询 subquery在一个查询语句中想要对某个字段进行计算（统计/求和），可以用子查询实现。 例如2张表，一张表Book里面是数据信息，另一个张表BookTrading里面记录每次书籍售出数据，现在要获取书籍信息以及统计每种书籍各卖了多少钱 1234trading_subquery = db.session.query(func.ifnull(func.sum(BookTrading.to">
@@ -334,6 +334,9 @@
 <p>例如2张表，一张表<code>Book</code>里面是数据信息，另一个张表<code>BookTrading</code>里面记录每次书籍售出数据，现在要获取书籍信息以及统计每种书籍各卖了多少钱</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">trading_subquery = db.session.query(func.ifnull(func.sum(BookTrading.total_price),0)\</span><br><span class="line">		.filter(BookTrading.book_id == Book.id, BookTrading.status&gt;0)\</span><br><span class="line">		.correlate(Book).as_scalar()</span><br><span class="line">book_query = db.session.query(Book, trading_subquery).filter(Book.status&gt;0).all()</span><br></pre></td></tr></table></figure>
 
+<p><code>User</code> 一个用户的介绍人，及其介绍的数量</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">subquery = db.session.query(User.introducer_id, func.count(&apos;*&apos;).label(&apos;introduce_count&apos;)).group_by(User.introducer_id).subquery()</span><br><span class="line"></span><br><span class="line">db.session.query(User.name, subquery.c.introduce_count).outerjoin(subquery, User.id==subquery.c.introducer_id).all()</span><br></pre></td></tr></table></figure>
+
 <p>2 合并查询 union</p>
 <p>例如2张表，<code>TMOrder</code> 和 <code>JDOrder</code> 2张表存储的字段部分相同，现在我需要取2个表的数据合并且根据创建时间进行排序</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">tm_query = db.session.query(TMOrder.id.label(&quot;order_id&quot;),</span><br><span class="line">			    TMOrder.price.label(&quot;order_price&quot;),</span><br><span class="line">			    TMOrder.create_time.label(&quot;create_time&quot;)),</span><br><span class="line">			    func.ifnull(None, 1).label(&quot;shop_type&quot;)\</span><br><span class="line">			    .filter(TMOrder.user_id=1)</span><br><span class="line">		</span><br><span class="line">jd_query = db.session.query(JDOrder.id.label(&quot;order_id&quot;),</span><br><span class="line">		       	JDOrder.price.label(&quot;order_price&quot;),</span><br><span class="line">		       	JDOrder.create_time.label(&quot;create_time&quot;)),</span><br><span class="line">		       	func.ifnull(None, 2).label(&quot;shop_type&quot;)\</span><br><span class="line">		       	.filter(TMOrder.user_id=1)</span><br><span class="line">									  </span><br><span class="line">total_order_query = union(course_query, training_query).alias(&apos;order&apos;)</span><br><span class="line"></span><br><span class="line">order_query = db.session.query(total_order_query).order_by(total_order_query.c.create_time())</span><br></pre></td></tr></table></figure>
@@ -454,7 +457,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">38</span>
+                  <span class="site-state-item-count">39</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
