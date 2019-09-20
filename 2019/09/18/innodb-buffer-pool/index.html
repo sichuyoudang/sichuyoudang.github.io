@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="mysql,innodb,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="LRU List在 InnoDB 存储引擎中，缓冲池的大小默认16KB，使用 LRU 算法对缓冲池进行管理。稍有不同的是 InnoDB 存储引擎对传统的 LRU 算法做了一些优化，在 InnoDB 存储引擎中，LRU 列表中还加入了midpoint 位置。新读取到的页，虽然是新访问的页，但并不是放入到 LRU 列表的首部，而是放入 LRU 列表的 midpoint 位置。这个算法在 InnoDB">
+<meta name="keywords" content="mysql,innodb">
+<meta property="og:type" content="article">
+<meta property="og:title" content="InnoDB 存储引擎中 LRU List，Free List 和 Flush List">
+<meta property="og:url" content="http://yoursite.com/2019/09/18/innodb-buffer-pool/index.html">
+<meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
+<meta property="og:description" content="LRU List在 InnoDB 存储引擎中，缓冲池的大小默认16KB，使用 LRU 算法对缓冲池进行管理。稍有不同的是 InnoDB 存储引擎对传统的 LRU 算法做了一些优化，在 InnoDB 存储引擎中，LRU 列表中还加入了midpoint 位置。新读取到的页，虽然是新访问的页，但并不是放入到 LRU 列表的首部，而是放入 LRU 列表的 midpoint 位置。这个算法在 InnoDB">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-09-20T02:21:37.220Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="InnoDB 存储引擎中 LRU List，Free List 和 Flush List">
+<meta name="twitter:description" content="LRU List在 InnoDB 存储引擎中，缓冲池的大小默认16KB，使用 LRU 算法对缓冲池进行管理。稍有不同的是 InnoDB 存储引擎对传统的 LRU 算法做了一些优化，在 InnoDB 存储引擎中，LRU 列表中还加入了midpoint 位置。新读取到的页，虽然是新访问的页，但并不是放入到 LRU 列表的首部，而是放入 LRU 列表的 midpoint 位置。这个算法在 InnoDB">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/09/18/innodb-buffer-pool/">
+
+
+
+
+
+  <title>InnoDB 存储引擎中 LRU List，Free List 和 Flush List | 我想，吃饭睡觉，走走停停</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">我想，吃饭睡觉，走走停停</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">清绝，影也别。唯有知心月。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/18/innodb-buffer-pool/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">InnoDB 存储引擎中 LRU List，Free List 和 Flush List</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-18T15:37:04+08:00">
+                2019-09-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="LRU-List"><a href="#LRU-List" class="headerlink" title="LRU List"></a>LRU List</h1><p>在 InnoDB 存储引擎中，缓冲池的大小默认16KB，使用 LRU 算法对缓冲池进行管理。稍有不同的是 InnoDB 存储引擎对传统的 LRU 算法做了一些优化，在 InnoDB 存储引擎中，LRU 列表中还加入了midpoint 位置。新读取到的页，虽然是新访问的页，但并不是放入到 LRU 列表的首部，而是放入 LRU 列表的 midpoint 位置。这个算法在 InnoDB 存储引擎下称为 midpoint insertion strategy。默认配置下，该位置在 LRU 列表长度的 5/8 处。midpoint 位置可由参数 innodb_old_blocks_pct控制，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like &apos;innodb_old_blocks_pct&apos; \G</span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">Variable_name: innodb_old_blocks_pct</span><br><span class="line">        Value: 37</span><br><span class="line">1 row in set (0.01 sec)</span><br></pre></td></tr></table></figure>
+
+<p>从上面的例子中可以看出，参数 innodb_old_blocks_pct 的默认值是37，表示新读取的页插入到 LRU 列表尾端的37%的位置（差不多3/8）。在 InnoDB 存储引擎中，把 midpoint 之后的列表称为old列表，之前的列表称为new列表。可以简单的理解为new列表中的页都是最为活跃的热点数据。</p>
+<p>为什么不采用朴素LRU 算法，因为如果直接读取到页放到LRU首部，那么某些SQL 操作可能会是缓冲池中的页被刷出，从而影响缓冲池的效率。常见索引或数据的扫描操作，这类操作需要访问表中的许多页，甚至全部页，而这些页通常来说又仅仅在这次查询操作中需要，并不是活跃的热点数据，如果页被放入LRU 列表首部，那么非常可能将所需要的热点数据从LRU 列表中删除，而在下一次需要读取该页数据时，InnoDB 存储引擎需要再次访问磁盘。</p>
+<p>为了解决这个问题，InnoDB 存储引擎引入了另一个参数来进一步管理LRU 列表，这个参数是 innodb_old_blocks_time，用于表示页读取到mid位置后需要等待多久才会被加入到LRU列表的热端。因此当需要执行上述所说的SQL操作时，可以通过下面方式尽量使LRU列表中热点数据不被刷出</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; set global innodb_old_blocks_time =1000;</span><br><span class="line">Query OK, 0 rows affected (0.01 sec)</span><br></pre></td></tr></table></figure>
+
+<p>如果用户预估自己的热点数据不知63%，可以执行下面语句设置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; set global innodb_old_blocks_pct =20;</span><br><span class="line">Query OK, 0 rows affected (0.01 sec)</span><br></pre></td></tr></table></figure>
+
+<h1 id="Free-List"><a href="#Free-List" class="headerlink" title="Free List"></a>Free List</h1><p>LRU 列表用来管理已经读取的数据，但当数据库刚启动时，LRU 列表时空的，即没有任何页。这时页都存放在 free列表中。当需要从缓冲池中分页时，首先从 free 表中查找是否有可用的空闲页，若有则将该页从 free列表中删除，放入到 LRU 列表中。否则，根据LRU 算法，淘汰LRU 列表末尾的页，将该内存空间分配给新的页。当页从LRU列表的old部分加入到new部分时，称此时发生的操作为page made young，而因为innodb_old_blocks_time 的设置而导致页没有从 old 部分移到new部分的操作称为page not made young。可以通过命令    <code>show engine innodb status</code> 来观察LRU列表及Free列表的使用情况和运行状态。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show engine innodb status \G</span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">  Type: InnoDB</span><br><span class="line">  Name: </span><br><span class="line">Status: </span><br><span class="line">=====================================</span><br><span class="line">2019-09-18 16:53:18 0x7f5fa5f3b700 INNODB MONITOR OUTPUT</span><br><span class="line">=====================================</span><br><span class="line">Per second averages calculated from the last 10 seconds</span><br><span class="line">·······</span><br><span class="line">----------------------</span><br><span class="line">BUFFER POOL AND MEMORY</span><br><span class="line">----------------------</span><br><span class="line">Total large memory allocated 137428992</span><br><span class="line">Dictionary memory allocated 687641</span><br><span class="line">Buffer pool size   8191</span><br><span class="line">Free buffers       7063</span><br><span class="line">Database pages     1099</span><br><span class="line">Old database pages 238</span><br><span class="line">Modified db pages  0</span><br><span class="line">Pending reads      0</span><br><span class="line">Pending writes: LRU 0, flush list 0, single page 0</span><br><span class="line">Pages made young 0, not young 0</span><br><span class="line">0.00 youngs/s, 0.00 non-youngs/s</span><br><span class="line">Pages read 842, created 257, written 7490</span><br><span class="line">0.00 reads/s, 0.00 creates/s, 0.00 writes/s</span><br><span class="line">Buffer pool hit rate 1000 / 1000, young-making rate 0 / 1000 not 0 / 1000</span><br><span class="line"></span><br><span class="line">1 row in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+
+<p>可见当前 Buffer pool size 共有8191页，即8191*16K 缓冲池。Free buffers表示当前free 列表中页的数量，Database pages 代表LRU列表中页的数量。可能的情况是 Free buffers 和 Database pages 的数量只和不等于 Buffer pool size，因为缓冲池中的页还可能会被分配给自适应哈希，lock 信息，Insert Buffer 等页，而这部分不需要LRU 算法维护，因此不在 LRU 列表中。</p>
+<p>Pages made young 显示了 LRU 列表中页移动到前端的次数，因此该服务在运行阶段没有改变 innodb_old_blocks_time 的值，因此 not young 为0，youngs/s ，non-youngs/s表示每秒这两类操作的次数。Buffer pool hit rate 命中率为100%，说明缓冲池运行良好，通常该值不应该小于95%，若小于此值，用户需要考试是否是全表扫描引起的 LRU 列表被污染的问题。</p>
+<p>从 InnoDB 1.2 版本开始，还可以通过表 INNODB_BUFFER_POOL_STATS 来观察缓冲池的运行状态，还可以通过 INNODB_BUFFER_PAGE_LRU 来观察每个LRU列表中每个页的具体信息。</p>
+<p>InnoDB 存储引擎从1.0.x 版本开始支持压缩页的功能，即将原本16K的页压缩为 1KB, 2KB, 4KB 和8KB，由于页的大小发生了变化，LRU列表也有了些许改变，对于非 16KB 的页，是通过 unzip_LRU 列表进行管理的。通过命令 show engine innodb statsu 可观察如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt;  show engine innodb status \G;</span><br><span class="line">......</span><br><span class="line">Pages read 842, created 257, written 7522</span><br><span class="line">0.00 reads/s, 0.00 creates/s, 0.00 writes/s</span><br><span class="line">No buffer pool page gets since the last printout</span><br><span class="line">Pages read ahead 0.00/s, evicted without access 0.00/s, Random read ahead 0.00/s</span><br><span class="line">LRU len: 1099, unzip_LRU len: 0</span><br><span class="line">I/O sum[0]:cur[0], unzip sum[0]:cur[0]</span><br></pre></td></tr></table></figure>
+
+<p>可以看到 LRU 列表中一共 1099 页，而 unzip_LRU 为0，注意，这里LRU列表页包含了unzip_LRU中的页。</p>
+<p>对于压缩页的列表，每个表的压缩比率可能各不相同。那unzip_LRU是怎样从缓冲池中分配内存呢？</p>
+<p>首先，在unzip_LRU列表中对不同压缩页大小的页进行分别管理，其次，通过伙伴算法进行内存的分配。例如对需要从缓冲池中申请页为 4KB 的大小，过程如下：</p>
+<p>1， 检查4KB 的unzip_LRU列表，检查是否有可用的空闲页<br>2，若有，直接使用<br>3，否则，检查8KB 的unzip_LRU列表<br>4，若能够得到空闲页，将分页成2个4KB页，存放4KB 的unzip_LRU列表<br>5，若不能得到空闲页，从LRU列表中申请一个16KB的页，将页氛围一个8KB 的页，2个4KB的页，分别存放对应的unzip_LRU列表中</p>
+<p>同样可以通过 information_schema 架构下的表 INNODB_BUFFER_PAGE_LRU 来观察unzip_LRU列表中的页。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select table_name, space, page_number, compressed_size from innodb_buffer_page_lru where compressed_size &lt;&gt;0;</span><br><span class="line">Empty set (0.01 sec)</span><br></pre></td></tr></table></figure>
+
+<h1 id="Flush-List"><a href="#Flush-List" class="headerlink" title="Flush List"></a>Flush List</h1><p>在LRU列表中的页被修改后，称该页为脏页（dirty page），即缓冲池中页和磁盘上的数据产生了不一致。这时数据库会通过 CHECKPOINT 机制将脏页刷新回磁盘，而Flush列表中的页即为脏页列表。需要注意的是，脏页即存在于LRU列表中，页存在于Flush 列表中。LRU 列表用来管理缓冲池中页的可用性，Flush列表用来管理将页面刷新回磁盘，二者互不影响。</p>
+<p>同LRU 列表一样，Flush列表也可以通过命令 <code>show engine innodb status</code>来查看，前面的例子中 <code>Modified db pages  0</code>就显示了脏页数据为0。information_schema 架构下并没有类似 INNODB_BUFFER_PAGE_LRU 的表来显示脏页的数量及脏页的类型，但正如前面所述的那样，脏页同样存在于LRU列表中，故用户可以通过元数据表 INNODB_BUFFER_PAGE_LRU 来查看，唯一不同的是需要加入 oldest_modification &gt; 0 的查询条件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select table_name, space, page_number, page_type from INNODB_BUFFER_PAGE_LRU where oldest_modification &gt; 0;</span><br><span class="line">Empty set (0.08 sec)</span><br></pre></td></tr></table></figure>
+
+<p>如上，查询没有脏页。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/mysql/" rel="tag"># mysql</a>
+          
+            <a href="/tags/innodb/" rel="tag"># innodb</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/18/mysql-storage-engine/" rel="next" title="MySQL 存储引擎">
+                <i class="fa fa-chevron-left"></i> MySQL 存储引擎
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="sichuyoudang">
+            
+              <p class="site-author-name" itemprop="name">sichuyoudang</p>
+              <p class="site-description motion-element" itemprop="description">记录学习经验，力求分享技术</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">41</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#LRU-List"><span class="nav-number">1.</span> <span class="nav-text">LRU List</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Free-List"><span class="nav-number">2.</span> <span class="nav-text">Free List</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Flush-List"><span class="nav-number">3.</span> <span class="nav-text">Flush List</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sichuyoudang</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

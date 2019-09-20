@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="缓存算法原理 123新数据插入到链表头部；每当缓存命中（即缓存数据被访问），则将数据移到链表头部；当链表满的时候，将链表尾部的数据丢弃  命中率 1当存在热点数据时，LRU的效率很好，但偶发性的、周期性的批量操作会导致LRU命中率急剧下降，缓存污染情况比较严重  缺点 1命中时需要遍历链表，找到命中的数据块索引，然后需要将数据移到头部  算法 123456789101112131415161718">
+<meta name="description" content="LRU(Latest Recent Used) 缓存算法，最近最少使用算法。 缓存算法原理 123新数据插入到链表头部；每当缓存命中（即缓存数据被访问），则将数据移到链表头部；当链表满的时候，将链表尾部的数据丢弃  命中率 1当存在热点数据时，LRU的效率很好，但偶发性的、周期性的批量操作会导致LRU命中率急剧下降，缓存污染情况比较严重  缺点 1命中时需要遍历链表，找到命中的数据块索引，然后需要">
 <meta name="keywords" content="算法">
 <meta property="og:type" content="article">
 <meta property="og:title" content="LRU 缓存算法">
 <meta property="og:url" content="http://yoursite.com/2018/09/06/LRU/index.html">
 <meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
-<meta property="og:description" content="缓存算法原理 123新数据插入到链表头部；每当缓存命中（即缓存数据被访问），则将数据移到链表头部；当链表满的时候，将链表尾部的数据丢弃  命中率 1当存在热点数据时，LRU的效率很好，但偶发性的、周期性的批量操作会导致LRU命中率急剧下降，缓存污染情况比较严重  缺点 1命中时需要遍历链表，找到命中的数据块索引，然后需要将数据移到头部  算法 123456789101112131415161718">
+<meta property="og:description" content="LRU(Latest Recent Used) 缓存算法，最近最少使用算法。 缓存算法原理 123新数据插入到链表头部；每当缓存命中（即缓存数据被访问），则将数据移到链表头部；当链表满的时候，将链表尾部的数据丢弃  命中率 1当存在热点数据时，LRU的效率很好，但偶发性的、周期性的批量操作会导致LRU命中率急剧下降，缓存污染情况比较严重  缺点 1命中时需要遍历链表，找到命中的数据块索引，然后需要">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-02-22T09:50:18.000Z">
+<meta property="og:updated_time" content="2019-09-18T07:34:38.992Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="LRU 缓存算法">
-<meta name="twitter:description" content="缓存算法原理 123新数据插入到链表头部；每当缓存命中（即缓存数据被访问），则将数据移到链表头部；当链表满的时候，将链表尾部的数据丢弃  命中率 1当存在热点数据时，LRU的效率很好，但偶发性的、周期性的批量操作会导致LRU命中率急剧下降，缓存污染情况比较严重  缺点 1命中时需要遍历链表，找到命中的数据块索引，然后需要将数据移到头部  算法 123456789101112131415161718">
+<meta name="twitter:description" content="LRU(Latest Recent Used) 缓存算法，最近最少使用算法。 缓存算法原理 123新数据插入到链表头部；每当缓存命中（即缓存数据被访问），则将数据移到链表头部；当链表满的时候，将链表尾部的数据丢弃  命中率 1当存在热点数据时，LRU的效率很好，但偶发性的、周期性的批量操作会导致LRU命中率急剧下降，缓存污染情况比较严重  缺点 1命中时需要遍历链表，找到命中的数据块索引，然后需要">
 
 
 
@@ -330,7 +330,8 @@
       
 
       
-        <h1 id="缓存算法"><a href="#缓存算法" class="headerlink" title="缓存算法"></a>缓存算法</h1><p>原理</p>
+        <p>LRU(Latest Recent Used) 缓存算法，最近最少使用算法。</p>
+<h1 id="缓存算法"><a href="#缓存算法" class="headerlink" title="缓存算法"></a>缓存算法</h1><p>原理</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">新数据插入到链表头部；</span><br><span class="line">每当缓存命中（即缓存数据被访问），则将数据移到链表头部；</span><br><span class="line">当链表满的时候，将链表尾部的数据丢弃</span><br></pre></td></tr></table></figure>
 
 <p>命中率</p>
@@ -463,7 +464,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">40</span>
+                  <span class="site-state-item-count">41</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -476,7 +477,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
