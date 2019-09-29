@@ -262,6 +262,132 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/28/python-dict/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/28/python-dict/" itemprop="url">python 组合特定字段 dict</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-02-28T14:28:56+08:00">
+                2018-02-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>在后端开发过程中，通常从数据库里面取出数据，经过处理，传给前端，有的时候只需要传给前端几个字段，之前我的做法是 del 多余的字段，但这时候不需要的字段少还好，若是多了例如有10个字段，只需要其中三个，，，一个个 del ，代码看着就有些蠢了，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">src_obj = &#123;</span><br><span class="line">        <span class="string">"aa"</span>: <span class="number">111</span>,</span><br><span class="line">        <span class="string">"bb"</span>: <span class="number">22222</span>,</span><br><span class="line">        <span class="string">"cc"</span>: <span class="string">"3333f"</span>,</span><br><span class="line">        <span class="string">"obj"</span>: <span class="string">"fun"</span>,</span><br><span class="line">        <span class="string">"creator"</span>: <span class="string">"jeff"</span>,</span><br><span class="line">        <span class="string">"dt_create"</span>: <span class="string">"2018-02-09 06:12:41"</span>,</span><br><span class="line">        <span class="string">"dt_update"</span>: <span class="string">"2018-02-09 06:12:41"</span>,</span><br><span class="line">        <span class="string">"extra"</span>: <span class="string">"qqqqq"</span>,</span><br><span class="line">        <span class="string">"id"</span>: <span class="number">11</span></span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>原字典，现在我只想要 “aa”,”bb”,”cc”,”obj”,”id” 字段：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">key = [<span class="string">"aa"</span>,<span class="string">"bb"</span>,<span class="string">"cc"</span>,<span class="string">"obj"</span>,<span class="string">"id"</span>]</span><br><span class="line">obj = &#123;k:src_obj[k] <span class="keyword">for</span> k <span class="keyword">in</span> key&#125;</span><br><span class="line">现在 obj = &#123;‘aa’: <span class="number">111</span>, ‘bb’: <span class="number">22222</span>, ‘cc’: ‘<span class="number">3333</span>f’, ‘obj’: ‘fun’,’id’: <span class="number">11</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>就酱。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/26/alembic/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -579,7 +705,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">42</span>
+                  <span class="site-state-item-count">43</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
