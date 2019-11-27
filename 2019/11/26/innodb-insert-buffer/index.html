@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Mysql Innodb,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Insert Buffer在 Innodb 存储引擎中，主键是行唯一的标识符。通常应用程序中行记录的插入顺序是按照主键递增的顺序进行插入的，因此，插入聚集索引（Primary key）一般是顺序的，不需要磁盘的随机读取。  mysql的innodb表，其聚集索引相当于整张表，而整张表也是聚集索引。默认通过主键聚集数据，如果没有定义主键，则选择第一个非空的唯一索引，如果没有非空唯一索引，则选择row">
+<meta name="keywords" content="Mysql Innodb">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Innodb Insert Buffer">
+<meta property="og:url" content="http://yoursite.com/2019/11/26/innodb-insert-buffer/index.html">
+<meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
+<meta property="og:description" content="Insert Buffer在 Innodb 存储引擎中，主键是行唯一的标识符。通常应用程序中行记录的插入顺序是按照主键递增的顺序进行插入的，因此，插入聚集索引（Primary key）一般是顺序的，不需要磁盘的随机读取。  mysql的innodb表，其聚集索引相当于整张表，而整张表也是聚集索引。默认通过主键聚集数据，如果没有定义主键，则选择第一个非空的唯一索引，如果没有非空唯一索引，则选择row">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-11-26T11:43:30.746Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Innodb Insert Buffer">
+<meta name="twitter:description" content="Insert Buffer在 Innodb 存储引擎中，主键是行唯一的标识符。通常应用程序中行记录的插入顺序是按照主键递增的顺序进行插入的，因此，插入聚集索引（Primary key）一般是顺序的，不需要磁盘的随机读取。  mysql的innodb表，其聚集索引相当于整张表，而整张表也是聚集索引。默认通过主键聚集数据，如果没有定义主键，则选择第一个非空的唯一索引，如果没有非空唯一索引，则选择row">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/11/26/innodb-insert-buffer/">
+
+
+
+
+
+  <title>Innodb Insert Buffer | 我想，吃饭睡觉，走走停停</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">我想，吃饭睡觉，走走停停</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">清绝，影也别。唯有知心月。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/26/innodb-insert-buffer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Innodb Insert Buffer</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-11-26T14:37:02+08:00">
+                2019-11-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Insert-Buffer"><a href="#Insert-Buffer" class="headerlink" title="Insert Buffer"></a>Insert Buffer</h1><p>在 Innodb 存储引擎中，主键是行唯一的标识符。通常应用程序中行记录的插入顺序是按照主键递增的顺序进行插入的，因此，插入聚集索引（Primary key）一般是顺序的，不需要磁盘的随机读取。</p>
+<blockquote>
+<p>mysql的innodb表，其聚集索引相当于整张表，而整张表也是聚集索引。默认通过主键聚集数据，如果没有定义主键，则选择第一个非空的唯一索引，如果没有非空唯一索引，则选择rowid来作为聚集索引。</p>
+<p>辅助索引：辅助索引中索引的逻辑顺序与磁盘上行的物理存储顺序不同，一个表中可以拥有多个非聚集索引。叶子节点并不包含行记录的全部数据。叶子节点除了包含键值以外，还存储了一个指向改行数据的聚集索引建的书签。</p>
+<p>所以非聚集索引有二次查询的问题，非聚集索引叶节点仍然是索引节点，只是有一个指针指向对应的数据块，因此如果使用非聚集索引查询，而查询列中包含了其他该索引没有覆盖的列，那么他还要进行第二次的查询，查询节点上对应的数据行的数据。</p>
+</blockquote>
+<p>不是所有的主键插入都是顺序的，如果主键类是uuid这样的类，那么插入和辅助索引一样，是随机的。即使主键是自增类型，但是插入的是指定的值，而不是NULL值，那么同样可能导致插入并非连续的情况。</p>
+<p>不是张表上只有一个聚集索引，更多情况下，一张表上有多个非聚集的辅助索引（Secondary index）,例如用户需要按照b这个字段进行查找，并且b这个字段不是唯一的:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE t (a INT AUTO_INCREMENT, b VARCHAR(30), PRIMARY KEY(a), key(b) );</span><br></pre></td></tr></table></figure>
+
+<p>在这样的情况下产生了一个非聚聚的且不是唯一的索引。在进行插入操作时，数据页的存放还是按主键a进行顺序存放的，但是对于非聚集索引叶子结点的插入不再是顺序的了，这时就需要离散地访问非聚集索引页，由于随机读取芳存在而导致了插入操作性能下降。当然这不是b这个字段索引的错误，而是因为B+ 树的特性决定了非聚聚索引插入的离散型。</p>
+<blockquote>
+<p>B树：二叉树，每个结点只存储一个关键字，等于则命中，小于走左结点，大于走右结点；<br>B-树：多路搜索树，每个结点存储M/2到M个关键字，非叶子结点存储指向关键字范围的子结点；所有关键字在整颗树中出现，且只出现一次，非叶子结点可以命中；<br>B+树：在B-树基础上，为叶子结点增加链表指针，所有关键字都在叶子结点中出现，非叶子结点作为叶子结点的索引；B+树总是到叶子结点才命中；</p>
+</blockquote>
+<p>在某些情况下，辅助索引的插入也是比较顺序的，比如用户购买表中的时间字段，通常情况下，用户购买时间时一个辅助索引，用来根据时间条件进行查询，但是在插入时却是根据时间的递增而插入的，因此插入也是比较顺序的。</p>
+<p>InnoDB 存储引擎开创性设计了 Insert Buffer，对于非聚集索引的插入或者 更新操作，不是每一个直接插入到索引页中，而是先判断插入到非聚集索引页是否在缓冲池中，若在，则直接插入，若不在，则先放入到一个<br>Insert Buffer 对象中，好似欺骗。数据库这个非聚集到索引已经抽到叶子结点，而实际上并没有，只是存放在另一个位置。然后再以一定的频率和情况进行 Insert Buffer 和辅助索引子节点的 merge(合并)操作，这时通常能将多个插入合并到一个操作中（因为在一个索引页中），这就大大提高了对于非聚集索引插入到性能。</p>
+<p>然而 Insert Buffer 的使用需要同时满足以下两个条件：</p>
+<ol>
+<li>索引时辅助索引</li>
+<li>索引不是唯一的</li>
+</ol>
+<p>当满足了以上两个条件时， InnoDB 存储引擎会使用 Insert Buffer，这样就能提供插入操作的性能了，不过考虑这样一种情况：应用程序进行大量的插入操作，这些都涉及了不唯一的非聚集索引，也就是使用了 Insert Buffer。若此时 Mysql 数据库发生宕机，这是必有大量的 Insert Buffer 并没有合并到实际的非聚集索引中去。因此这时恢复可能需要很长时间，在极端情况下甚至需要几个小时。</p>
+<p>辅助索引不能是唯一的，因为在插入缓存时，数据库并不去查找索引页来判断插入的记录的唯一性。如果去查找肯定又会有离散读取的情况发生，从而导致 Insert Buffer 失去了意义。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; show engine innodb status;</span><br><span class="line">-------------------------------------</span><br><span class="line">INSERT BUFFER AND ADAPTIVE HASH INDEX</span><br><span class="line">-------------------------------------</span><br><span class="line">Ibuf: size 7545, free list len 3790, seg size 11336,</span><br><span class="line">8075308 inserts, 7540969 merged recs, 2246304 merges</span><br></pre></td></tr></table></figure>
+
+<p>seg size 显示了当前 Insert Buffer 的大小为 11336*16KB，free list len 代表了空闲列表的长度，size 代表了已经合并记录页的数量。inserts 代表了插入的记录数，merged recs 代表了合并的插入记录数量；merges 代表了合并的次数，也就是实际读取页的次数，merges: merged recs 大约为1:3，代表了插入缓存将对于非聚集索引页的离散 IO 逻辑请求大约降低了2/3。</p>
+<p>目前 Insert Buffer 存在一个问题，在写密集的情况下，插入缓冲会占用过多的缓冲内存，默认最大可以占用到1/2 的缓冲池内存。因此可以修改 IBUF_POOL_SIZE_PER_MAX_SIZE 就可以对插入缓冲的大小进行控制。比如将 IBUF_POOL_SIZE_PER_MAX_SIZE 改为3，则最大只能使用1/3 的缓冲池内存。</p>
+<h1 id="Change-Buffer"><a href="#Change-Buffer" class="headerlink" title="Change Buffer"></a>Change Buffer</h1><p>从 1.0.x 版本开始引入 Change Buffer，可看作 Insert Buffer 的升级。从该版本起，InnoDB 存储引擎可以对DML操作—INSERT, DELETE,UPDATE 的进行缓冲，他们分别是Insert Buffer,Delete Buffer, Purge Buffer。</p>
+<p>Change Buffer 适用的对象依然是唯一的辅助索引，对一条记录 UPDATE 操作可分为两个过程:</p>
+<ol>
+<li>将记录标记为已删除</li>
+<li>真正将记录删除</li>
+</ol>
+<p>Delete Buffer 对应的 UPDATE 操作的第一个过程，即将记录标记为删除。Purge Buffer 对应UPDATE 操作的第二个过程，即将记录真正删除。同时InnoDB 存储引擎提供了参数 innodb_change_buffering，用来开启各种 Buffer 的选项。该参数可选值为 inserts, deletes, purges, changes, all, none。inserts, deletes, purges 就是前面讨论的三种情况。change 表示启用 inserts 和 deletes，all 表示所有，none 表示都不启用，默认为all。</p>
+<p>从InnoDB 1.2.x 开始，可以通过参数 innodb_change_buffer_max_size 来控制 Change Buffer 最大使用内存的数量。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like &quot;innodb_change_buffer_max_size&quot;;</span><br><span class="line">+-------------------------------+-------+</span><br><span class="line">| Variable_name                 | Value |</span><br><span class="line">+-------------------------------+-------+</span><br><span class="line">| innodb_change_buffer_max_size | 25    |</span><br><span class="line">+-------------------------------+-------+</span><br><span class="line">1 row in set (0.01 sec)</span><br></pre></td></tr></table></figure>
+
+<p>innodb_change_buffer_max_size 默认值是 25，表示最多使用1/4的缓冲池内存空间，需要注意，该参数的最大有效值为50。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Mysql-Innodb/" rel="tag"># Mysql Innodb</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/29/python-attribute/" rel="next" title="python 属性">
+                <i class="fa fa-chevron-left"></i> python 属性
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="sichuyoudang">
+            
+              <p class="site-author-name" itemprop="name">sichuyoudang</p>
+              <p class="site-description motion-element" itemprop="description">记录学习经验，力求分享技术</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">44</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Insert-Buffer"><span class="nav-number">1.</span> <span class="nav-text">Insert Buffer</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Change-Buffer"><span class="nav-number">2.</span> <span class="nav-text">Change Buffer</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sichuyoudang</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

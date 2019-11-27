@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="classmethod 和 staticmathodclassmethod 定义操作类，而不是操作实例的方法。classmethod 改变了调用方法的方式，因此类方法的第一个参数是类本身，而不是实例。classmethod 最常见的用途是定义备选构造方法 名称改写Python 有个简单的机制能避免子类意外覆盖”私有”属性。 举个例子，一个 Dog 类，这个类内部用到了mood 实例属性，但是没有将">
+<meta name="description" content="classmethod 和 staticmathodclassmethod 定义操作类，而不是操作实例。classmethod 改变了调用方法的方式，因此类方法的第一个参数是类本身，而不是实例。classmethod 最常见的用途是定义备选构造方法。 名称改写Python 有个简单的机制能避免子类意外覆盖”私有”属性。 举个例子，一个 Dog 类，这个类内部用到了mood 实例属性，但是没有将其开">
 <meta name="keywords" content="fluent_python">
 <meta property="og:type" content="article">
 <meta property="og:title" content="python 属性">
 <meta property="og:url" content="http://yoursite.com/2019/09/29/python-attribute/index.html">
 <meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
-<meta property="og:description" content="classmethod 和 staticmathodclassmethod 定义操作类，而不是操作实例的方法。classmethod 改变了调用方法的方式，因此类方法的第一个参数是类本身，而不是实例。classmethod 最常见的用途是定义备选构造方法 名称改写Python 有个简单的机制能避免子类意外覆盖”私有”属性。 举个例子，一个 Dog 类，这个类内部用到了mood 实例属性，但是没有将">
+<meta property="og:description" content="classmethod 和 staticmathodclassmethod 定义操作类，而不是操作实例。classmethod 改变了调用方法的方式，因此类方法的第一个参数是类本身，而不是实例。classmethod 最常见的用途是定义备选构造方法。 名称改写Python 有个简单的机制能避免子类意外覆盖”私有”属性。 举个例子，一个 Dog 类，这个类内部用到了mood 实例属性，但是没有将其开">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-09-29T05:40:48.128Z">
+<meta property="og:updated_time" content="2019-10-08T08:16:43.468Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="python 属性">
-<meta name="twitter:description" content="classmethod 和 staticmathodclassmethod 定义操作类，而不是操作实例的方法。classmethod 改变了调用方法的方式，因此类方法的第一个参数是类本身，而不是实例。classmethod 最常见的用途是定义备选构造方法 名称改写Python 有个简单的机制能避免子类意外覆盖”私有”属性。 举个例子，一个 Dog 类，这个类内部用到了mood 实例属性，但是没有将">
+<meta name="twitter:description" content="classmethod 和 staticmathodclassmethod 定义操作类，而不是操作实例。classmethod 改变了调用方法的方式，因此类方法的第一个参数是类本身，而不是实例。classmethod 最常见的用途是定义备选构造方法。 名称改写Python 有个简单的机制能避免子类意外覆盖”私有”属性。 举个例子，一个 Dog 类，这个类内部用到了mood 实例属性，但是没有将其开">
 
 
 
@@ -330,12 +330,17 @@
       
 
       
-        <h1 id="classmethod-和-staticmathod"><a href="#classmethod-和-staticmathod" class="headerlink" title="classmethod 和 staticmathod"></a>classmethod 和 staticmathod</h1><p>classmethod 定义操作类，而不是操作实例的方法。classmethod 改变了调用方法的方式，因此类方法的第一个参数是类本身，而不是实例。classmethod 最常见的用途是定义备选构造方法</p>
+        <h1 id="classmethod-和-staticmathod"><a href="#classmethod-和-staticmathod" class="headerlink" title="classmethod 和 staticmathod"></a>classmethod 和 staticmathod</h1><p>classmethod 定义操作类，而不是操作实例。classmethod 改变了调用方法的方式，因此类方法的第一个参数是类本身，而不是实例。classmethod 最常见的用途是定义备选构造方法。</p>
 <h1 id="名称改写"><a href="#名称改写" class="headerlink" title="名称改写"></a>名称改写</h1><p>Python 有个简单的机制能避免子类意外覆盖”私有”属性。</p>
 <p>举个例子，一个 Dog 类，这个类内部用到了mood 实例属性，但是没有将其开发，现在创建个 Dog 类的子类：Beagle。如果你在毫不知情的情况下又创建了名为mood的实力属性，那么在继承的方法中就会把Dog类的mood 属性覆盖掉。</p>
 <p>为了避免这种情况，如果以<strong>mood 的形式（两个前导下划线，尾部没有或最多一个下划线）命名实例属性，Python 会把属性名存入实例的`</strong>dict__<code>属性中，而且会在前面加上一个下划线和类名。因此，对于Dog类来说，</code><strong>mood<code>会变成</code>_Dog</strong>mood<code>; 对于Beagle来说，会变成</code>_Beagle__mood`,这个语言特性叫<strong>名称改写</strong>。</p>
 <p>名称改写是一种安全措施，不能保证万无一失，它的目的是避免意外访问，不能阻止故意做错事。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dog</span>:</span></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, x)</span>:</span></span><br><span class="line">		self.__x = float(x)</span><br><span class="line"></span><br><span class="line"><span class="meta">	@property</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">x</span><span class="params">(self)</span>:</span></span><br><span class="line">		<span class="keyword">return</span> self._x</span><br><span class="line"></span><br><span class="line">In [<span class="number">43</span>]: d = Dog(<span class="number">3</span>)                                                                                                                                                                  </span><br><span class="line"></span><br><span class="line">In [<span class="number">45</span>]: d.__dict__                                                                                                                                                                  </span><br><span class="line">Out[<span class="number">45</span>]: &#123;<span class="string">'_Dog__x'</span>: <span class="number">3.0</span>&#125;</span><br><span class="line">```      </span><br><span class="line"></span><br><span class="line">但是不是所有人都喜欢 self.__x 这种不对称的名称，所以他们约定了使用一个下划线前缀编写<span class="string">"受保护"</span>的属性。Python 解释器不会对使用单个下划线的属性名做特殊处理，但很多Python程序员严格遵守这个约定，他们不在类外部访问这种属性，因此有些人称其为<span class="string">"私有"</span>属性。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用 `__slots__` 类属性节省空间</span></span><br><span class="line"></span><br><span class="line">默认情况下，Python 在各个实例中名为 `__dict__` 的字典中存储实例属性，而为了使用底层的散列表提升访问速度，字典会消耗大量内存。如果要处理百万个属性多的实例，通过`__slots__`类属性，能节省大量内存，方法是让解释器在元祖中存储实例属性，而不用字典。</span><br><span class="line"></span><br><span class="line">定义`__slots__`的方式，创建一个类属性，使用`__slots__`这个名字，并把它的值设为一个字符串构成的可迭代对象，其中各个元素表示各个实例属性。</span><br><span class="line"></span><br><span class="line">```python</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dog</span>:</span></span><br><span class="line">	__slots__ = (<span class="string">'x'</span>, <span class="string">'y'</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment"># 各个方法</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dog</span>:</span></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, x)</span>:</span></span><br><span class="line">		self.__x = float(x)</span><br><span class="line"></span><br><span class="line"><span class="meta">	@property</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">x</span><span class="params">(self)</span>:</span></span><br><span class="line">		<span class="keyword">return</span> self._x</span><br><span class="line"></span><br><span class="line">In [<span class="number">43</span>]: d = Dog(<span class="number">3</span>)                                                                                                                                                                  </span><br><span class="line"></span><br><span class="line">In [<span class="number">45</span>]: d.__dict__                                                                                                                                                                  </span><br><span class="line">Out[<span class="number">45</span>]: &#123;<span class="string">'_Dog__x'</span>: <span class="number">3.0</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是不是所有人都喜欢 self.__x 这种不对称的名称，所以他们约定了使用一个下划线前缀编写”受保护”的属性。Python 解释器不会对使用单个下划线的属性名做特殊处理，但很多Python程序员严格遵守这个约定，他们不在类外部访问这种属性，因此有些人称其为”私有”属性。</p>
+<h1 id="使用-slots-类属性节省空间"><a href="#使用-slots-类属性节省空间" class="headerlink" title="使用 __slots__ 类属性节省空间"></a>使用 <code>__slots__</code> 类属性节省空间</h1><p>默认情况下，Python 在各个实例中名为 <code>__dict__</code> 的字典中存储实例属性，而为了使用底层的散列表提升访问速度，字典会消耗大量内存。如果要处理百万个属性多的实例，通过<code>__slots__</code>类属性，能节省大量内存，方法是让解释器在元祖中存储实例属性，而不用字典。</p>
+<p>定义<code>__slots__</code>的方式，创建一个类属性，使用<code>__slots__</code>这个名字，并把它的值设为一个字符串构成的可迭代对象，其中各个元素表示各个实例属性。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dog</span>:</span></span><br><span class="line">	__slots__ = (<span class="string">'x'</span>, <span class="string">'y'</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment"># 各个方法</span></span><br></pre></td></tr></table></figure>
 
 <p>在类中定义<code>__slots__</code> 属性的目的是告诉解释器：这个类中的所有实例属性都在这儿了，这样，Python 会在各个实例中使用类似元祖的结构存储实例变量，从而避免使用消耗内存的<code>__dict__</code>。不过有几点注意：</p>
 <ol>
@@ -396,6 +401,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/11/26/innodb-insert-buffer/" rel="prev" title="Innodb Insert Buffer">
+                Innodb Insert Buffer <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -474,7 +483,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">43</span>
+                  <span class="site-state-item-count">44</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -487,7 +496,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
@@ -520,7 +529,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#classmethod-和-staticmathod"><span class="nav-number">1.</span> <span class="nav-text">classmethod 和 staticmathod</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#名称改写"><span class="nav-number">2.</span> <span class="nav-text">名称改写</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#覆盖类属性"><span class="nav-number">3.</span> <span class="nav-text">覆盖类属性</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#classmethod-和-staticmathod"><span class="nav-number">1.</span> <span class="nav-text">classmethod 和 staticmathod</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#名称改写"><span class="nav-number">2.</span> <span class="nav-text">名称改写</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用-slots-类属性节省空间"><span class="nav-number">3.</span> <span class="nav-text">使用 __slots__ 类属性节省空间</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#覆盖类属性"><span class="nav-number">4.</span> <span class="nav-text">覆盖类属性</span></a></li></ol></div>
             
 
           </div>
