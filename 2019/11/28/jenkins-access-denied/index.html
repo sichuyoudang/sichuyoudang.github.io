@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT">
+  <meta name="keywords" content="Jenkins,">
 
 
 
@@ -79,16 +79,18 @@
 
 
 
-<meta name="description" content="记录学习经验，力求分享技术">
-<meta property="og:type" content="website">
-<meta property="og:title" content="我想，吃饭睡觉，走走停停">
-<meta property="og:url" content="http://yoursite.com/tags/mysql/index.html">
+<meta name="description" content="Jenkin 在web操作页面添加新用户，在任务配置页面也添加了相应的权限，当新用户登录的时候，发现报错， Read: access denied 解决方法： 找到jenkins配置文件， 12[]# find / -name &amp;quot;config.xm&amp;quot;/xxx/.jenkins/config.xml  在此文件找到设置权限的地方,给新用户也添加一条 Read 记录， 123456">
+<meta name="keywords" content="Jenkins">
+<meta property="og:type" content="article">
+<meta property="og:title" content="解决 Jenkins Access Denied 问题">
+<meta property="og:url" content="http://yoursite.com/2019/11/28/jenkins-access-denied/index.html">
 <meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
-<meta property="og:description" content="记录学习经验，力求分享技术">
+<meta property="og:description" content="Jenkin 在web操作页面添加新用户，在任务配置页面也添加了相应的权限，当新用户登录的时候，发现报错， Read: access denied 解决方法： 找到jenkins配置文件， 12[]# find / -name &amp;quot;config.xm&amp;quot;/xxx/.jenkins/config.xml  在此文件找到设置权限的地方,给新用户也添加一条 Read 记录， 123456">
 <meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-11-29T03:10:31.583Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="我想，吃饭睡觉，走走停停">
-<meta name="twitter:description" content="记录学习经验，力求分享技术">
+<meta name="twitter:title" content="解决 Jenkins Access Denied 问题">
+<meta name="twitter:description" content="Jenkin 在web操作页面添加新用户，在任务配置页面也添加了相应的权限，当新用户登录的时候，发现报错， Read: access denied 解决方法： 找到jenkins配置文件， 12[]# find / -name &amp;quot;config.xm&amp;quot;/xxx/.jenkins/config.xml  在此文件找到设置权限的地方,给新用户也添加一条 Read 记录， 123456">
 
 
 
@@ -118,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/tags/mysql/">
+  <link rel="canonical" href="http://yoursite.com/2019/11/28/jenkins-access-denied/">
 
 
 
 
 
-  <title>Tag: mysql | 我想，吃饭睡觉，走走停停</title>
+  <title>解决 Jenkins Access Denied 问题 | 我想，吃饭睡觉，走走停停</title>
   
 
 
@@ -143,7 +145,7 @@
     
   
 
-  <div class="container sidebar-position-left ">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -247,156 +249,158 @@
           <div id="content" class="content">
             
 
+  <div id="posts" class="posts-expand">
+    
+
+  
+
   
   
   
-  <div class="post-block tag">
-
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h1>mysql<small>Tag</small>
-        </h1>
-      </div>
-
-      
-        
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/28/jenkins-access-denied/">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/2019/09/18/innodb-buffer-pool/" itemprop="url">
-              
-                <span itemprop="name">InnoDB 存储引擎中 LRU List，Free List 和 Flush List</span>
-              
-            </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">解决 Jenkins Access Denied 问题</h1>
+        
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-09-18T15:37:04+08:00" content="2019-09-18">
-          09-18
-        </time>
-      </div>
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-11-28T14:16:21+08:00">
+                2019-11-28
+              </time>
+            
 
-    </header>
-  </article>
+            
 
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/09/18/mysql-storage-engine/" itemprop="url">
-              
-                <span itemprop="name">MySQL 存储引擎</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-09-18T11:22:50+08:00" content="2019-09-18">
-          09-18
-        </time>
-      </div>
-
-    </header>
-  </article>
-
+      
 
       
-        
+        <p>Jenkin 在web操作页面添加新用户，在任务配置页面也添加了相应的权限，当新用户登录的时候，发现报错， Read: access denied</p>
+<p>解决方法：</p>
+<p>找到jenkins配置文件，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[]# find / -name &quot;config.xm&quot;</span><br><span class="line">/xxx/.jenkins/config.xml</span><br></pre></td></tr></table></figure>
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+<p>在此文件找到设置权限的地方,给新用户也添加一条 Read 记录，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;authorizationStrategy class=&quot;hudson.security.ProjectMatrixAuthorizationStrategy&quot;&gt;</span><br><span class="line">   &lt;permission&gt;hudson.model.Hudson.Administer:admin&lt;/permission&gt;</span><br><span class="line">   &lt;permission&gt;hudson.model.Hudson.Read:olduser&lt;/permission&gt;</span><br><span class="line">   &lt;permission&gt;hudson.model.Hudson.Read:newuser&lt;/permission&gt;</span><br><span class="line"> &lt;/authorizationStrategy&gt;</span><br><span class="line"> &lt;securityRealm class=&quot;hudson.security.HudsonPrivateSecurityRealm&quot;&gt;</span><br></pre></td></tr></table></figure>
 
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/09/12/mysql-index/" itemprop="url">
-              
-                <span itemprop="name">mysql 喂，你的索引没有用到诶</span>
-              
-            </a>
-        
-      </h2>
+<p>配置完重启 Jenkins<br>在 url 直接 restart</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://jenkins.xxxx.cn/jenkins/restart</span><br></pre></td></tr></table></figure>
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-09-12T10:07:53+08:00" content="2019-09-12">
-          09-12
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/03/20/mysql-foreign/" itemprop="url">
-              
-                <span itemprop="name">mysql 删除 foreign key</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2018-03-20T16:33:15+08:00" content="2018-03-20">
-          03-20
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/03/06/mysql-group/" itemprop="url">
-              
-                <span itemprop="name">mysql 修改 sql_mode</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2018-03-06T16:17:37+08:00" content="2018-03-06">
-          03-06
-        </time>
-      </div>
-
-    </header>
-  </article>
-
+<p>大功告成。</p>
 
       
     </div>
+    
+    
+    
 
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Jenkins/" rel="tag"># Jenkins</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/11/26/innodb-insert-buffer/" rel="next" title="InnoDB Insert Buffer">
+                <i class="fa fa-chevron-left"></i> InnoDB Insert Buffer
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -404,6 +408,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -618,6 +626,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 

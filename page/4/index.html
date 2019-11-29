@@ -262,6 +262,130 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/22/decimal/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/06/22/decimal/" itemprop="url">decimal</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-06-22T16:42:16+08:00">
+                2018-06-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Decimal-float-double"><a href="#Decimal-float-double" class="headerlink" title="Decimal float double"></a>Decimal float double</h1><p>float 单精度说明符，double 双精度说明符。在Turbo C中单精度型占4个字节（32位）内存空间，其数值范围为3.4E-38～3.4E+38，只能提供七位有效数字。双精度型占8 个字节（64位）内存空间，其数值范围为1.7E-308～1.7E+308，可提供16位有效数字。</p>
+<p>当我们的计算需要使用更高的精度（超过17位小数）的时候</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> decimal <span class="keyword">import</span> *</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a = <span class="string">"%.30f"</span> % (<span class="number">1</span>/<span class="number">3</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a</span><br><span class="line"><span class="string">'0.333333333333333314829616256247'</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>b = Decimal(<span class="number">1</span>)/Decimal(<span class="number">3</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>b</span><br><span class="line">Decimal(<span class="string">'0.3333333333333333333333333333'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>getcontext()</span><br><span class="line">Context(prec=<span class="number">28</span>, rounding=ROUND_HALF_EVEN, Emin=<span class="number">-999999</span>, Emax=<span class="number">999999</span>, capitals=<span class="number">1</span>, clamp=<span class="number">0</span>, flags=[Inexact, FloatOperation, Rounded], traps=[InvalidOperation, DivisionByZero, Overflow])</span><br></pre></td></tr></table></figure>
+
+<p>默认的context的精度是28位，可以设置为50位甚至更高，都可以。这样在分析复杂的浮点数的时候，可以有更高的自己可以控制的精度<br>decimal 类型是适合财务和货币计算的128位数据类型</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> decimal <span class="keyword">import</span> Decimal</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a = Decimal(<span class="string">'2'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>b = <span class="number">3.45</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>c = Decimal(b)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>c</span><br><span class="line">Decimal(<span class="string">'3.45000000000000017763568394002504646778106689453125'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>d = Decimal(str(b))</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>d</span><br><span class="line">Decimal(<span class="string">'3.45'</span>)</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/08/dict-update-key/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1424,137 +1548,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/05/sqlalchemy-paginate/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/05/sqlalchemy-paginate/" itemprop="url">sqlalchemy paginate 分页</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-03-05T16:06:32+08:00">
-                2018-03-05
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>在 Flask 中，为了简化配置和操作，我们使用的 ORM 框架是 Flask-SQLAlchemy，这个 Flask 扩展封装了 SQLAlchemy 框架。</p>
-<p>sqlalchemy 中使用 query 查询，而 flask-sqlalchemy 中使用basequery 查询，他们是子类与父类的关系。</p>
-<p>本文主要进行分页操作：</p>
-<p>设定： page_num=1,page_size=50</p>
-<h1 id="用offset-设置索引偏移量-limit-限制取出量"><a href="#用offset-设置索引偏移量-limit-限制取出量" class="headerlink" title="用offset()设置索引偏移量,limit()限制取出量"></a>用offset()设置索引偏移量,limit()限制取出量</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">db.session.query(Book.name)</span><br><span class="line">\.filter_by(Book.auther=auther)</span><br><span class="line">\.order_by(Book.id.desc()</span><br><span class="line">\.limit(page_size)</span><br><span class="line">\.offset((page_num<span class="number">-1</span>)*page_size)</span><br><span class="line">\.all()</span><br></pre></td></tr></table></figure>
-
-<p>正常情况下，较高的偏移量会减慢查询速度，因为查询需要计数第一个OFFSET + LIMIT记录（并且只取其中的LIMIT ）。 该值越高，查询运行时间越长。</p>
-<p>查询不能进入OFFSET因为首先，记录的长度可能不同，其次，删除的记录可能存在差距。 它需要检查和计数每个记录的方式。</p>
-<h1 id="用slice-偏移量，取出量-函数"><a href="#用slice-偏移量，取出量-函数" class="headerlink" title="用slice(偏移量，取出量)函数"></a>用slice(偏移量，取出量)函数</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">db.session.query(Book.name)</span><br><span class="line">\.filter_by(Book.auther=auther)</span><br><span class="line">\.order_by(Book.id.desc()</span><br><span class="line">\.slice((page_num<span class="number">-1</span>)*page_size, page_size*page_page_num)</span><br><span class="line">\.all()</span><br></pre></td></tr></table></figure>
-
-<h1 id="用paginate-偏移量，取出量-函数-用于BaseQuery"><a href="#用paginate-偏移量，取出量-函数-用于BaseQuery" class="headerlink" title="用paginate(偏移量，取出量)函数,用于BaseQuery"></a>用paginate(偏移量，取出量)函数,用于BaseQuery</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">db.session.query(Book.name)</span><br><span class="line">\.filter_by(Book.auther=auther)</span><br><span class="line">\.order_by(Book.id.desc()</span><br><span class="line">\.paginate(page_num,page_size)</span><br><span class="line">\.items</span><br><span class="line"><span class="comment"># 遍历时要加上items</span></span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1607,7 +1600,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">44</span>
+                  <span class="site-state-item-count">45</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1620,7 +1613,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-count">16</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
