@@ -262,6 +262,129 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/06/add-path/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/09/06/add-path/" itemprop="url">python 添加环境路径</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-06T16:44:41+08:00">
+                2018-09-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>添加文件路径</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">sys.path.append(os.getenv(<span class="string">'EVEN_HOME'</span>))</span><br></pre></td></tr></table></figure>
+
+<p>添加环境变量 <code>EVEN_HOME</code></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/13/docker-mysql/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1406,155 +1529,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/08/time/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/08/time/" itemprop="url">time 格式转换</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-03-08T16:19:41+08:00">
-                2018-03-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Time 模块<br>time 有3种格式：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">timestamp     <span class="comment"># time.time() 时间戳  </span></span><br><span class="line">struct_time   <span class="comment"># time.gmtime() 时间元组</span></span><br><span class="line">format time   <span class="comment"># time.strftime("%Y-%m-%d %X") 格式化时间</span></span><br></pre></td></tr></table></figure>
-
-<p>他们之间互相转换格式如下：</p>
-<p><img src="https://wxt.sinaimg.cn/thumb300/b39480cdly1fr3xidj0hjj211y0kywox.jpg?tags=%5B%5D" alt></p>
-<p>生成特定格式化时间：</p>
-<p><img src="https://wxt.sinaimg.cn/thumb300/b39480cdly1fr3xidj0hjj211y0kywox.jpg?tags=%5B%5D" alt></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># format time结构化表示</span></span><br><span class="line">%a	本地（locale）简化星期名称</span><br><span class="line">%A	本地完整星期名称</span><br><span class="line">%b	本地简化月份名称</span><br><span class="line">%B	本地完整月份名称</span><br><span class="line">%c	本地相应的日期和时间表示</span><br><span class="line">%d	一个月中的第几天（<span class="number">01</span> - <span class="number">31</span>）</span><br><span class="line">%H	一天中的第几个小时（<span class="number">24</span>小时制，<span class="number">00</span> - <span class="number">23</span>）</span><br><span class="line">%I	第几个小时（<span class="number">12</span>小时制，<span class="number">01</span> - <span class="number">12</span>）</span><br><span class="line">%j	一年中的第几天（<span class="number">001</span> - <span class="number">366</span>）</span><br><span class="line">%m	月份（<span class="number">01</span> - <span class="number">12</span>）</span><br><span class="line">%M	分钟数（<span class="number">00</span> - <span class="number">59</span>）</span><br><span class="line">%p	本地am或者pm的相应符</span><br><span class="line">%S	秒（<span class="number">01</span> - <span class="number">61</span>）</span><br><span class="line">%U	一年中的星期数。（<span class="number">00</span> - <span class="number">53</span>星期天是一个星期的开始。）第一个星期天之前的所有天数都放在第<span class="number">0</span>周。</span><br><span class="line">%w	一个星期中的第几天（<span class="number">0</span> - <span class="number">6</span>，<span class="number">0</span>是星期天）</span><br><span class="line">%W	和%U基本相同，不同的是%W以星期一为一个星期的开始。</span><br><span class="line">%x	本地相应日期</span><br><span class="line">%X	本地相应时间</span><br><span class="line">%y	去掉世纪的年份（<span class="number">00</span> - <span class="number">99</span>）</span><br><span class="line">%Y	完整的年份</span><br><span class="line">%Z	时区的名字（如果不存在为空字符）</span><br><span class="line">%%	<span class="string">'%'</span>字符</span><br></pre></td></tr></table></figure>
-
-<p>元组转字符串</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">time.localtime() <span class="comment"># 元组</span></span><br><span class="line">time.strftime(<span class="string">"%Y-%m-%d %X"</span>) <span class="comment"># 字符串</span></span><br><span class="line">time.strptime(xx, <span class="string">"%Y-%m-%d %X"</span>) <span class="comment"># 转元组</span></span><br><span class="line">time.strftime(<span class="string">'%Y-%m-%d %H:%M:%S'</span>,time.localtime()) <span class="comment"># 转时间戳</span></span><br></pre></td></tr></table></figure>
-
-<p>元组转时间戳</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">time.localtime()</span><br><span class="line">time.time()</span><br><span class="line">time.localtime(time.time()) <span class="comment"># 转元组</span></span><br><span class="line">time.gmtime(time.time())    <span class="comment"># 转元祖</span></span><br><span class="line">time.mktime(time.localtime()) <span class="comment"># 转时间戳</span></span><br></pre></td></tr></table></figure>
-
-<p>字符串转时间戳</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">df = time.strftime(<span class="string">"%Y-%m-%d %X"</span>)</span><br><span class="line">time.mktime(time.strptime(dt, <span class="string">'%Y-%m-%d %H:%M:%S'</span>)) <span class="comment"># 转时间戳</span></span><br><span class="line">time.strftime(<span class="string">'%Y-%m-%d %H:%M:%S'</span>, time.localtime(time.time()))</span><br></pre></td></tr></table></figure>
-
-<p>生成特定格式字符串</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">time.asctime(time.localtime())</span><br><span class="line">time.ctime(time.time())</span><br><span class="line"><span class="comment"># 'Tue Mar 13 20:41:23 2018'</span></span><br></pre></td></tr></table></figure>
-
-<p>Datetime 模块</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">datetime.date   <span class="comment"># 年月日构成的日期(相当于日历)</span></span><br><span class="line">datetime.time   <span class="comment"># 时分秒微秒构成的一天24小时中的具体时间(相当于手表)</span></span><br><span class="line">datetime.datetime  <span class="comment"># 上面两个合在一起，既包含时间又包含日期</span></span><br></pre></td></tr></table></figure>
-
-<p>datetime.date 类</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 新建一个date对象，日期为今天，既可以直接调用datetime.date.today()，也可以直接向datetime.date()传值</span></span><br><span class="line">today = datetime.date.today()</span><br><span class="line">today.strftime(<span class="string">'%Y-%m-%d %H:%M:%S'</span>) <span class="comment"># 转字符串</span></span><br><span class="line">today.timetuple()  <span class="comment"># 转元祖</span></span><br><span class="line">time.mktime(today.timetuple()) <span class="comment"># 转时间戳</span></span><br><span class="line">datetime.date.fromtimestamp(<span class="number">1520956800</span>)     <span class="comment"># 转date对象</span></span><br></pre></td></tr></table></figure>
-
-<p>datetime.datetime类</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">datetime.today() <span class="comment">#当前本地时间的datetime对象；</span></span><br><span class="line">datetime.now([tz]) <span class="comment">#当前本地时间的datetime对象，如果提供了参数tz，则获取tz参数所指时区的本地时间；</span></span><br><span class="line">datetime.utcnow() <span class="comment">#当前utc时间的datetime对象；格林威治时间</span></span><br><span class="line">datetime.fromtimestamp(timestamp[, tz])：将时间戳转化为datetime对象，参数tz指定时区信息；</span><br><span class="line">datetime.utcfromtimestamp(timestamp)：将时间戳转化为datetime对象；</span><br><span class="line">datetime.combine(date, time)：根据date和time，创建一个datetime对象；</span><br><span class="line">datetime.strptime(date_string, format)：将格式字符串转换为datetime对象；</span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1607,7 +1581,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">47</span>
+                  <span class="site-state-item-count">48</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1620,7 +1594,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-count">19</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
