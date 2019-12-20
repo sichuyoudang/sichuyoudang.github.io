@@ -262,6 +262,182 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/19/bt-dht/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/19/bt-dht/" itemprop="url">BT 种子的实现</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-19T11:11:37+08:00">
+                2019-12-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="BT-种子"><a href="#BT-种子" class="headerlink" title="BT 种子"></a>BT 种子</h1><p>BitTorrent（简称BT）是用在对等网络中文件分享的网络协议程序，和点对点（point-to-point）的协议程序不同，它是用户群对用户群（peer-to-peer），每个下载者在下载的同时不断向其他下载者上传已下载的数据（交换数据），所以下载的人越多下载的速度越快。</p>
+<p>一个简单的 BT 种子包含了文件的名字、大小，分块后每块文件的大小、哈希值，以及 Tracker 服务器的地址，通过 Tracker 找到其他下载者的联系方式。BT 种子文件通常很小，一般大小为1GB的共享文件，其种子文件不足100KB，种子文件以.torrent为后缀。我们把下载者本身称为客户端，把其他下载者称为peer。</p>
+<h3 id="BT-客户端下载共享文件"><a href="#BT-客户端下载共享文件" class="headerlink" title="BT 客户端下载共享文件"></a>BT 客户端下载共享文件</h3><p>客户端首先解析种子文件，获取待下载的共享文件的一些信息，其中包括Tracker服务器的地址，然后连接Tracker获取当前下载该文件的所有下载者的IP和端口，之后根据IP和端口连接其他下载者，从它们那里下载文件，同时把自己已下载的部分提供给其他下载者下载。</p>
+<p>共享文件在逻辑上被划分为大小相同的块，称为piece，每个piece的大小通常为256KB。对于共享文件，文件的第1字节到第256K（即262144）字节为第一个piece，第256K＋1字节到第512K字节为第二个piece，依此类推。种子文件中包含有每个piece的hash值。BT协议规定使用Sha1算法对每个piece生成20字节的hash值，作为每个piece的指纹。每当客户端下载完一个piece时，即对该peice使用Sha1算法计算其hash值，并与种子文件中保存的该peice的hash值进行比较，如果一致即表明下载了一个完整而正确的piece。一旦某个piece被下载，该piece即提供给其他peer下载。在实际上传和下载中，每个piece又被划分为大小相同的slice，每个slice的大小固定为16KB（16384字节），peer之间每次传输以slice为单位。</p>
+<p>如上客户端下载文件时 Tracker非常重要，如果没有Tracker，那文件那就下载不了，为了解决这个问题，磁力链接应运而生。</p>
+<h1 id="磁力链接"><a href="#磁力链接" class="headerlink" title="磁力链接"></a>磁力链接</h1><p>磁力链接基于 DHT 网络技术，可以在无固定 Tracker 服务器的情况下下载，实际过程是把所有下载者都变成一个小型 Tracker服务。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">磁力链接地址：magnet:?xt=urn:btih:4D9FA761D69964B00DF0B3B0C9C1F968EA6C47D0</span><br><span class="line">magnet: 协议名</span><br><span class="line">xt: exact topic的缩写，包含文件哈希值的统一资源名称。BTIH（BitTorrent Info Hash）表示哈希方法名，这里还可以使用ED2K，AICH，SHA1和MD5等。这个值是文件的标识符，是不可缺少的。</span><br><span class="line">urn:(Uniform Resource Name, URN 表示资源名</span><br><span class="line">btih: BitTorrent info hash，种子散列函数</span><br><span class="line">4D9FA761D69964B00DF0B3B0C9C1F968EA6C47D0: 40个16进制组成的20字节的id</span><br></pre></td></tr></table></figure>
+
+<h3 id="DHT"><a href="#DHT" class="headerlink" title="DHT"></a>DHT</h3><p>DHT(distributed sloppy hash table) 分布式哈希表，存储没有 Tracker 地址的种子文件所对应的peer节点的信息，在这种情况下，每一个peer节点变成了一个 Tracker 服务器，DHT 协议是在 UDP 通信协议的基础上使用 Kademila（俗称Kad算法）算法实现。在这个系统中，每个节点（node）分别维护一部分的存储内容以及其他节点的路由/地址（路由表），使得网络中任何参与者（即节点）发生变更（进入/退出）时，对整个网络造成的影响最小。</p>
+<h3 id="Kademlia算法"><a href="#Kademlia算法" class="headerlink" title="Kademlia算法"></a>Kademlia算法</h3><p>Kad 通过独特的以异或算法（XOR）为距离度量基础，建立了一种全新的 DHT 拓扑结构，相比于其他算法，大大提高了路由查询速度。</p>
+<p>基本知识：</p>
+<ol>
+<li>Node ID 在 P2P 网络中， 节点是通过唯一 ID 来进行标识的，在原始的 Kad 算法中，使用 160-bit 哈希空间来作为 Node ID。</li>
+<li>Node Distance 每个节点保存着自己附近节点的信息，但是在 Kad 中，这个距离不是指物理距离，而是指一种逻辑距离，通过异或运算得知。</li>
+<li>K-Bucket 用一个 Bucket 来保存与当前节点距离在某个范围内的所有节点列表，比如bucket0, bucket1, bucket2 … bucketN 分别记录[1, 2), [2, 4), [4, 8), … [2^i, 2^(i+1)) 范围内的节点列表</li>
+<li>Bucket 分裂 如果初始 bucket 数量不够，则需要分裂（具体跟实现有关）</li>
+<li>路由表记录所有 buckets，每个 bucket 限制最多保存 k 个节点</li>
+<li>Update 在节点 bootstrap 过程中，需要把连接上的 peer 节点更新到自己的路由表中对应的 bucket 中</li>
+<li>查找目标节点，找到与目标节点最近的 bucket，如果已在 bucket 中，则直接返回，否则向该 bucket 中的节点发送查询请求，这些节点继续迭代查找</li>
+<li>收敛 &amp; 时间复杂度，查找会最终收敛至目标节点，整个查询过程复杂度是 LogN</li>
+</ol>
+<p><strong>距离</strong><br>01010000与01010010距离（即是2个ID的异或值）为00000010（换算为十进制即为2）；<br>01000000与00000001距离为01000001（换算为十进制即为<code>2^6 + 2^0</code>，即65）</p>
+<h4 id="路由表如何按距离分层"><a href="#路由表如何按距离分层" class="headerlink" title="路由表如何按距离分层"></a>路由表如何按距离分层</h4><p>路由表按异或距离分层，基本上可以理解为按位数分层</p>
+<p>以0000110为基础节点，如果一个节点的ID，前面所有位数都与它相同，只有最后1位不同，这样的节点只有1个——0000111，与基础节点的异或值为0000001，即距离为1；对于0000110而言，这样的节点归为“k-bucket 1”；<br>如果一个节点的ID，前面所有位数相同，从倒数第2位开始不同，这样的节点只有2个：0000101、0000100，与基础节点的异或值为0000011和0000010，即距离范围为3和2；对于0000110而言，这样的节点归为“k-bucket 2”；<br>…</p>
+<p>如果一个节点的ID，前面所有位数相同，从倒数第n位开始不同，这样的节点只有2(i-1)个，与基础节点的距离范围为[2(i-1), 2i）；对于0000110而言，这样的节点归为”k-bucket i”</p>
+<img src="/2019/12/19/bt-dht/bt1.png">
+
+<p>对上面描述的另一种理解方式：如果将整个网络的节点梳理为一个按节点ID排列的二叉树，树最末端的每个叶子便是一个节点，则下图就比较直观的展现出，节点之间的距离的关系。</p>
+<img src="/2019/12/19/bt-dht/bt2.png">
+
+<p>每个节点只维护一部分路由表，这个路由表按照距离分层，即k-bucket1, k-bucket 2, k-bucket 3…虽然每个k-bucket中实际存在的节点数量逐渐增多，但每个节点在它自己的每个k-bucket中只记录k个节点的地址与端口，这里的k是一个可调节的常量参数。</p>
+<p>由于节点ID有160位，所以每个节点的路由表中共分160层（节点共有160个k-bucket），整个网络最多可以容纳2^160个节点，但是每个节点最多只维护160 * k 个其他节点的地址与端口。</p>
+<h4 id="节点定位"><a href="#节点定位" class="headerlink" title="节点定位"></a>节点定位</h4><p>00000110（源节点） 想找到 00010000（目标节点），两者的异或距离为 00010110，距离范围在[2^4, 2^5)，所以目标节点可能在k-bucket 5中，源节点检查 k-bucket 5有没有目标节点，</p>
+<ol>
+<li>如果有，那就直接返回</li>
+<li>如果没有，在k-bucket 5里随便找一个第二个节点（注意任意第二个节点，它的id第5位肯定与目标节点相同，即它与目标节点的距离会小于2^4, 相当于比源节点，目标节点之间的距离缩短了一半以上），第二个节点在它自己的路由表里按同样的查找方式找目标节点</li>
+<li>如果找到，那就直接返回</li>
+<li>如果没有找到，那按同样的方法搜索，可以在自己的路由表里找到一个离目标节点更近的第三个节点（第三节点，目标节点之间距离小于2^3）这样依次搜索，直至找到目标节点</li>
+</ol>
+<p>Kad 的这种查询机制，有点像是将一张纸不断地对折来收缩搜索范围，保证对于任意n个节点，最多只需要查询logN 次，即可找到目标节点。</p>
+<h4 id="算法的三个参数：keyspace，k和α"><a href="#算法的三个参数：keyspace，k和α" class="headerlink" title="算法的三个参数：keyspace，k和α"></a>算法的三个参数：keyspace，k和α</h4><ol>
+<li>keyspace<br> – 即ID有多少位<br> – 决定每个节点的通讯录有几层</li>
+<li>k<br> – 每个一层k-bucket里装k个node的信息，即&lt;node ID, IP Adress, port&gt;<br> – 每次查找node时，返回k个node的信息<br> – 对于某个特定的data，离其key最近的k个节点被会要求存储这个data</li>
+<li>α<br> – 每次向其他node请求查找某个node时，会向α个node发出请求s</li>
+</ol>
+<h4 id="节点的命令"><a href="#节点的命令" class="headerlink" title="节点的命令"></a>节点的命令</h4><p>Kad 算法中，每个节点只有4个指令：</p>
+<ol>
+<li>PING – 测试一个节点是否在线</li>
+<li>STORE – 要求一个节点存储一份数据</li>
+<li>FIND_NODE – 根据节点ID查找一个节点</li>
+<li>FIND_VALUE – 根据KEY查找一个数据，实则上跟FIND_NODE非常类似</li>
+</ol>
+<h4 id="k-bucket的维护及更新机制"><a href="#k-bucket的维护及更新机制" class="headerlink" title="k-bucket的维护及更新机制"></a>k-bucket的维护及更新机制</h4><p>每个bucket里的节点都按最后一次接触的时间倒序排列<br>每次执行四个指令中的任意一个都会触发更新<br>当一个节点与自己接触时，检查它是否在K-bucket中</p>
+<pre><code>1. 如果在，那么将它挪到k-bucket列表的最底（最新）
+2. 如果不在，PING一下列表最上面（最旧）的一个节点
+2.1 如果PING通了，将旧节点挪到列表最底，并丢弃新节点
+2.2 如果PING不通，删除旧节点，并将新节点加入列表</code></pre><p>该机制保证了任意节点加入和离开都不影响整体网络。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/18/linux-disk/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1511,139 +1687,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/17/copy/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/17/copy/" itemprop="url">python 复制</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-17T11:48:40+08:00">
-                2019-09-17
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="浅复制"><a href="#浅复制" class="headerlink" title="浅复制"></a>浅复制</h1><p>复制列表</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">l1 = [<span class="number">3</span>, [<span class="number">55</span>, <span class="number">66</span>, <span class="number">77</span>], (<span class="number">88</span>, <span class="number">99</span>)]</span><br><span class="line">l2 = list(l1)</span><br><span class="line">l1.append(<span class="number">100</span>)</span><br><span class="line">l1[<span class="number">1</span>].remove(<span class="number">55</span>)</span><br><span class="line">l1      <span class="comment"># [3, [66, 77], (88, 99), 100]</span></span><br><span class="line">l2      <span class="comment"># [3, [66, 77], (88, 99)]</span></span><br><span class="line">l2[<span class="number">1</span>] += [<span class="number">33</span>, <span class="number">32</span>]</span><br><span class="line">l1      <span class="comment"># [3, [66, 77, 33, 32], (88, 99), 100]</span></span><br><span class="line">l2 		<span class="comment"># [3, [66, 77, 33, 32], (88, 99)]</span></span><br><span class="line">l2[<span class="number">2</span>] += (<span class="number">10</span>, <span class="number">11</span>) </span><br><span class="line">l1			<span class="comment"># [3, [66, 77, 33, 32], (88, 99), 100]</span></span><br><span class="line">l2 		<span class="comment"># [3, [66, 77, 33, 32], (88, 99, 10, 11)]</span></span><br></pre></td></tr></table></figure>
-
-<p>这个包含一个列表，一个元祖的列表。<br>l1追加100这个元素对l2没有影响，删除55有影响，因为l2[1]绑定的列表与l1[1]是同一个。</p>
-<p>对于可变对象来说，+= 运算符就地修改列表，这次修改在l1[1]中也有体现，因为它是l2[1]的别名。</p>
-<p>对于元祖来说，+= 运算符创建一个新元祖，然后重新绑定给变量l2[2]。这等同于l2[2] = l2[2] + (10, 11)。现在，l1 和 l2 中最后位置上的元祖不是同一个对象。</p>
-<h1 id="深复制"><a href="#深复制" class="headerlink" title="深复制"></a>深复制</h1><p>深复制，即副本不共享内部对象的引用。copy 模块提供的 deepcopy 和 copy 函数能为任意对象做深复制和浅复制。</p>
-<p>创建一个公交车上下车的类</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bus</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, passengers=None)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> passengers <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            self.passengers = []</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self.passengers = list(passengers)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pick</span><span class="params">(self, name)</span>:</span></span><br><span class="line">    	self.passengers.append(name)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">drop</span><span class="params">(self, name)</span>:</span></span><br><span class="line">    	self.passengers.remove(name)</span><br></pre></td></tr></table></figure>
-
-<p>然后创建一个实例，2个副本</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">4</span>]: <span class="keyword">import</span> copy</span><br><span class="line">In[<span class="number">5</span>]: bus1 = Bus([<span class="string">"alice"</span>, <span class="string">"bill"</span>, <span class="string">"cliare"</span>, <span class="string">"david"</span>])</span><br><span class="line">In[<span class="number">6</span>]: bus2 = copy.copy(bus1)</span><br><span class="line">In[<span class="number">7</span>]: bus3 = copy.deepcopy(bus1)</span><br><span class="line">In[<span class="number">8</span>]: id(bus1), id(bus2), id(bus3)</span><br><span class="line">Out[<span class="number">8</span>]: (<span class="number">4342669832</span>, <span class="number">4342629208</span>, <span class="number">4320004360</span>)</span><br><span class="line">In[<span class="number">9</span>]: bus1.drop(<span class="string">'bill'</span>)</span><br><span class="line">In[<span class="number">10</span>]: bus2.passengers</span><br><span class="line">Out[<span class="number">10</span>]: [<span class="string">'alice'</span>, <span class="string">'cliare'</span>, <span class="string">'david'</span>]</span><br><span class="line">In[<span class="number">11</span>]: bus3.passengers</span><br><span class="line">Out[<span class="number">11</span>]: [<span class="string">'alice'</span>, <span class="string">'bill'</span>, <span class="string">'cliare'</span>, <span class="string">'david'</span>]</span><br><span class="line">In[<span class="number">12</span>]: id(bus1.passengers), id(bus2.passengers), id(bus3.passengers)</span><br><span class="line">Out[<span class="number">12</span>]: (<span class="number">4342638088</span>, <span class="number">4342638088</span>, <span class="number">4342640520</span>)</span><br></pre></td></tr></table></figure>
-
-<p>bus1 和 bus2 共享一个列表对象，因为 bus2 是 bus1 的浅复制，bus3 是 bus1 的深复制副本，因此它的 passengers 属性指代另一个列表。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1696,7 +1739,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">48</span>
+                  <span class="site-state-item-count">49</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1709,7 +1752,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-count">20</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
