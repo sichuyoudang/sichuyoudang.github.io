@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="sqlalchemy,">
+  <meta name="keywords" content="fluent_python,">
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="子查询 subquery在一个查询语句中想要对某个字段进行计算（统计/求和），可以用子查询实现。 例如2张表，一张表Book里面是数据信息，另一个张表BookTrading里面记录每次书籍售出数据，现在要获取书籍信息以及统计每种书籍各卖了多少钱 1234trading_subquery = db.session.query(func.ifnull(func.sum(BookTrading.tota">
-<meta name="keywords" content="sqlalchemy">
+<meta name="description" content="Python 多重继承顺序任何实现多重继承的语言都要处理潜在的命名冲突，这种冲突由不相关的祖先类实现同名方法引起，这种冲突成为”菱形问题”。 flu.py 中创建 A, B, C, D 4个类, B 和 C 的差别在于输出的大小写不同: 123456789101112131415161718192021222324class A:	def ping(self):		print(&quot;ping&quot;, se">
+<meta name="keywords" content="fluent_python">
 <meta property="og:type" content="article">
-<meta property="og:title" content="sqlalchemy 查询">
-<meta property="og:url" content="http://yoursite.com/2019/08/15/sqlalchemy-query/index.html">
+<meta property="og:title" content="Python 多重继承顺序">
+<meta property="og:url" content="http://yoursite.com/2020/02/27/python-mro/index.html">
 <meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
-<meta property="og:description" content="子查询 subquery在一个查询语句中想要对某个字段进行计算（统计/求和），可以用子查询实现。 例如2张表，一张表Book里面是数据信息，另一个张表BookTrading里面记录每次书籍售出数据，现在要获取书籍信息以及统计每种书籍各卖了多少钱 1234trading_subquery = db.session.query(func.ifnull(func.sum(BookTrading.tota">
+<meta property="og:description" content="Python 多重继承顺序任何实现多重继承的语言都要处理潜在的命名冲突，这种冲突由不相关的祖先类实现同名方法引起，这种冲突成为”菱形问题”。 flu.py 中创建 A, B, C, D 4个类, B 和 C 的差别在于输出的大小写不同: 123456789101112131415161718192021222324class A:	def ping(self):		print(&quot;ping&quot;, se">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-09-18T06:55:10.215Z">
+<meta property="og:updated_time" content="2020-02-27T06:55:44.730Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="sqlalchemy 查询">
-<meta name="twitter:description" content="子查询 subquery在一个查询语句中想要对某个字段进行计算（统计/求和），可以用子查询实现。 例如2张表，一张表Book里面是数据信息，另一个张表BookTrading里面记录每次书籍售出数据，现在要获取书籍信息以及统计每种书籍各卖了多少钱 1234trading_subquery = db.session.query(func.ifnull(func.sum(BookTrading.tota">
+<meta name="twitter:title" content="Python 多重继承顺序">
+<meta name="twitter:description" content="Python 多重继承顺序任何实现多重继承的语言都要处理潜在的命名冲突，这种冲突由不相关的祖先类实现同名方法引起，这种冲突成为”菱形问题”。 flu.py 中创建 A, B, C, D 4个类, B 和 C 的差别在于输出的大小写不同: 123456789101112131415161718192021222324class A:	def ping(self):		print(&quot;ping&quot;, se">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/08/15/sqlalchemy-query/">
+  <link rel="canonical" href="http://yoursite.com/2020/02/27/python-mro/">
 
 
 
 
 
-  <title>sqlalchemy 查询 | 我想，吃饭睡觉，走走停停</title>
+  <title>Python 多重继承顺序 | 我想，吃饭睡觉，走走停停</title>
   
 
 
@@ -263,7 +263,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/15/sqlalchemy-query/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/27/python-mro/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="sichuyoudang">
@@ -280,7 +280,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">sqlalchemy 查询</h1>
+          <h1 class="post-title" itemprop="name headline">Python 多重继承顺序</h1>
         
 
         <div class="post-meta">
@@ -292,8 +292,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-15T17:14:02+08:00">
-                2019-08-15
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-02-27T14:53:42+08:00">
+                2020-02-27
               </time>
             
 
@@ -330,19 +330,28 @@
       
 
       
-        <h1 id="子查询-subquery"><a href="#子查询-subquery" class="headerlink" title="子查询 subquery"></a>子查询 subquery</h1><p>在一个查询语句中想要对某个字段进行计算（统计/求和），可以用子查询实现。</p>
-<p>例如2张表，一张表<code>Book</code>里面是数据信息，另一个张表<code>BookTrading</code>里面记录每次书籍售出数据，现在要获取书籍信息以及统计每种书籍各卖了多少钱</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">trading_subquery = db.session.query(func.ifnull(func.sum(BookTrading.total_price),0)\</span><br><span class="line">		.filter(BookTrading.book_id == Book.id, BookTrading.status&gt;0)\</span><br><span class="line">		.correlate(Book).as_scalar()</span><br><span class="line">book_query = db.session.query(Book, trading_subquery).filter(Book.status&gt;0).all()</span><br></pre></td></tr></table></figure>
+        <h1 id="Python-多重继承顺序"><a href="#Python-多重继承顺序" class="headerlink" title="Python 多重继承顺序"></a>Python 多重继承顺序</h1><p>任何实现多重继承的语言都要处理潜在的命名冲突，这种冲突由不相关的祖先类实现同名方法引起，这种冲突成为”菱形问题”。</p>
+<p>flu.py 中创建 A, B, C, D 4个类, B 和 C 的差别在于输出的大小写不同:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">ping</span><span class="params">(self)</span>:</span></span><br><span class="line">		print(<span class="string">"ping"</span>, self)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span><span class="params">(A)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">pong</span><span class="params">(self)</span>:</span></span><br><span class="line">		print(<span class="string">"pong"</span>, self)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">C</span><span class="params">(A)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">pong</span><span class="params">(self)</span>:</span></span><br><span class="line">		print(<span class="string">"PONG"</span>, self) </span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">D</span><span class="params">(B, C)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">ping</span><span class="params">(self)</span>:</span></span><br><span class="line">		super().ping()</span><br><span class="line">		print(<span class="string">"post_ping"</span>, self)</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">pingpong</span><span class="params">(self)</span>:</span></span><br><span class="line">		self.ping()</span><br><span class="line">		super().ping()</span><br><span class="line">		self.pong()</span><br><span class="line">		super().pong()</span><br><span class="line">		C.pong(self)</span><br></pre></td></tr></table></figure>
 
-<p><code>User</code> 一个用户的介绍人，及其介绍的数量</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">subquery = db.session.query(User.introducer_id, func.count(&apos;*&apos;).label(&apos;introduce_count&apos;)).group_by(User.introducer_id).subquery()</span><br><span class="line"></span><br><span class="line">db.session.query(User.name, subquery.c.introduce_count).outerjoin(subquery, User.id==subquery.c.introducer_id).all()</span><br></pre></td></tr></table></figure>
+<p>在D 实例上调用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> flu <span class="keyword">import</span> *</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>d =D()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>d.pong()  <span class="comment">#1</span></span><br><span class="line">pong &lt;flu.D object at <span class="number">0x106748290</span>&gt;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>C.pong(d) <span class="comment">#2</span></span><br><span class="line">PONG &lt;flu.D object at <span class="number">0x106748290</span>&gt;</span><br></pre></td></tr></table></figure>
 
-<h1 id="合并查询-union"><a href="#合并查询-union" class="headerlink" title="合并查询 union"></a>合并查询 union</h1><p>例如2张表，<code>TMOrder</code> 和 <code>JDOrder</code> 2张表存储的字段部分相同，现在我需要取2个表的数据合并且根据创建时间进行排序</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">tm_query = db.session.query(TMOrder.id.label(&quot;order_id&quot;),</span><br><span class="line">			    TMOrder.price.label(&quot;order_price&quot;),</span><br><span class="line">			    TMOrder.create_time.label(&quot;create_time&quot;)),</span><br><span class="line">			    func.ifnull(None, 1).label(&quot;shop_type&quot;)\</span><br><span class="line">			    .filter(TMOrder.user_id=1)</span><br><span class="line">		</span><br><span class="line">jd_query = db.session.query(JDOrder.id.label(&quot;order_id&quot;),</span><br><span class="line">		       	JDOrder.price.label(&quot;order_price&quot;),</span><br><span class="line">		       	JDOrder.create_time.label(&quot;create_time&quot;)),</span><br><span class="line">		       	func.ifnull(None, 2).label(&quot;shop_type&quot;)\</span><br><span class="line">		       	.filter(TMOrder.user_id=1)</span><br><span class="line">									  </span><br><span class="line">total_order_query = union(course_query, training_query).alias(&apos;order&apos;)</span><br><span class="line"></span><br><span class="line">order_query = db.session.query(total_order_query).order_by(total_order_query.c.create_time())</span><br></pre></td></tr></table></figure>
+<p>如上，#1 直接调用d.pong 用的是B 类中的版本， #2 超类中的方法都可以直接调用，此时要把实例作为显示参数传入。</p>
+<p>Python 能区分 d.pong() 调用的是哪个方法，是因为 Python 会按照特定的顺序遍历，这个顺序叫方法解析顺序（Method Resolution Order，MRO）。类都有一个 <code>__mro__</code> 属性，它的值是一个元祖，按照方法解析顺序列出各个超类，从当前类一直往上，直到 object 类。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>D.__mro__</span><br><span class="line">(&lt;class 'flu.D'&gt;, &lt;class 'flu.B'&gt;, &lt;class 'flu.C'&gt;, &lt;class 'flu.A'&gt;, &lt;class 'object'&gt;)</span><br></pre></td></tr></table></figure>
 
-<h1 id="多条件查询对应常量-case"><a href="#多条件查询对应常量-case" class="headerlink" title="多条件查询对应常量 case"></a>多条件查询对应常量 case</h1><p>例如查询<code>Book</code> 是否有销量 <code>BookTrading</code></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">trading_subquery = db.session.query(func.count())\</span><br><span class="line">		.filter(BookTrading.book_id == Book.id, BookTrading.status&gt;0)\</span><br><span class="line">		.correlate(Book).as_scalar()</span><br><span class="line">book_query = db.session.query(Book, case(whens=((trading_subquery, 1),), else_=0).label(&quot;is_selled&quot;)).filter(Book.status&gt;0).all()</span><br></pre></td></tr></table></figure>
+<p>若想把超类调用委托给超类，推荐方式是使用内置的 <code>super()</code> 函数，在 Python3 中，这种方式很容易，如上面的D类的 pingpong方法所示。然而有时可能需要绕过方法解析，直接调用某个超类的方法，这样做更方便:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ping</span><span class="params">(self)</span>:</span></span><br><span class="line">    A.ping()    <span class="comment"># 而不是super().ping()</span></span><br><span class="line">    print(<span class="string">"post_ping"</span>, self)</span><br></pre></td></tr></table></figure>
 
+<p><strong>注意</strong>，直接在类上调用实例时，必须显示传入 self 参数，因为这样访问的是<code>未绑定方法</code>。然而使用<code>super()</code> 最安全，也不易过时，调用框架或不受自己控制的类层次结构中的方法时，尤其适合使用<code>super()</code>。使用<code>super()</code>调用方法时，会遵守MRO，如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>d.ping()</span><br><span class="line">ping &lt;flu.D object at <span class="number">0x106748290</span>&gt;</span><br><span class="line">post_ping &lt;flu.D object at <span class="number">0x106748290</span>&gt;</span><br></pre></td></tr></table></figure>
+
+<p>D类的ping方法做了两次调用，第一次调用 super().ping(), super 函数把ping调用委托给A类，由A.ping 输出，第二个调用是 print(“post_ping”, self)。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; d.pingpong()</span><br><span class="line">ping &lt;flu.D object at 0x106748290&gt;  #1</span><br><span class="line">post_ping &lt;flu.D object at 0x106748290&gt;</span><br><span class="line">ping &lt;flu.D object at 0x106748290&gt;  #2</span><br><span class="line">pong &lt;flu.D object at 0x106748290&gt;  #3</span><br><span class="line">pong &lt;flu.D object at 0x106748290&gt;  #4</span><br><span class="line">PONG &lt;flu.D object at 0x106748290&gt;  #5</span><br></pre></td></tr></table></figure>
+
+<p>第一个调用是 self.ping()，运行的是 D 类的 ping 方法，输出这一行和下一行<br>第二个调用是 super().ping()， 跳过 D 类的 ping 方法，找到 A 类的 ping 方法<br>第三个调用是 self.pong()，根据 <code>__mro__</code> 找到的是 B 类实现的 pong 方法<br>第四个调用是 super().pong()， 也根据 <code>__mro__</code> 找到的是 B 类实现的 pong 方法<br>第五个调用是 C.pong(self)， 忽略 <code>__mro__</code> 找到的是 C 类实现的 pong 方法</p>
+<p>子类声明中列出的超类顺序会影响方法解析顺序，例如把 D 类声明为 class D(C, B)，那么 D 类的 <code>__mro__</code> 属性就会不一样，会先搜索C类，再搜索 B 类。</p>
 
       
     </div>
@@ -360,7 +369,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/sqlalchemy/" rel="tag"># sqlalchemy</a>
+            <a href="/tags/fluent-python/" rel="tag"># fluent_python</a>
           
         </div>
       
@@ -373,8 +382,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/08/08/python3-groupby/" rel="next" title="python3 通过 itertools.groupby 进行分组">
-                <i class="fa fa-chevron-left"></i> python3 通过 itertools.groupby 进行分组
+              <a href="/2019/12/19/bt-dht/" rel="next" title="BT 种子的实现">
+                <i class="fa fa-chevron-left"></i> BT 种子的实现
               </a>
             
           </div>
@@ -382,10 +391,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/08/23/tuple/" rel="prev" title="元组">
-                元组 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -510,7 +515,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#子查询-subquery"><span class="nav-number">1.</span> <span class="nav-text">子查询 subquery</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#合并查询-union"><span class="nav-number">2.</span> <span class="nav-text">合并查询 union</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#多条件查询对应常量-case"><span class="nav-number">3.</span> <span class="nav-text">多条件查询对应常量 case</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Python-多重继承顺序"><span class="nav-number">1.</span> <span class="nav-text">Python 多重继承顺序</span></a></li></ol></div>
             
 
           </div>
