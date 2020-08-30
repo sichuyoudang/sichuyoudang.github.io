@@ -262,6 +262,294 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/28/jenkins-access-denied/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/28/jenkins-access-denied/" itemprop="url">解决 Jenkins Access Denied 问题</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-11-28T14:16:21+08:00">
+                2019-11-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Jenkin 在web操作页面添加新用户，在任务配置页面也添加了相应的权限，当新用户登录的时候，发现报错， Read: access denied</p>
+<p>解决方法：</p>
+<p>找到jenkins配置文件，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[]# find / -name &quot;config.xm&quot;</span><br><span class="line">/xxx/.jenkins/config.xml</span><br></pre></td></tr></table></figure>
+
+<p>在此文件找到设置权限的地方,给新用户也添加一条 Read 记录，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;authorizationStrategy class=&quot;hudson.security.ProjectMatrixAuthorizationStrategy&quot;&gt;</span><br><span class="line">   &lt;permission&gt;hudson.model.Hudson.Administer:admin&lt;/permission&gt;</span><br><span class="line">   &lt;permission&gt;hudson.model.Hudson.Read:olduser&lt;/permission&gt;</span><br><span class="line">   &lt;permission&gt;hudson.model.Hudson.Read:newuser&lt;/permission&gt;</span><br><span class="line"> &lt;/authorizationStrategy&gt;</span><br><span class="line"> &lt;securityRealm class=&quot;hudson.security.HudsonPrivateSecurityRealm&quot;&gt;</span><br></pre></td></tr></table></figure>
+
+<p>配置完重启 Jenkins<br>在 url 直接 restart</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://jenkins.xxxx.cn/jenkins/restart</span><br></pre></td></tr></table></figure>
+
+<p>大功告成。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/26/innodb-insert-buffer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/26/innodb-insert-buffer/" itemprop="url">InnoDB Insert Buffer</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-11-26T14:37:02+08:00">
+                2019-11-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Insert-Buffer"><a href="#Insert-Buffer" class="headerlink" title="Insert Buffer"></a>Insert Buffer</h1><p>在 Innodb 存储引擎中，主键是行唯一的标识符。通常应用程序中行记录的插入顺序是按照主键递增的顺序进行插入的，因此，插入聚集索引（Primary key）一般是顺序的，不需要磁盘的随机读取。</p>
+<blockquote>
+<p>mysql的innodb表，其聚集索引相当于整张表，而整张表也是聚集索引。默认通过主键聚集数据，如果没有定义主键，则选择第一个非空的唯一索引，如果没有非空唯一索引，则选择rowid来作为聚集索引。</p>
+<p>辅助索引：辅助索引中索引的逻辑顺序与磁盘上行的物理存储顺序不同，一个表中可以拥有多个非聚集索引。叶子节点并不包含行记录的全部数据。叶子节点除了包含键值以外，还存储了一个指向改行数据的聚集索引建的书签。</p>
+<p>所以非聚集索引有二次查询的问题，非聚集索引叶节点仍然是索引节点，只是有一个指针指向对应的数据块，因此如果使用非聚集索引查询，而查询列中包含了其他该索引没有覆盖的列，那么他还要进行第二次的查询，查询节点上对应的数据行的数据。</p>
+</blockquote>
+<p>不是所有的主键插入都是顺序的，如果主键类是uuid这样的类，那么插入和辅助索引一样，是随机的。即使主键是自增类型，但是插入的是指定的值，而不是NULL值，那么同样可能导致插入并非连续的情况。</p>
+<p>不是张表上只有一个聚集索引，更多情况下，一张表上有多个非聚集的辅助索引（Secondary index）,例如用户需要按照b这个字段进行查找，并且b这个字段不是唯一的:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE t (a INT AUTO_INCREMENT, b VARCHAR(30), PRIMARY KEY(a), key(b) );</span><br></pre></td></tr></table></figure>
+
+<p>在这样的情况下产生了一个非聚聚的且不是唯一的索引。在进行插入操作时，数据页的存放还是按主键a进行顺序存放的，但是对于非聚集索引叶子结点的插入不再是顺序的了，这时就需要离散地访问非聚集索引页，由于随机读取芳存在而导致了插入操作性能下降。当然这不是b这个字段索引的错误，而是因为B+ 树的特性决定了非聚聚索引插入的离散型。</p>
+<blockquote>
+<p>B树：二叉树，每个结点只存储一个关键字，等于则命中，小于走左结点，大于走右结点；<br>B-树：多路搜索树，每个结点存储M/2到M个关键字，非叶子结点存储指向关键字范围的子结点；所有关键字在整颗树中出现，且只出现一次，非叶子结点可以命中；<br>B+树：在B-树基础上，为叶子结点增加链表指针，所有关键字都在叶子结点中出现，非叶子结点作为叶子结点的索引；B+树总是到叶子结点才命中；</p>
+</blockquote>
+<p>在某些情况下，辅助索引的插入也是比较顺序的，比如用户购买表中的时间字段，通常情况下，用户购买时间时一个辅助索引，用来根据时间条件进行查询，但是在插入时却是根据时间的递增而插入的，因此插入也是比较顺序的。</p>
+<p>InnoDB 存储引擎开创性设计了 Insert Buffer，对于非聚集索引的插入或者 更新操作，不是每一个直接插入到索引页中，而是先判断插入到非聚集索引页是否在缓冲池中，若在，则直接插入，若不在，则先放入到一个<br>Insert Buffer 对象中，好似欺骗。数据库这个非聚集到索引已经抽到叶子结点，而实际上并没有，只是存放在另一个位置。然后再以一定的频率和情况进行 Insert Buffer 和辅助索引子节点的 merge(合并)操作，这时通常能将多个插入合并到一个操作中（因为在一个索引页中），这就大大提高了对于非聚集索引插入到性能。</p>
+<p>然而 Insert Buffer 的使用需要同时满足以下两个条件：</p>
+<ol>
+<li>索引时辅助索引</li>
+<li>索引不是唯一的</li>
+</ol>
+<p>当满足了以上两个条件时， InnoDB 存储引擎会使用 Insert Buffer，这样就能提供插入操作的性能了，不过考虑这样一种情况：应用程序进行大量的插入操作，这些都涉及了不唯一的非聚集索引，也就是使用了 Insert Buffer。若此时 Mysql 数据库发生宕机，这是必有大量的 Insert Buffer 并没有合并到实际的非聚集索引中去。因此这时恢复可能需要很长时间，在极端情况下甚至需要几个小时。</p>
+<p>辅助索引不能是唯一的，因为在插入缓存时，数据库并不去查找索引页来判断插入的记录的唯一性。如果去查找肯定又会有离散读取的情况发生，从而导致 Insert Buffer 失去了意义。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; show engine innodb status;</span><br><span class="line">-------------------------------------</span><br><span class="line">INSERT BUFFER AND ADAPTIVE HASH INDEX</span><br><span class="line">-------------------------------------</span><br><span class="line">Ibuf: size 7545, free list len 3790, seg size 11336,</span><br><span class="line">8075308 inserts, 7540969 merged recs, 2246304 merges</span><br></pre></td></tr></table></figure>
+
+<p>seg size 显示了当前 Insert Buffer 的大小为 11336*16KB，free list len 代表了空闲列表的长度，size 代表了已经合并记录页的数量。inserts 代表了插入的记录数，merged recs 代表了合并的插入记录数量；merges 代表了合并的次数，也就是实际读取页的次数，merges: merged recs 大约为1:3，代表了插入缓存将对于非聚集索引页的离散 IO 逻辑请求大约降低了2/3。</p>
+<p>目前 Insert Buffer 存在一个问题，在写密集的情况下，插入缓冲会占用过多的缓冲内存，默认最大可以占用到1/2 的缓冲池内存。因此可以修改 IBUF_POOL_SIZE_PER_MAX_SIZE 就可以对插入缓冲的大小进行控制。比如将 IBUF_POOL_SIZE_PER_MAX_SIZE 改为3，则最大只能使用1/3 的缓冲池内存。</p>
+<h1 id="Change-Buffer"><a href="#Change-Buffer" class="headerlink" title="Change Buffer"></a>Change Buffer</h1><p>从 1.0.x 版本开始引入 Change Buffer，可看作 Insert Buffer 的升级。从该版本起，InnoDB 存储引擎可以对DML操作—INSERT, DELETE,UPDATE 的进行缓冲，他们分别是Insert Buffer,Delete Buffer, Purge Buffer。</p>
+<p>Change Buffer 适用的对象依然是唯一的辅助索引，对一条记录 UPDATE 操作可分为两个过程:</p>
+<ol>
+<li>将记录标记为已删除</li>
+<li>真正将记录删除</li>
+</ol>
+<p>Delete Buffer 对应的 UPDATE 操作的第一个过程，即将记录标记为删除。Purge Buffer 对应UPDATE 操作的第二个过程，即将记录真正删除。同时InnoDB 存储引擎提供了参数 innodb_change_buffering，用来开启各种 Buffer 的选项。该参数可选值为 inserts, deletes, purges, changes, all, none。inserts, deletes, purges 就是前面讨论的三种情况。change 表示启用 inserts 和 deletes，all 表示所有，none 表示都不启用，默认为all。</p>
+<p>从InnoDB 1.2.x 开始，可以通过参数 innodb_change_buffer_max_size 来控制 Change Buffer 最大使用内存的数量。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like &quot;innodb_change_buffer_max_size&quot;;</span><br><span class="line">+-------------------------------+-------+</span><br><span class="line">| Variable_name                 | Value |</span><br><span class="line">+-------------------------------+-------+</span><br><span class="line">| innodb_change_buffer_max_size | 25    |</span><br><span class="line">+-------------------------------+-------+</span><br><span class="line">1 row in set (0.01 sec)</span><br></pre></td></tr></table></figure>
+
+<p>innodb_change_buffer_max_size 默认值是 25，表示最多使用1/4的缓冲池内存空间，需要注意，该参数的最大有效值为50。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/29/python-attribute/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1417,281 +1705,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/26/mapping/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/08/26/mapping/" itemprop="url">映射</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-26T16:43:04+08:00">
-                2019-08-26
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Python 标准库里的所有映射关系都是利用dict 实现的，因此他们有个共同的限制，即只有可散列的数据类型才能用这座这些映射里的键（值不做此要求）。</p>
-<p><strong>可散列的数据类型</strong></p>
-<p>如果一个对象是可散列的，那么在这个对象的生命周期中，他的散列值是不变的，而且这个对象需要实现<code>__hasn__()</code> 方法，另外可散列对象还要有 <code>__eq__()</code>方法，这样才能和其他键做比较。如果两个可散列对象是相等的，那么他们的散列值一定是一样的。</p>
-<p>原子不可变数据类型（str， bytes和数值类型）都是可散列类型，frozenset 也是可散列的，因为根据其定义，frozenset 里只能容纳可散列类型。元组的话，只有当一个元组包含的所有元素都是可散列类型的情况下，他才是可散列的。</p>
-<p><strong>散列表</strong></p>
-<p>散列表其实是一个稀疏数组（总是有空白元素的数组称为稀疏数组），在一般的数据结构教材中，散列表里的单元通常叫做表元。在dict的散列表中，每个键值对都占用一个表元，每个表元分2部分，一个是对键的引用，另一个是对值的引用，因为所有表元的大小一致，所以可以通过偏移量来读取某个表元。</p>
-<p>因为 Python 会设法保证大概还有三分之一的表元是空的，所以在快要达到这个阈值的时候，原有的散列列表会被复制到一个更大的空间里面。</p>
-<p><strong>散列值和相等性</strong></p>
-<p>如果两个对象在比较时候是相等的那么他们的散列值也必须相等，否则散列表就不能正常运行了。为了让散列值能够胜任散列表索引这一角色，它们必须在索引空间中尽量分散开来。这意味着在最理想状况下，越是想似但不相等的对象，它们散列值差别越大。</p>
-<p><strong>散列算法</strong></p>
-<p>为了获取 my_dict[search_key] 背后的值，Python 首先会调用 hash(search_key) 来计算search_key 的散列值，把这个值最低的几位数字当作偏移量，在散列表里查找表元（具体取几位，得看当前散列表的大小）。若找到的表元是空的，则抛出 Keyerror 异常。若不是空的，则表元里会有一对 found_key: found_value。这时候 Python 会检验 search_key==found_key 是否为真，如果它们相等的话，会返回 found_value。</p>
-<p>如果 search_key 和 found_key 不匹配的话，这种情况称为<code>散列冲突</code>，发生这种情况是因为，散列表所做的其实是把随机的元素映射到只有几位的数字上，而散列表本身的索引又只依赖于这个数字的一部分。为了解决散列冲突，算法会在散列值中另外再取几位，然后用特殊的方式处理一下，把新得到的数字在当作索引来寻找表元。若这次找到的表元是空的，则同样抛出 Keyerror, 若非空，或者键匹配，则返回这个值，或者又发现了散列冲突，则重复以上的步骤。</p>
-<p>添加新元素和更新现有键值的操作几乎跟上面一样。只不过对于前者，在发现空表元的时候会放入一个新元素；对于后者，在找到相对应的表元后，原表里的值对象会被替换成新值。</p>
-<p>另外在插入新值时，Python 可能会按照散列表的拥挤程度来决定是否要重新分配内存为它扩容。如果新增了散列表的大小，那散列表所占的位数和用作索引的位数都会随之增加，这样做的目的是为了减少发生散列冲突的概率。</p>
-<p>表面上看，这个算法似乎很费事，但实际就算 dict 里面有数百位元素，多数的搜索中并不会有冲突发生，平均下来每次搜索可能会有一到两次冲突。在正常情况下，就算是最不走运的键所遇到的冲突次数用一只手也能数过来。</p>
-<p><strong>字典内存开销巨大</strong></p>
-<p>由于字典使用散列表，而散列表又必须是稀疏的，这导致他在空间上发效率低下。例如如果你需要存放数量巨大的记录，那么放在元组或是具名元组构成的列表中会是比较好的选择，最好不要根据JSON的风格，用由字典组成的列表来存放这些记录。用元组取代字典就能节省空间的原因有两个，一是为了避免散列表所耗费的空间，二是无需把记录中字段的名字在每个元素里都存一遍。</p>
-<p>dict 的实现是典型否空间换时间。字典类型有着巨大的内存开销，但他们提供了无视数据量大小的快速访问–只要字典能被装在内存里。</p>
-<p><strong>往字典里面添新值可能改变已有键顺序</strong></p>
-<p>无论何时往字典里面添加新键，Python 解释器都可能做出为字典扩容的决定。扩容导致的结果就是要新建一个更大的散列表，并把字典里已有的元素添加到新表里。这个过程中可能会发生散列冲突，导致新散列表中键的次序变化。要注意的是，上面提到的这些变化是否会发生以及如何发生，都依赖于字典背后的具体实现，因此你不能很自信地说出自己知道背后发生了什么。如果你在迭代一个字典的所有键的过程中同时对字典进行修改，那么这个循环很有可能会跳过一些键–甚至是跳过那些字典中已经有的键。</p>
-<p>由此可知，不要对字典同时进行迭代和修改。如果你想扫描并修改一个字典，最好分成两步来进行，首先对字典迭代，以得出需要添加的内容，把这些内容放在一个新字典里，迭代结束之后再对原有字典进行更新。</p>
-<p><strong>set实现以及导致的结果</strong></p>
-<p>set 和 frozenset 的实现也依赖散列表，但在它们散列表里存放的只有元素的引用（就像在字典里只存放键而没有相应的值）。在 set 加入到 Python 之前，我们都是把字典加上无意义的值当作集合来用。集合的特点:</p>
-<ol>
-<li>集合的元素必须是可散列的</li>
-<li>集合很消耗内存</li>
-<li>可以很高效的判断元素被添加到集合里的次序</li>
-<li>元素的次序取决于被添加到集合里的次序</li>
-<li>往集合里面添加元素，可能会改变集合里已有元素的次序</li>
-</ol>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/23/tuple/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/08/23/tuple/" itemprop="url">元组</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-23T14:14:12+08:00">
-                2019-08-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="元组"><a href="#元组" class="headerlink" title="元组"></a>元组</h1><p>元组不仅仅是”不可变列表”, 还是用于没有字段名的记录，把它作为一些字段的集合，可以利用它的数量和位置是固定的特征。</p>
-<p><strong>元组拆包</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; a = (&quot;peter&quot;, 12, &quot;江苏&quot;, &quot;南京&quot;)</span><br><span class="line">&gt;&gt;&gt; name, age, *city = a</span><br><span class="line">&gt;&gt;&gt; city</span><br><span class="line">[&apos;江苏&apos;, &apos;南京&apos;]</span><br></pre></td></tr></table></figure>
-
-<p><strong>具名元组</strong><br>collection.nametuple 是一个工厂函数，它可以构建一个带字段名的元组和一个有名字的类。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; from collections import namedtuple</span><br><span class="line">&gt;&gt;&gt; User = namedtuple(&quot;User&quot;,&quot;name age city&quot;)</span><br><span class="line">&gt;&gt;&gt; user = User(&quot;peter&quot;, 18, (&quot;江苏&quot;, &quot;南京&quot;))</span><br><span class="line">&gt;&gt;&gt; user.city</span><br><span class="line">(&apos;江苏&apos;, &apos;南京&apos;)</span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1744,7 +1757,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">53</span>
+                  <span class="site-state-item-count">55</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

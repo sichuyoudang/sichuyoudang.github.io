@@ -262,6 +262,483 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/19/logging/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/09/19/logging/" itemprop="url">logging 配置</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-19T18:25:33+08:00">
+                2018-09-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>日志记录软件运行中发生的的事件，其中包括（产生时间，产生位置，日志等级，内容）。<br>其中日志等级如下：</p>
+<table>
+<thead>
+<tr>
+<th>日志等级</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CRITICAL</td>
+<td>当发生严重错误，导致应用程序不能继续运行时记录的信息</td>
+</tr>
+<tr>
+<td>ERROR</td>
+<td>由于一个更严重的问题导致某些功能不能正常运行时记录的信息</td>
+</tr>
+<tr>
+<td>WARNING</td>
+<td>当某些不期望的事情发生时记录的信息（如，磁盘可用空间较低），但是此时应用程序还是正常运行的</td>
+</tr>
+<tr>
+<td>INFO</td>
+<td>信息详细程度仅次于DEBUG，通常只记录关键节点信息，用于确认一切都是按照我们预期的那样进行工作</td>
+</tr>
+<tr>
+<td>DEBUG</td>
+<td>最详细的日志信息，典型应用场景是 问题诊断</td>
+</tr>
+</tbody></table>
+<p>默认的日志级别设置为WARNING（日志级别等级CRITICAL &gt; ERROR &gt; WARNING &gt; INFO &gt; DEBUG &gt; NOTSET)</p>
+<p>简单输出</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span><br><span class="line">logging.debug(<span class="string">'This is debug message'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>输出日志到文件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span><br><span class="line">logging.basicConfig(level=logging.DEBUG, </span><br><span class="line">							format=<span class="string">'%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s'</span>,</span><br><span class="line">							filename=<span class="string">'app.log'</span>,</span><br><span class="line">							filemode=<span class="string">'a'</span>)</span><br><span class="line">logging.debug(<span class="string">'This is debug message'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>其中logging.basicConfig(**kwargs)函数用于指定”要记录的日志级别”、”日志格式”、”日志输出位置”、”日志文件的打开模式”等信息，其他几个都是用于记录各个级别日志的函数。</p>
+<table>
+<thead>
+<tr>
+<th>参数名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>filename</td>
+<td>指定日志输出目标文件的文件名，指定该设置项后日志信心就不会被输出到控制台了</td>
+</tr>
+<tr>
+<td>filemode</td>
+<td>指定日志文件的打开模式，默认为’a’。需要注意的是，该选项要在filename指定时才有效</td>
+</tr>
+<tr>
+<td>format</td>
+<td>指定日志格式字符串，即指定日志输出时所包含的字段信息以及它们的顺序。logging模块定义的格式字段下面会列出。</td>
+</tr>
+<tr>
+<td>datefmt</td>
+<td>指定日期/时间格式。需要注意的是，该选项要在format中包含时间字段%(asctime)s时才有效</td>
+</tr>
+<tr>
+<td>level</td>
+<td>指定日志器的日志级别</td>
+</tr>
+<tr>
+<td>stream</td>
+<td>指定日志输出目标stream，如sys.stdout、sys.stderr以及网络stream。需要说明的是，stream和filename不能同时提供，否则会引发 ValueError异常</td>
+</tr>
+<tr>
+<td>style</td>
+<td>Python 3.2中新添加的配置项。指定format格式字符串的风格，可取值为’%’、’{‘和’$’，默认为’%’</td>
+</tr>
+<tr>
+<td>handlers</td>
+<td>Python 3.3中新添加的配置项。该选项如果被指定，它应该是一个创建了多个Handler的可迭代对象，这些handler将会被添加到root logger。需要说明的是：filename、stream和handlers这三个配置项只能有一个存在，不能同时出现2个或3个，否则会引发ValueError异常。</td>
+</tr>
+</tbody></table>
+<p>format 格式字符串中字段如下：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>使用格式</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>asctime</td>
+<td>%(asctime)s</td>
+<td>日志事件发生的时间–人类可读时间，如：2003-07-08 16:49:45,896</td>
+</tr>
+<tr>
+<td>created</td>
+<td>%(created)f</td>
+<td>日志事件发生的时间–时间戳，就是当时调用time.time()函数返回的值</td>
+</tr>
+<tr>
+<td>relativeCreated</td>
+<td>%(relativeCreated)d</td>
+<td>日志事件发生的时间相对于logging模块加载时间的相对毫秒数（目前还不知道干嘛用的）</td>
+</tr>
+<tr>
+<td>msecs</td>
+<td>%(msecs)d</td>
+<td>日志事件发生事件的毫秒部分</td>
+</tr>
+<tr>
+<td>levelname</td>
+<td>%(levelname)s</td>
+<td>该日志记录的文字形式的日志级别（’DEBUG’, ‘INFO’, ‘WARNING’, ‘ERROR’, ‘CRITICAL’）</td>
+</tr>
+<tr>
+<td>levelno</td>
+<td>%(levelno)s</td>
+<td>该日志记录的数字形式的日志级别（10, 20, 30, 40, 50）</td>
+</tr>
+<tr>
+<td>name</td>
+<td>%(name)s</td>
+<td>所使用的日志器名称，默认是’root’，因为默认使用的是 rootLogger</td>
+</tr>
+<tr>
+<td>message</td>
+<td>%(message)s</td>
+<td>日志记录的文本内容，通过 msg % args计算得到的</td>
+</tr>
+<tr>
+<td>pathname</td>
+<td>%(pathname)s</td>
+<td>调用日志记录函数的源码文件的全路径</td>
+</tr>
+<tr>
+<td>filename</td>
+<td>%(filename)s</td>
+<td>pathname的文件名部分，包含文件后缀</td>
+</tr>
+<tr>
+<td>module</td>
+<td>%(module)s</td>
+<td>filename的名称部分，不包含后缀</td>
+</tr>
+<tr>
+<td>lineno</td>
+<td>%(lineno)d</td>
+<td>调用日志记录函数的源代码所在的行号</td>
+</tr>
+<tr>
+<td>funcName</td>
+<td>%(funcName)s</td>
+<td>调用日志记录函数的函数名</td>
+</tr>
+<tr>
+<td>process</td>
+<td>%(process)d</td>
+<td>进程ID</td>
+</tr>
+<tr>
+<td>processName</td>
+<td>%(processName)s</td>
+<td>进程名称，Python 3.1新增</td>
+</tr>
+<tr>
+<td>thread</td>
+<td>%(thread)d</td>
+<td>线程ID</td>
+</tr>
+<tr>
+<td>threadName</td>
+<td>%(thread)s</td>
+<td>线程名称</td>
+</tr>
+</tbody></table>
+<p>定义FileHandler，输出到指定格式的日志文件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span><br><span class="line">errmsg = <span class="string">'xx'</span></span><br><span class="line"><span class="comment"># 创建一个日志器logger并设置其日志级别为DEBUG</span></span><br><span class="line">logger = logging.getLogger()</span><br><span class="line">logger.setLevel(logging.DEBUG)</span><br><span class="line"><span class="comment"># 创建一个处理器将日志消息发送到磁盘文件,并设置其日志级别为DEBUG</span></span><br><span class="line">fh = logging.FileHandler(<span class="string">'/var/log/supervisor/Even_login_err.log'</span>)</span><br><span class="line">formatter = logging.Formatter(<span class="string">'%(asctime)s - %(name)s - %(levelname)s - %(message)s'</span>)</span><br><span class="line">fh.setFormatter(formatter)</span><br><span class="line">logger.addHandler(fh)</span><br><span class="line">logger.debug(errmsg)</span><br></pre></td></tr></table></figure>
+
+<p>定义一个<code>StreamHandler</code>, 输出到指定格式的文件,默认生成的root logger的handler的stream是stderr,不是stdout,需要的话，再配置 <code>logging.StreamHandler(sys.__stdout__)</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span><br><span class="line">errmsg = <span class="string">'xx'</span></span><br><span class="line"><span class="comment"># 创建一个日志器logger并设置其日志级别为DEBUG</span></span><br><span class="line">logger = logging.getLogger(<span class="string">'login_err'</span>)</span><br><span class="line">logger.setLevel(logging.DEBUG) </span><br><span class="line"><span class="comment"># 创建一个流处理器handler并设置其日志级别为DEBUG</span></span><br><span class="line">handler = logging.StreamHandler(sys.stderr)</span><br><span class="line">handler.setLevel(logging.DEBUG) </span><br><span class="line"><span class="comment"># 创建一个格式器formatter并将其添加到处理器handler</span></span><br><span class="line">formatter = logging.Formatter(<span class="string">"%(asctime)s - %(filename)s - %(name)s - %(levelname)s - %(message)s"</span>)</span><br><span class="line">handler.setFormatter(formatter) </span><br><span class="line"> <span class="comment"># 先清空以前所有的处理器</span></span><br><span class="line"><span class="keyword">del</span> logger.handlers[:]</span><br><span class="line"> <span class="comment"># 为日志器logger添加上面创建的处理器handler</span></span><br><span class="line">logger.addHandler(handler)</span><br><span class="line">logger.debug(errmsg)</span><br></pre></td></tr></table></figure>
+
+<p>一些常用的 handler 处理器:</p>
+<table>
+<thead>
+<tr>
+<th>handler</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>logging.StreamHandler</td>
+<td>将日志消息发送到输出到Stream，如std.out, std.err或任何file-like对象。</td>
+</tr>
+<tr>
+<td>logging.FileHandler</td>
+<td>将日志消息发送到磁盘文件，默认情况下文件大小会无限增长</td>
+</tr>
+<tr>
+<td>logging.handlers.RotatingFileHandler</td>
+<td>将日志消息发送到磁盘文件，并支持日志文件按大小切割</td>
+</tr>
+<tr>
+<td>logging.hanlders.TimedRotatingFileHandler</td>
+<td>将日志消息发送到磁盘文件，并支持日志文件按时间切割</td>
+</tr>
+<tr>
+<td>logging.handlers.HTTPHandler</td>
+<td>将日志消息以GET或POST的方式发送给一个HTTP服务器</td>
+</tr>
+<tr>
+<td>logging.handlers.SMTPHandler</td>
+<td>将日志消息发送给一个指定的email地址</td>
+</tr>
+<tr>
+<td>logging.NullHandler</td>
+<td>该Handler实例会忽略error messages，通常被想使用logging的library开发者使用来避免’No handlers could be found for logger XXX’信息的出现。</td>
+</tr>
+</tbody></table>
+<p>logging 是线程安全的, handler 内部使用了 <code>threading.RLock()</code> 来保证同一时间只有一个线程能够输出。但在使用 <code>logging.FileHandler</code> 时，多进程同时写一个日志文件是不支持的。</p>
+<p>单个日志文件太大可以使用 <code>logging.handlers.RotatingFileHandler</code> 和 <code>logging.handlers.TimedRotatingFileHandler</code> 来进行分卷。前者按文件大小来分割，后者按时间来分割。它们会在达到分割条件时（文件达到指定大小或达到指定时间），把当前的日志重命名为备份文件，然后再打开新文件来记录。值得一提的是，如果备份文件名已存在，就会被删除。所以在多进程时不建议使用。可以将日志输出到 stdout 和 stderr，再用 <code>supervisor</code> 来分割日志。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/18/supervisor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/09/18/supervisor/" itemprop="url">supervisor 配置</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-18T18:22:07+08:00">
+                2018-09-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="supervisor-配置"><a href="#supervisor-配置" class="headerlink" title="supervisor 配置"></a>supervisor 配置</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">[inet_http_server]         ; inet (TCP) server disabled by default</span><br><span class="line">port=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">9001</span>        ; (ip_address:port specifier, *:port <span class="keyword">for</span> all iface)</span><br><span class="line">username=user              ; (default <span class="keyword">is</span> no username (open server))</span><br><span class="line">password=<span class="number">123</span></span><br><span class="line"></span><br><span class="line">[supervisord]</span><br><span class="line"></span><br><span class="line">[rpcinterface:supervisor]</span><br><span class="line">supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface </span><br><span class="line"> </span><br><span class="line">[supervisorctl]</span><br><span class="line">serverurl=http://<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">9001</span> ; use an http:// url to specify an inet socket</span><br><span class="line">username=user              ; should be same <span class="keyword">as</span> http_username <span class="keyword">if</span> set</span><br><span class="line">password=<span class="number">123</span>                ; should be same <span class="keyword">as</span> http_password <span class="keyword">if</span> set</span><br><span class="line"></span><br><span class="line">[program:Even]</span><br><span class="line">;command=/Users/www/py34/bin/gunicorn -w <span class="number">4</span>  -b <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">8080</span> manage:app</span><br><span class="line">command=/Users/www/py34/bin/python  /Users/www/even_web/app.py</span><br><span class="line">process_name=%(program_name)s</span><br><span class="line">numprocs=<span class="number">1</span></span><br><span class="line">directory=/Users/www/even_web</span><br><span class="line">autostart=true</span><br><span class="line">user=app </span><br><span class="line">stdout_logfile=/var/log/supervisor/%(program_name)s-out.log</span><br><span class="line">stdout_logfile_maxbytes=<span class="number">10</span>MB</span><br><span class="line">stdout_logfile_backups=<span class="number">10</span></span><br><span class="line">stderr_logfile=/var/log/supervisor/%(program_name)s-err.log</span><br><span class="line">stderr_logfile_maxbytes=<span class="number">10</span>MB</span><br><span class="line">stderr_logfile_backups=<span class="number">10</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="supervisor-启动命令"><a href="#supervisor-启动命令" class="headerlink" title="supervisor 启动命令"></a>supervisor 启动命令</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">supervisord -c supervisord.conf</span><br><span class="line">supervisorctl  status/start/restart/reload</span><br></pre></td></tr></table></figure>
+
+<h2 id="supervisor-报错"><a href="#supervisor-报错" class="headerlink" title="supervisor 报错"></a>supervisor 报错</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Error: .ini file does not include supervisord section</span><br></pre></td></tr></table></figure>
+
+<p>配置文件中缺少 <code>[supervisord]</code>, 同样 <code>supervisorctl</code> 缺少时报错一致，加上即可</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Error: could not find config file supervisor.conf</span><br></pre></td></tr></table></figure>
+
+<p>找不到配置文件，指定绝对路径，默认回去不加任何参数回去 <code>/etc/supervisord.conf</code>找配置文件，所以要指定文件加上参数 -c。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Sorry, supervisord responded but did not recognize the supervisor namespace commands that supervisorctl uses to control it.  Please check that the [rpcinterface:supervisor] section is enabled in the configuration file (see sample.conf).</span><br></pre></td></tr></table></figure>
+
+<p>加上配置<code>[rpcinterface:supervisor] supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface</code><br>即可</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Error: Cannot open an HTTP server: socket.error reported errno.EACCES (13)</span><br></pre></td></tr></table></figure>
+
+<p>配置文件中 <code>/var/run</code> 文件夹，没有授予启动 <code>supervisord</code> 的相应用户的写权限。<code>/var/run</code> 文件夹实际上是链接到 <code>/run</code>，因此我们修改 <code>/run</code> 的权限。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Error: Invalid user name app in section &apos;program:Even&apos; (file: &apos;supervisord.conf&apos;)</span><br></pre></td></tr></table></figure>
+
+<p>无效用户 app， 在系统里面添加这个用户，或者换成系统已经存在的用户</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IOError: [Errno 13] Permission denied: &apos;/var/log/supervisor/xxx.log&apos;</span><br></pre></td></tr></table></figure>
+
+<p><code>/var/log/supervisor/xxx.log</code> 没有写入的权限，配置上权限即可，<code>chmod -R 777 /var/log/supervisor/xxx.log</code></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/13/flask-redirect/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1265,250 +1742,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/22/decimal/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/06/22/decimal/" itemprop="url">decimal</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-06-22T16:42:16+08:00">
-                2018-06-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="Decimal-float-double"><a href="#Decimal-float-double" class="headerlink" title="Decimal float double"></a>Decimal float double</h1><p>float 单精度说明符，double 双精度说明符。在Turbo C中单精度型占4个字节（32位）内存空间，其数值范围为3.4E-38～3.4E+38，只能提供七位有效数字。双精度型占8 个字节（64位）内存空间，其数值范围为1.7E-308～1.7E+308，可提供16位有效数字。</p>
-<p>当我们的计算需要使用更高的精度（超过17位小数）的时候</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> decimal <span class="keyword">import</span> *</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a = <span class="string">"%.30f"</span> % (<span class="number">1</span>/<span class="number">3</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a</span><br><span class="line"><span class="string">'0.333333333333333314829616256247'</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>b = Decimal(<span class="number">1</span>)/Decimal(<span class="number">3</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>b</span><br><span class="line">Decimal(<span class="string">'0.3333333333333333333333333333'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>getcontext()</span><br><span class="line">Context(prec=<span class="number">28</span>, rounding=ROUND_HALF_EVEN, Emin=<span class="number">-999999</span>, Emax=<span class="number">999999</span>, capitals=<span class="number">1</span>, clamp=<span class="number">0</span>, flags=[Inexact, FloatOperation, Rounded], traps=[InvalidOperation, DivisionByZero, Overflow])</span><br></pre></td></tr></table></figure>
-
-<p>默认的context的精度是28位，可以设置为50位甚至更高，都可以。这样在分析复杂的浮点数的时候，可以有更高的自己可以控制的精度<br>decimal 类型是适合财务和货币计算的128位数据类型</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> decimal <span class="keyword">import</span> Decimal</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a = Decimal(<span class="string">'2'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>b = <span class="number">3.45</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>c = Decimal(b)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>c</span><br><span class="line">Decimal(<span class="string">'3.45000000000000017763568394002504646778106689453125'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>d = Decimal(str(b))</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>d</span><br><span class="line">Decimal(<span class="string">'3.45'</span>)</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/08/dict-update-key/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/06/08/dict-update-key/" itemprop="url">dict update key</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-06-08T16:41:12+08:00">
-                2018-06-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>替换 dict 的 key</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[In [<span class="number">34</span>]: base_dict = &#123; <span class="string">"name"</span>: <span class="string">"张三"</span>, <span class="string">"age"</span>: <span class="number">19</span>, <span class="string">"gender"</span>: <span class="string">"男"</span> &#125;</span><br><span class="line">[In [<span class="number">34</span>]: base_dict.update(chinese_name=base_dict.pop(<span class="string">'name'</span>))</span><br><span class="line">[In [<span class="number">34</span>]: base_dict</span><br><span class="line">[Out[<span class="number">36</span>]: &#123;<span class="string">'age'</span>: <span class="number">19</span>, <span class="string">'chinese_name'</span>: <span class="string">'张三'</span>, <span class="string">'gender'</span>: <span class="string">'男'</span>&#125;</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1561,7 +1794,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">53</span>
+                  <span class="site-state-item-count">55</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
