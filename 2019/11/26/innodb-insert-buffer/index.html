@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Mysql Innodb,">
+  <meta name="keywords" content="mysql,innodb,">
 
 
 
@@ -80,17 +80,20 @@
 
 
 <meta name="description" content="Insert Buffer在 Innodb 存储引擎中，主键是行唯一的标识符。通常应用程序中行记录的插入顺序是按照主键递增的顺序进行插入的，因此，插入聚集索引（Primary key）一般是顺序的，不需要磁盘的随机读取。  mysql的innodb表，其聚集索引相当于整张表，而整张表也是聚集索引。默认通过主键聚集数据，如果没有定义主键，则选择第一个非空的唯一索引，如果没有非空唯一索引，则选择row">
-<meta name="keywords" content="Mysql Innodb">
+<meta name="keywords" content="mysql,innodb">
 <meta property="og:type" content="article">
 <meta property="og:title" content="InnoDB Insert Buffer">
 <meta property="og:url" content="http://yoursite.com/2019/11/26/innodb-insert-buffer/index.html">
 <meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
 <meta property="og:description" content="Insert Buffer在 Innodb 存储引擎中，主键是行唯一的标识符。通常应用程序中行记录的插入顺序是按照主键递增的顺序进行插入的，因此，插入聚集索引（Primary key）一般是顺序的，不需要磁盘的随机读取。  mysql的innodb表，其聚集索引相当于整张表，而整张表也是聚集索引。默认通过主键聚集数据，如果没有定义主键，则选择第一个非空的唯一索引，如果没有非空唯一索引，则选择row">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-11-28T06:17:06.116Z">
+<meta property="og:image" content="http://yoursite.com/2019/11/26/innodb-insert-buffer/buffer_1.png">
+<meta property="og:image" content="http://yoursite.com/2019/11/26/innodb-insert-buffer/buffer_2.png">
+<meta property="og:updated_time" content="2020-09-09T11:48:51.768Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="InnoDB Insert Buffer">
 <meta name="twitter:description" content="Insert Buffer在 Innodb 存储引擎中，主键是行唯一的标识符。通常应用程序中行记录的插入顺序是按照主键递增的顺序进行插入的，因此，插入聚集索引（Primary key）一般是顺序的，不需要磁盘的随机读取。  mysql的innodb表，其聚集索引相当于整张表，而整张表也是聚集索引。默认通过主键聚集数据，如果没有定义主键，则选择第一个非空的唯一索引，如果没有非空唯一索引，则选择row">
+<meta name="twitter:image" content="http://yoursite.com/2019/11/26/innodb-insert-buffer/buffer_1.png">
 
 
 
@@ -345,7 +348,7 @@
 <p>B树：二叉树，每个结点只存储一个关键字，等于则命中，小于走左结点，大于走右结点；<br>B-树：多路搜索树，每个结点存储M/2到M个关键字，非叶子结点存储指向关键字范围的子结点；所有关键字在整颗树中出现，且只出现一次，非叶子结点可以命中；<br>B+树：在B-树基础上，为叶子结点增加链表指针，所有关键字都在叶子结点中出现，非叶子结点作为叶子结点的索引；B+树总是到叶子结点才命中；</p>
 </blockquote>
 <p>在某些情况下，辅助索引的插入也是比较顺序的，比如用户购买表中的时间字段，通常情况下，用户购买时间时一个辅助索引，用来根据时间条件进行查询，但是在插入时却是根据时间的递增而插入的，因此插入也是比较顺序的。</p>
-<p>InnoDB 存储引擎开创性设计了 Insert Buffer，对于非聚集索引的插入或者 更新操作，不是每一个直接插入到索引页中，而是先判断插入到非聚集索引页是否在缓冲池中，若在，则直接插入，若不在，则先放入到一个<br>Insert Buffer 对象中，好似欺骗。数据库这个非聚集到索引已经抽到叶子结点，而实际上并没有，只是存放在另一个位置。然后再以一定的频率和情况进行 Insert Buffer 和辅助索引子节点的 merge(合并)操作，这时通常能将多个插入合并到一个操作中（因为在一个索引页中），这就大大提高了对于非聚集索引插入到性能。</p>
+<p>InnoDB 存储引擎开创性设计了 Insert Buffer，对于非聚集索引的插入或者更新操作，不是每一个直接插入到索引页中，而是先判断插入到非聚集索引页是否在缓冲池中，若在，则直接插入，若不在，则先放入到一个<br>Insert Buffer 对象中，好似欺骗。数据库这个非聚集到索引已经抽到叶子结点，而实际上并没有，只是存放在另一个位置。然后再以一定的频率和情况进行 Insert Buffer 和辅助索引子节点的 merge(合并)操作，这时通常能将多个插入合并到一个操作中（因为在一个索引页中），这就大大提高了对于非聚集索引插入到性能。</p>
 <p>然而 Insert Buffer 的使用需要同时满足以下两个条件：</p>
 <ol>
 <li>索引时辅助索引</li>
@@ -368,6 +371,27 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like &quot;innodb_change_buffer_max_size&quot;;</span><br><span class="line">+-------------------------------+-------+</span><br><span class="line">| Variable_name                 | Value |</span><br><span class="line">+-------------------------------+-------+</span><br><span class="line">| innodb_change_buffer_max_size | 25    |</span><br><span class="line">+-------------------------------+-------+</span><br><span class="line">1 row in set (0.01 sec)</span><br></pre></td></tr></table></figure>
 
 <p>innodb_change_buffer_max_size 默认值是 25，表示最多使用1/4的缓冲池内存空间，需要注意，该参数的最大有效值为50。</p>
+<h1 id="Insert-Buffer-的内部实现"><a href="#Insert-Buffer-的内部实现" class="headerlink" title="Insert Buffer 的内部实现"></a>Insert Buffer 的内部实现</h1><p>Insert Buffer 的数据结构是一棵 B+ 树，现在版本中，全局只有一棵 Insert Buffer B+ 树，负责对所有的表的辅助索引进行  Insert Buffer，而这棵 B+ 树存放在共享表空间中，默认ibdata1中。因此试图通过独立表空间 ibd文件恢复表中数据时，往往会导致 CHECK TABLE 失败，因为这些表的辅助索引中的数据可能还在 Insert Buffer中，也就是共享表空间中，索引通过 ibd 文件进行恢复后，还需要进行 REPAIR TABLE 操作来重建表上所有的辅助索引。</p>
+<p>Insert Buffer 是一棵 B+ 树，因此其也由叶节点和非叶节点组成。非叶节点存放的是查询的 search key，其构造如下：</p>
+<img src="/2019/11/26/innodb-insert-buffer/buffer_1.png">
+
+<p>search key 一共占9个字节，space 表示待插入记录表所在的表空间id，在 InnoDB 存储引擎中，每个表有一个唯一的 space id，可以通过 space id 查询得知是哪张表，space 占用4字节，market 栈1字节，它用来兼容老版本的 Insert Buffer，offset 表示页所在的偏移量，战4字节。</p>
+<p>当一个辅助索引要插入到页时（space, offset），如果这个页不再缓冲池，那么 InnoDB 存储引擎首先根据上述规则构建一个 search key，接下来查询 Insert Buffer 这棵 B+ 树，然后再将这条记录插入到 Insert Buffer B+ 树的叶子节点中。</p>
+<p>对于插入到 Insert Buffer B+ 树的叶子节的记录，并不是直接将待插入到记录插入，而是需要根据如下规则进行构造：</p>
+<img src="/2019/11/26/innodb-insert-buffer/buffer_2.png">
+
+<p>前3个字段占用9字节，第4个字段 metadata 占用4个字节，其储存内容是 <code>ibuf_rec_offset_count</code> 2字节，<code>ibuf_rec_offset_type</code> 1字节，<code>ibuf_rec_offset_flags</code> 1字节。<code>ibuf_rec_offset_count</code>用来排序每个记录进入 Insert Buffer 的顺序。从 Insert Buffer 第5列开始，就是实际插入记录的各个字段了。因此较之前插入记录，Insert Buffer B+ 树的叶子节点记录多了13字节的开销。</p>
+<p>因为启用 Insert Buffer 索引后，辅助索引页中的记录可能被插入到 Insert Buffer B+ 树中，所以为了保证每次 Merge Insert Buffer 页必须成功，还需要有一个特殊的页用来标记每个辅助索引页的可用空间，这个页的类型为 Insert Buffer Bitmap。</p>
+<p>每个  Insert Buffer Bitmap 页用来追踪 16384 个辅助索引页，也就是256个区（Extent）。每个  Insert Buffer Bitmap 页都在16384 个页的第二个页中。</p>
+<h1 id="Merge-Insert-Buffer"><a href="#Merge-Insert-Buffer" class="headerlink" title="Merge Insert Buffer"></a>Merge Insert Buffer</h1><p>前面知道 Insert Buffer 是一棵 B+ 树，若需要实现插入记录的辅助索引页不在缓冲池中，那么需要将辅助索引记录首先插入到这棵 B+ 树中。但是 Insert Buffer 中的记录何时合并到真正的辅助索引中，概括来说，Merge Insert Buffer 的操作可能发生在一下几种情况下：</p>
+<blockquote>
+<p>辅助索引页被读取到缓冲池中<br>Merge Insert Bitmap 页追踪到该辅助索引页已无可用空间<br>Master Thread</p>
+</blockquote>
+<p>第一种情况为当辅助索引页被读取到缓冲池中时，例如在执行正常的 select 查询操作，这时需要检查 Insert Buffer Bitmap 页，然后确认该辅助索引页是否已有记录存放于 Insert Buffer B+ 树中，若有，则将 Insert Buffer B+ 树中该页的记录插入到该辅助索引页中。可以看到对该页多次的记录操作通过一次操作合并到了原有的辅助索引页中，因此性能会有大幅提升。</p>
+<p>Insert Buffer Bitmap 页用来追踪每个辅助索引页的可用空间，并至少有1/32页的空间，若插入辅助索引时检测到插入记录后可用空间小于1/32，则会强制进行一个合并操作，即强制读取辅助索引页，将 Insert Buffer B+ 树中该页的记录及待插入的记录插入到辅助索引页中，这就是上述的第二种情况。</p>
+<p>还有一种情况，在 Mater Thread 线程中每秒或10秒会进行一次 Marge Insert Buffer 操作，不同之处在于每次进行 merge 操作的页数量不同。</p>
+<p>在 Mater Thread 中，执行 merge 操作的不止一个页，而是根据 srv_innodb_io_capacity 的百分比来决定真正要合并多少个辅助索引页，但 InnoDB 存储引擎又是根据怎样的算法来得知需要合并的辅助索引呢？</p>
+<p>在 Insert Buffer B+ 树中，辅助索引页根据（space， offset）都已排序好，故可以根据（space， offset）但排序顺序顺序进行页的选择，然而对于 Insert Buffer 页的选择，InnoDB 存储引擎并非采用这个方式，它随机地选择 Insert Buffer B+ 树的一个页，读取该页中的space 及之后所需要数量的页。该算法在复杂情况下应有更好的公平性，同时，若进行 merge 时，要进行 merge 的表已经被删除，此时可以直接丢弃已经被 Insert/Change Buffer 的数据记录。</p>
 
       
     </div>
@@ -385,7 +409,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Mysql-Innodb/" rel="tag"># Mysql Innodb</a>
+            <a href="/tags/mysql/" rel="tag"># mysql</a>
+          
+            <a href="/tags/innodb/" rel="tag"># innodb</a>
           
         </div>
       
@@ -489,7 +515,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">57</span>
+                  <span class="site-state-item-count">59</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -502,7 +528,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-count">22</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
@@ -535,7 +561,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Insert-Buffer"><span class="nav-number">1.</span> <span class="nav-text">Insert Buffer</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Change-Buffer"><span class="nav-number">2.</span> <span class="nav-text">Change Buffer</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Insert-Buffer"><span class="nav-number">1.</span> <span class="nav-text">Insert Buffer</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Change-Buffer"><span class="nav-number">2.</span> <span class="nav-text">Change Buffer</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Insert-Buffer-的内部实现"><span class="nav-number">3.</span> <span class="nav-text">Insert Buffer 的内部实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Merge-Insert-Buffer"><span class="nav-number">4.</span> <span class="nav-text">Merge Insert Buffer</span></a></li></ol></div>
             
 
           </div>

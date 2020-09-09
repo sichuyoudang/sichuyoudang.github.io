@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT">
+  <meta name="keywords" content="mysql,innodb,">
 
 
 
@@ -79,16 +79,20 @@
 
 
 
-<meta name="description" content="记录学习经验，力求分享技术">
-<meta property="og:type" content="website">
-<meta property="og:title" content="我想，吃饭睡觉，走走停停">
-<meta property="og:url" content="http://yoursite.com/tags/Mysql-Innodb/index.html">
+<meta name="description" content="如果说 Insert Buffer 带给 InnoDB 存储引擎的是性能上的提升，那个 doublewrite（两次写）带给InnoDB 存储引擎的则是数据页的可靠性。 党发生数据库宕机时，可能 InnoDB 存储引擎正在写入某个列表中，而这个页只写了一部分，比如16KB 的页，只写了前 4KB，之后发生了宕机，这种情况称为局部写失效，在 InnoDB 存储引擎未使用 doublewrite 技术">
+<meta name="keywords" content="mysql,innodb">
+<meta property="og:type" content="article">
+<meta property="og:title" content="InnoDB 两次写">
+<meta property="og:url" content="http://yoursite.com/2020/09/09/innodb-doublewrite/index.html">
 <meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
-<meta property="og:description" content="记录学习经验，力求分享技术">
+<meta property="og:description" content="如果说 Insert Buffer 带给 InnoDB 存储引擎的是性能上的提升，那个 doublewrite（两次写）带给InnoDB 存储引擎的则是数据页的可靠性。 党发生数据库宕机时，可能 InnoDB 存储引擎正在写入某个列表中，而这个页只写了一部分，比如16KB 的页，只写了前 4KB，之后发生了宕机，这种情况称为局部写失效，在 InnoDB 存储引擎未使用 doublewrite 技术">
 <meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/2020/09/09/innodb-doublewrite/double.png">
+<meta property="og:updated_time" content="2020-09-09T11:02:53.179Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="我想，吃饭睡觉，走走停停">
-<meta name="twitter:description" content="记录学习经验，力求分享技术">
+<meta name="twitter:title" content="InnoDB 两次写">
+<meta name="twitter:description" content="如果说 Insert Buffer 带给 InnoDB 存储引擎的是性能上的提升，那个 doublewrite（两次写）带给InnoDB 存储引擎的则是数据页的可靠性。 党发生数据库宕机时，可能 InnoDB 存储引擎正在写入某个列表中，而这个页只写了一部分，比如16KB 的页，只写了前 4KB，之后发生了宕机，这种情况称为局部写失效，在 InnoDB 存储引擎未使用 doublewrite 技术">
+<meta name="twitter:image" content="http://yoursite.com/2020/09/09/innodb-doublewrite/double.png">
 
 
 
@@ -118,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/tags/Mysql-Innodb/">
+  <link rel="canonical" href="http://yoursite.com/2020/09/09/innodb-doublewrite/">
 
 
 
 
 
-  <title>Tag: Mysql Innodb | 我想，吃饭睡觉，走走停停</title>
+  <title>InnoDB 两次写 | 我想，吃饭睡觉，走走停停</title>
   
 
 
@@ -143,7 +147,7 @@
     
   
 
-  <div class="container sidebar-position-left ">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -247,52 +251,156 @@
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block tag">
+  <div id="posts" class="posts-expand">
+    
 
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h1>Mysql Innodb<small>Tag</small>
-        </h1>
-      </div>
+  
 
-      
-        
+  
+  
+  
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/09/innodb-doublewrite/">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/2019/11/26/innodb-insert-buffer/" itemprop="url">
-              
-                <span itemprop="name">InnoDB Insert Buffer</span>
-              
-            </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">InnoDB 两次写</h1>
+        
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-11-26T14:37:02+08:00" content="2019-11-26">
-          11-26
-        </time>
-      </div>
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-09-09T16:49:49+08:00">
+                2020-09-09
+              </time>
+            
 
-    </header>
-  </article>
+            
 
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>如果说 Insert Buffer 带给 InnoDB 存储引擎的是性能上的提升，那个 doublewrite（两次写）带给<br>InnoDB 存储引擎的则是数据页的可靠性。</p>
+<p>党发生数据库宕机时，可能 InnoDB 存储引擎正在写入某个列表中，而这个页只写了一部分，比如16KB 的页，只写了前 4KB，之后发生了宕机，这种情况称为局部写失效，在 InnoDB 存储引擎未使用 doublewrite 技术前，曾经出现过部分因为写失效而导致数据丢失的情况。</p>
+<p>doublewrite 由两部分组成，一部分是内存中的 doublewrite buffer ，大小为 2MB，另一部分是物理磁盘上共享表空间中连续的128个页，即2个区，大小同样为2MB。在对缓冲池的脏页进行刷新时，并不直接写磁盘，而是会通过 memcpy 函数将脏页先复制到内存中的 doublewrite buffer，之后通过 doublewrite buffer 再分两次，每次1MB顺序地写入共享表空间的物理磁盘上，然后马上调用 fsync 函数，同步磁盘，避免缓冲写带来的问题。在这个过程中，因为 doublewrite buffer 页是连续的，因此这个过程是顺序写的，开销并不大，在完成 doublewrite 页的写入后，再将 doublewrite buffer 中的页写入各个表空间文件中，此时的写入则是离散的。</p>
+<img src="/2020/09/09/innodb-doublewrite/double.png">
+
+<p>如果操作系统在将页写入磁盘的过程中发生了崩溃，在恢复过程中，InnoDB 存储引擎可以从共享表空间中的 doublewrite 中找到该页的一个副本，将其复制到表空间文件，再应用重做日志。</p>
+<p>MySQL 官方手册中，命令 SHOW GLOBAL STATUS 中 buffer_pool_pages_flushed 变量表示当前从缓冲池中刷新首先都需要放入到 doublewrite 中，因此该变量应该和 InnoDB_dblwr_pages_written 一致，然而在 MySQL 5.5.24 版本之前，buffer_pool_pages_flushed 总是 InnoDB_dblwr_pages_written 的2倍，直至5.5.24才修复。因此用户若需要统计数据库在生产环境中写入到量，最安全的还是根据 InnoDB_dblwr_pages_written 来统计，这在所有版本中都是正确的。</p>
+<p>参数 skip_innodb_doublewrite 可以禁止 doublewrite 功能，这时可能会发生前面提及的写失效问题。不过如果用户有多个从服务器，需要提供较快的性能，也行启用这个参数是一个办法。不过对于需要提供数据高可靠性的主服务器，任何时候用户都应确保开启 doublewrite 功能。</p>
 
       
     </div>
+    
+    
+    
 
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/mysql/" rel="tag"># mysql</a>
+          
+            <a href="/tags/innodb/" rel="tag"># innodb</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/09/09/innodb-logical-storage/" rel="next" title="InnoDB 逻辑存储结构">
+                <i class="fa fa-chevron-left"></i> InnoDB 逻辑存储结构
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -300,6 +408,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -338,7 +450,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">57</span>
+                  <span class="site-state-item-count">59</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -351,7 +463,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-count">22</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
@@ -514,6 +626,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 

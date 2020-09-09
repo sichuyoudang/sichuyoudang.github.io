@@ -262,6 +262,310 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/19/bt-dht/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/19/bt-dht/" itemprop="url">BT 种子的实现</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-19T11:11:37+08:00">
+                2019-12-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="BT-种子"><a href="#BT-种子" class="headerlink" title="BT 种子"></a>BT 种子</h1><p>BitTorrent（简称BT）是用在对等网络中文件分享的网络协议程序，和点对点（point-to-point）的协议程序不同，它是用户群对用户群（peer-to-peer），每个下载者在下载的同时不断向其他下载者上传已下载的数据（交换数据），所以下载的人越多下载的速度越快。</p>
+<p>一个简单的 BT 种子包含了文件的名字、大小，分块后每块文件的大小、哈希值，以及 Tracker 服务器的地址，通过 Tracker 找到其他下载者的联系方式。BT 种子文件通常很小，一般大小为1GB的共享文件，其种子文件不足100KB，种子文件以.torrent为后缀。我们把下载者本身称为客户端，把其他下载者称为peer。</p>
+<h3 id="BT-客户端下载共享文件"><a href="#BT-客户端下载共享文件" class="headerlink" title="BT 客户端下载共享文件"></a>BT 客户端下载共享文件</h3><p>客户端首先解析种子文件，获取待下载的共享文件的一些信息，其中包括Tracker服务器的地址，然后连接Tracker获取当前下载该文件的所有下载者的IP和端口，之后根据IP和端口连接其他下载者，从它们那里下载文件，同时把自己已下载的部分提供给其他下载者下载。</p>
+<p>共享文件在逻辑上被划分为大小相同的块，称为piece，每个piece的大小通常为256KB。对于共享文件，文件的第1字节到第256K（即262144）字节为第一个piece，第256K＋1字节到第512K字节为第二个piece，依此类推。种子文件中包含有每个piece的hash值。BT协议规定使用Sha1算法对每个piece生成20字节的hash值，作为每个piece的指纹。每当客户端下载完一个piece时，即对该peice使用Sha1算法计算其hash值，并与种子文件中保存的该peice的hash值进行比较，如果一致即表明下载了一个完整而正确的piece。一旦某个piece被下载，该piece即提供给其他peer下载。在实际上传和下载中，每个piece又被划分为大小相同的slice，每个slice的大小固定为16KB（16384字节），peer之间每次传输以slice为单位。</p>
+<p>如上客户端下载文件时 Tracker非常重要，如果没有Tracker，那文件那就下载不了，为了解决这个问题，磁力链接应运而生。</p>
+<h1 id="磁力链接"><a href="#磁力链接" class="headerlink" title="磁力链接"></a>磁力链接</h1><p>磁力链接基于 DHT 网络技术，可以在无固定 Tracker 服务器的情况下下载，实际过程是把所有下载者都变成一个小型 Tracker服务。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">磁力链接地址：magnet:?xt=urn:btih:4D9FA761D69964B00DF0B3B0C9C1F968EA6C47D0</span><br><span class="line">magnet: 协议名</span><br><span class="line">xt: exact topic的缩写，包含文件哈希值的统一资源名称。BTIH（BitTorrent Info Hash）表示哈希方法名，这里还可以使用ED2K，AICH，SHA1和MD5等。这个值是文件的标识符，是不可缺少的。</span><br><span class="line">urn:(Uniform Resource Name, URN 表示资源名</span><br><span class="line">btih: BitTorrent info hash，种子散列函数</span><br><span class="line">4D9FA761D69964B00DF0B3B0C9C1F968EA6C47D0: 40个16进制组成的20字节的id</span><br></pre></td></tr></table></figure>
+
+<h3 id="DHT"><a href="#DHT" class="headerlink" title="DHT"></a>DHT</h3><p>DHT(distributed sloppy hash table) 分布式哈希表，存储没有 Tracker 地址的种子文件所对应的peer节点的信息，在这种情况下，每一个peer节点变成了一个 Tracker 服务器，DHT 协议是在 UDP 通信协议的基础上使用 Kademila（俗称Kad算法）算法实现。在这个系统中，每个节点（node）分别维护一部分的存储内容以及其他节点的路由/地址（路由表），使得网络中任何参与者（即节点）发生变更（进入/退出）时，对整个网络造成的影响最小。</p>
+<h3 id="Kademlia算法"><a href="#Kademlia算法" class="headerlink" title="Kademlia算法"></a>Kademlia算法</h3><p>Kad 通过独特的以异或算法（XOR）为距离度量基础，建立了一种全新的 DHT 拓扑结构，相比于其他算法，大大提高了路由查询速度。</p>
+<p>基本知识：</p>
+<ol>
+<li>Node ID 在 P2P 网络中， 节点是通过唯一 ID 来进行标识的，在原始的 Kad 算法中，使用 160-bit 哈希空间来作为 Node ID。</li>
+<li>Node Distance 每个节点保存着自己附近节点的信息，但是在 Kad 中，这个距离不是指物理距离，而是指一种逻辑距离，通过异或运算得知。</li>
+<li>K-Bucket 用一个 Bucket 来保存与当前节点距离在某个范围内的所有节点列表，比如bucket0, bucket1, bucket2 … bucketN 分别记录[1, 2), [2, 4), [4, 8), … [2^i, 2^(i+1)) 范围内的节点列表</li>
+<li>Bucket 分裂 如果初始 bucket 数量不够，则需要分裂（具体跟实现有关）</li>
+<li>路由表记录所有 buckets，每个 bucket 限制最多保存 k 个节点</li>
+<li>Update 在节点 bootstrap 过程中，需要把连接上的 peer 节点更新到自己的路由表中对应的 bucket 中</li>
+<li>查找目标节点，找到与目标节点最近的 bucket，如果已在 bucket 中，则直接返回，否则向该 bucket 中的节点发送查询请求，这些节点继续迭代查找</li>
+<li>收敛 &amp; 时间复杂度，查找会最终收敛至目标节点，整个查询过程复杂度是 LogN</li>
+</ol>
+<p><strong>距离</strong><br>01010000与01010010距离（即是2个ID的异或值）为00000010（换算为十进制即为2）；<br>01000000与00000001距离为01000001（换算为十进制即为<code>2^6 + 2^0</code>，即65）</p>
+<h4 id="路由表如何按距离分层"><a href="#路由表如何按距离分层" class="headerlink" title="路由表如何按距离分层"></a>路由表如何按距离分层</h4><p>路由表按异或距离分层，基本上可以理解为按位数分层</p>
+<p>以0000110为基础节点，如果一个节点的ID，前面所有位数都与它相同，只有最后1位不同，这样的节点只有1个——0000111，与基础节点的异或值为0000001，即距离为1；对于0000110而言，这样的节点归为“k-bucket 1”；<br>如果一个节点的ID，前面所有位数相同，从倒数第2位开始不同，这样的节点只有2个：0000101、0000100，与基础节点的异或值为0000011和0000010，即距离范围为3和2；对于0000110而言，这样的节点归为“k-bucket 2”；<br>…</p>
+<p>如果一个节点的ID，前面所有位数相同，从倒数第n位开始不同，这样的节点只有2(i-1)个，与基础节点的距离范围为[2(i-1), 2i）；对于0000110而言，这样的节点归为”k-bucket i”</p>
+<img src="/2019/12/19/bt-dht/bt1.png">
+
+<p>对上面描述的另一种理解方式：如果将整个网络的节点梳理为一个按节点ID排列的二叉树，树最末端的每个叶子便是一个节点，则下图就比较直观的展现出，节点之间的距离的关系。</p>
+<img src="/2019/12/19/bt-dht/bt2.png">
+
+<p>每个节点只维护一部分路由表，这个路由表按照距离分层，即k-bucket1, k-bucket 2, k-bucket 3…虽然每个k-bucket中实际存在的节点数量逐渐增多，但每个节点在它自己的每个k-bucket中只记录k个节点的地址与端口，这里的k是一个可调节的常量参数。</p>
+<p>由于节点ID有160位，所以每个节点的路由表中共分160层（节点共有160个k-bucket），整个网络最多可以容纳2^160个节点，但是每个节点最多只维护160 * k 个其他节点的地址与端口。</p>
+<h4 id="节点定位"><a href="#节点定位" class="headerlink" title="节点定位"></a>节点定位</h4><p>00000110（源节点） 想找到 00010000（目标节点），两者的异或距离为 00010110，距离范围在[2^4, 2^5)，所以目标节点可能在k-bucket 5中，源节点检查 k-bucket 5有没有目标节点，</p>
+<ol>
+<li>如果有，那就直接返回</li>
+<li>如果没有，在k-bucket 5里随便找一个第二个节点（注意任意第二个节点，它的id第5位肯定与目标节点相同，即它与目标节点的距离会小于2^4, 相当于比源节点，目标节点之间的距离缩短了一半以上），第二个节点在它自己的路由表里按同样的查找方式找目标节点</li>
+<li>如果找到，那就直接返回</li>
+<li>如果没有找到，那按同样的方法搜索，可以在自己的路由表里找到一个离目标节点更近的第三个节点（第三节点，目标节点之间距离小于2^3）这样依次搜索，直至找到目标节点</li>
+</ol>
+<p>Kad 的这种查询机制，有点像是将一张纸不断地对折来收缩搜索范围，保证对于任意n个节点，最多只需要查询logN 次，即可找到目标节点。</p>
+<h4 id="算法的三个参数：keyspace，k和α"><a href="#算法的三个参数：keyspace，k和α" class="headerlink" title="算法的三个参数：keyspace，k和α"></a>算法的三个参数：keyspace，k和α</h4><ol>
+<li>keyspace<br> – 即ID有多少位<br> – 决定每个节点的通讯录有几层</li>
+<li>k<br> – 每个一层k-bucket里装k个node的信息，即&lt;node ID, IP Adress, port&gt;<br> – 每次查找node时，返回k个node的信息<br> – 对于某个特定的data，离其key最近的k个节点被会要求存储这个data</li>
+<li>α<br> – 每次向其他node请求查找某个node时，会向α个node发出请求s</li>
+</ol>
+<h4 id="节点的命令"><a href="#节点的命令" class="headerlink" title="节点的命令"></a>节点的命令</h4><p>Kad 算法中，每个节点只有4个指令：</p>
+<ol>
+<li>PING – 测试一个节点是否在线</li>
+<li>STORE – 要求一个节点存储一份数据</li>
+<li>FIND_NODE – 根据节点ID查找一个节点</li>
+<li>FIND_VALUE – 根据KEY查找一个数据，实则上跟FIND_NODE非常类似</li>
+</ol>
+<h4 id="k-bucket的维护及更新机制"><a href="#k-bucket的维护及更新机制" class="headerlink" title="k-bucket的维护及更新机制"></a>k-bucket的维护及更新机制</h4><p>每个bucket里的节点都按最后一次接触的时间倒序排列<br>每次执行四个指令中的任意一个都会触发更新<br>当一个节点与自己接触时，检查它是否在K-bucket中</p>
+<pre><code>1. 如果在，那么将它挪到k-bucket列表的最底（最新）
+2. 如果不在，PING一下列表最上面（最旧）的一个节点
+2.1 如果PING通了，将旧节点挪到列表最底，并丢弃新节点
+2.2 如果PING不通，删除旧节点，并将新节点加入列表</code></pre><p>该机制保证了任意节点加入和离开都不影响整体网络。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/18/linux-disk/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/18/linux-disk/" itemprop="url">Linux 查看磁盘使用情况</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-18T10:42:50+08:00">
+                2019-12-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="df"><a href="#df" class="headerlink" title="df"></a>df</h1><p>df 用于显示 Linux 系统中各文件系统的硬盘使用情况，包括文件系统所在硬盘分区的总容量、已使用的容量、剩余容量等。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[]# df [选项] 目录或文件</span><br><span class="line">-a：显示所有文件系统信息，包括系统特有的/proc、/sysfs等文件系统。</span><br><span class="line">-k：以KB为单位显示容量，默认。</span><br><span class="line">-m：以MB为单位显示容量。</span><br><span class="line">-h：使用人们习惯的KB、MB或GB等单位自行显示容量。</span><br><span class="line">-H：以M=1000K取代M=1024K的进位方式显示容量。</span><br><span class="line">-T：显示该分区的文件系统名称（例如xfs）。</span><br><span class="line">-i：不用硬盘容量显示，而是以含有inode的数量来显示。</span><br></pre></td></tr></table></figure>
+
+<h1 id="du"><a href="#du" class="headerlink" title="du"></a>du</h1><p>du 查看单独目录点的使用情况，它使用递归方式总结磁盘使用情况，以获取目录及其子目录的大小。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[]# du [选项] 目录或文件</span><br><span class="line">	-h – 以易读的格式显示大小 (例如 1K 234M 2G)</span><br><span class="line">	-s – 仅显示每个参数的总数</span><br><span class="line">	--max-depth=N – 目录的打印深度</span><br><span class="line">	</span><br><span class="line">[]# du -h /xxx/ | sort -rh | head -20</span><br><span class="line">xxG	/data/</span><br><span class="line">xxG	/data/x</span><br><span class="line">xxG	/data/xx</span><br><span class="line">xxG	/data/xxx/x</span><br><span class="line">xxG	/data/xxxx</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/04/anaconda/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -745,7 +1049,7 @@
 <p>B树：二叉树，每个结点只存储一个关键字，等于则命中，小于走左结点，大于走右结点；<br>B-树：多路搜索树，每个结点存储M/2到M个关键字，非叶子结点存储指向关键字范围的子结点；所有关键字在整颗树中出现，且只出现一次，非叶子结点可以命中；<br>B+树：在B-树基础上，为叶子结点增加链表指针，所有关键字都在叶子结点中出现，非叶子结点作为叶子结点的索引；B+树总是到叶子结点才命中；</p>
 </blockquote>
 <p>在某些情况下，辅助索引的插入也是比较顺序的，比如用户购买表中的时间字段，通常情况下，用户购买时间时一个辅助索引，用来根据时间条件进行查询，但是在插入时却是根据时间的递增而插入的，因此插入也是比较顺序的。</p>
-<p>InnoDB 存储引擎开创性设计了 Insert Buffer，对于非聚集索引的插入或者 更新操作，不是每一个直接插入到索引页中，而是先判断插入到非聚集索引页是否在缓冲池中，若在，则直接插入，若不在，则先放入到一个<br>Insert Buffer 对象中，好似欺骗。数据库这个非聚集到索引已经抽到叶子结点，而实际上并没有，只是存放在另一个位置。然后再以一定的频率和情况进行 Insert Buffer 和辅助索引子节点的 merge(合并)操作，这时通常能将多个插入合并到一个操作中（因为在一个索引页中），这就大大提高了对于非聚集索引插入到性能。</p>
+<p>InnoDB 存储引擎开创性设计了 Insert Buffer，对于非聚集索引的插入或者更新操作，不是每一个直接插入到索引页中，而是先判断插入到非聚集索引页是否在缓冲池中，若在，则直接插入，若不在，则先放入到一个<br>Insert Buffer 对象中，好似欺骗。数据库这个非聚集到索引已经抽到叶子结点，而实际上并没有，只是存放在另一个位置。然后再以一定的频率和情况进行 Insert Buffer 和辅助索引子节点的 merge(合并)操作，这时通常能将多个插入合并到一个操作中（因为在一个索引页中），这就大大提高了对于非聚集索引插入到性能。</p>
 <p>然而 Insert Buffer 的使用需要同时满足以下两个条件：</p>
 <ol>
 <li>索引时辅助索引</li>
@@ -768,6 +1072,27 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like &quot;innodb_change_buffer_max_size&quot;;</span><br><span class="line">+-------------------------------+-------+</span><br><span class="line">| Variable_name                 | Value |</span><br><span class="line">+-------------------------------+-------+</span><br><span class="line">| innodb_change_buffer_max_size | 25    |</span><br><span class="line">+-------------------------------+-------+</span><br><span class="line">1 row in set (0.01 sec)</span><br></pre></td></tr></table></figure>
 
 <p>innodb_change_buffer_max_size 默认值是 25，表示最多使用1/4的缓冲池内存空间，需要注意，该参数的最大有效值为50。</p>
+<h1 id="Insert-Buffer-的内部实现"><a href="#Insert-Buffer-的内部实现" class="headerlink" title="Insert Buffer 的内部实现"></a>Insert Buffer 的内部实现</h1><p>Insert Buffer 的数据结构是一棵 B+ 树，现在版本中，全局只有一棵 Insert Buffer B+ 树，负责对所有的表的辅助索引进行  Insert Buffer，而这棵 B+ 树存放在共享表空间中，默认ibdata1中。因此试图通过独立表空间 ibd文件恢复表中数据时，往往会导致 CHECK TABLE 失败，因为这些表的辅助索引中的数据可能还在 Insert Buffer中，也就是共享表空间中，索引通过 ibd 文件进行恢复后，还需要进行 REPAIR TABLE 操作来重建表上所有的辅助索引。</p>
+<p>Insert Buffer 是一棵 B+ 树，因此其也由叶节点和非叶节点组成。非叶节点存放的是查询的 search key，其构造如下：</p>
+<img src="/2019/11/26/innodb-insert-buffer/buffer_1.png">
+
+<p>search key 一共占9个字节，space 表示待插入记录表所在的表空间id，在 InnoDB 存储引擎中，每个表有一个唯一的 space id，可以通过 space id 查询得知是哪张表，space 占用4字节，market 栈1字节，它用来兼容老版本的 Insert Buffer，offset 表示页所在的偏移量，战4字节。</p>
+<p>当一个辅助索引要插入到页时（space, offset），如果这个页不再缓冲池，那么 InnoDB 存储引擎首先根据上述规则构建一个 search key，接下来查询 Insert Buffer 这棵 B+ 树，然后再将这条记录插入到 Insert Buffer B+ 树的叶子节点中。</p>
+<p>对于插入到 Insert Buffer B+ 树的叶子节的记录，并不是直接将待插入到记录插入，而是需要根据如下规则进行构造：</p>
+<img src="/2019/11/26/innodb-insert-buffer/buffer_2.png">
+
+<p>前3个字段占用9字节，第4个字段 metadata 占用4个字节，其储存内容是 <code>ibuf_rec_offset_count</code> 2字节，<code>ibuf_rec_offset_type</code> 1字节，<code>ibuf_rec_offset_flags</code> 1字节。<code>ibuf_rec_offset_count</code>用来排序每个记录进入 Insert Buffer 的顺序。从 Insert Buffer 第5列开始，就是实际插入记录的各个字段了。因此较之前插入记录，Insert Buffer B+ 树的叶子节点记录多了13字节的开销。</p>
+<p>因为启用 Insert Buffer 索引后，辅助索引页中的记录可能被插入到 Insert Buffer B+ 树中，所以为了保证每次 Merge Insert Buffer 页必须成功，还需要有一个特殊的页用来标记每个辅助索引页的可用空间，这个页的类型为 Insert Buffer Bitmap。</p>
+<p>每个  Insert Buffer Bitmap 页用来追踪 16384 个辅助索引页，也就是256个区（Extent）。每个  Insert Buffer Bitmap 页都在16384 个页的第二个页中。</p>
+<h1 id="Merge-Insert-Buffer"><a href="#Merge-Insert-Buffer" class="headerlink" title="Merge Insert Buffer"></a>Merge Insert Buffer</h1><p>前面知道 Insert Buffer 是一棵 B+ 树，若需要实现插入记录的辅助索引页不在缓冲池中，那么需要将辅助索引记录首先插入到这棵 B+ 树中。但是 Insert Buffer 中的记录何时合并到真正的辅助索引中，概括来说，Merge Insert Buffer 的操作可能发生在一下几种情况下：</p>
+<blockquote>
+<p>辅助索引页被读取到缓冲池中<br>Merge Insert Bitmap 页追踪到该辅助索引页已无可用空间<br>Master Thread</p>
+</blockquote>
+<p>第一种情况为当辅助索引页被读取到缓冲池中时，例如在执行正常的 select 查询操作，这时需要检查 Insert Buffer Bitmap 页，然后确认该辅助索引页是否已有记录存放于 Insert Buffer B+ 树中，若有，则将 Insert Buffer B+ 树中该页的记录插入到该辅助索引页中。可以看到对该页多次的记录操作通过一次操作合并到了原有的辅助索引页中，因此性能会有大幅提升。</p>
+<p>Insert Buffer Bitmap 页用来追踪每个辅助索引页的可用空间，并至少有1/32页的空间，若插入辅助索引时检测到插入记录后可用空间小于1/32，则会强制进行一个合并操作，即强制读取辅助索引页，将 Insert Buffer B+ 树中该页的记录及待插入的记录插入到辅助索引页中，这就是上述的第二种情况。</p>
+<p>还有一种情况，在 Mater Thread 线程中每秒或10秒会进行一次 Marge Insert Buffer 操作，不同之处在于每次进行 merge 操作的页数量不同。</p>
+<p>在 Mater Thread 中，执行 merge 操作的不止一个页，而是根据 srv_innodb_io_capacity 的百分比来决定真正要合并多少个辅助索引页，但 InnoDB 存储引擎又是根据怎样的算法来得知需要合并的辅助索引呢？</p>
+<p>在 Insert Buffer B+ 树中，辅助索引页根据（space， offset）都已排序好，故可以根据（space， offset）但排序顺序顺序进行页的选择，然而对于 Insert Buffer 页的选择，InnoDB 存储引擎并非采用这个方式，它随机地选择 Insert Buffer B+ 树的一个页，读取该页中的space 及之后所需要数量的页。该算法在复杂情况下应有更好的公平性，同时，若进行 merge 时，要进行 merge 的表已经被删除，此时可以直接丢弃已经被 Insert/Change Buffer 的数据记录。</p>
 
           
         
@@ -1383,316 +1708,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/17/copy/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/17/copy/" itemprop="url">python 复制</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-17T11:48:40+08:00">
-                2019-09-17
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="浅复制"><a href="#浅复制" class="headerlink" title="浅复制"></a>浅复制</h1><p>复制列表</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">l1 = [<span class="number">3</span>, [<span class="number">55</span>, <span class="number">66</span>, <span class="number">77</span>], (<span class="number">88</span>, <span class="number">99</span>)]</span><br><span class="line">l2 = list(l1)</span><br><span class="line">l1.append(<span class="number">100</span>)</span><br><span class="line">l1[<span class="number">1</span>].remove(<span class="number">55</span>)</span><br><span class="line">l1      <span class="comment"># [3, [66, 77], (88, 99), 100]</span></span><br><span class="line">l2      <span class="comment"># [3, [66, 77], (88, 99)]</span></span><br><span class="line">l2[<span class="number">1</span>] += [<span class="number">33</span>, <span class="number">32</span>]</span><br><span class="line">l1      <span class="comment"># [3, [66, 77, 33, 32], (88, 99), 100]</span></span><br><span class="line">l2 		<span class="comment"># [3, [66, 77, 33, 32], (88, 99)]</span></span><br><span class="line">l2[<span class="number">2</span>] += (<span class="number">10</span>, <span class="number">11</span>) </span><br><span class="line">l1			<span class="comment"># [3, [66, 77, 33, 32], (88, 99), 100]</span></span><br><span class="line">l2 		<span class="comment"># [3, [66, 77, 33, 32], (88, 99, 10, 11)]</span></span><br></pre></td></tr></table></figure>
-
-<p>这个包含一个列表，一个元祖的列表。<br>l1追加100这个元素对l2没有影响，删除55有影响，因为l2[1]绑定的列表与l1[1]是同一个。</p>
-<p>对于可变对象来说，+= 运算符就地修改列表，这次修改在l1[1]中也有体现，因为它是l2[1]的别名。</p>
-<p>对于元祖来说，+= 运算符创建一个新元祖，然后重新绑定给变量l2[2]。这等同于l2[2] = l2[2] + (10, 11)。现在，l1 和 l2 中最后位置上的元祖不是同一个对象。</p>
-<h1 id="深复制"><a href="#深复制" class="headerlink" title="深复制"></a>深复制</h1><p>深复制，即副本不共享内部对象的引用。copy 模块提供的 deepcopy 和 copy 函数能为任意对象做深复制和浅复制。</p>
-<p>创建一个公交车上下车的类</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bus</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, passengers=None)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> passengers <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            self.passengers = []</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self.passengers = list(passengers)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pick</span><span class="params">(self, name)</span>:</span></span><br><span class="line">    	self.passengers.append(name)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">drop</span><span class="params">(self, name)</span>:</span></span><br><span class="line">    	self.passengers.remove(name)</span><br></pre></td></tr></table></figure>
-
-<p>然后创建一个实例，2个副本</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">4</span>]: <span class="keyword">import</span> copy</span><br><span class="line">In[<span class="number">5</span>]: bus1 = Bus([<span class="string">"alice"</span>, <span class="string">"bill"</span>, <span class="string">"cliare"</span>, <span class="string">"david"</span>])</span><br><span class="line">In[<span class="number">6</span>]: bus2 = copy.copy(bus1)</span><br><span class="line">In[<span class="number">7</span>]: bus3 = copy.deepcopy(bus1)</span><br><span class="line">In[<span class="number">8</span>]: id(bus1), id(bus2), id(bus3)</span><br><span class="line">Out[<span class="number">8</span>]: (<span class="number">4342669832</span>, <span class="number">4342629208</span>, <span class="number">4320004360</span>)</span><br><span class="line">In[<span class="number">9</span>]: bus1.drop(<span class="string">'bill'</span>)</span><br><span class="line">In[<span class="number">10</span>]: bus2.passengers</span><br><span class="line">Out[<span class="number">10</span>]: [<span class="string">'alice'</span>, <span class="string">'cliare'</span>, <span class="string">'david'</span>]</span><br><span class="line">In[<span class="number">11</span>]: bus3.passengers</span><br><span class="line">Out[<span class="number">11</span>]: [<span class="string">'alice'</span>, <span class="string">'bill'</span>, <span class="string">'cliare'</span>, <span class="string">'david'</span>]</span><br><span class="line">In[<span class="number">12</span>]: id(bus1.passengers), id(bus2.passengers), id(bus3.passengers)</span><br><span class="line">Out[<span class="number">12</span>]: (<span class="number">4342638088</span>, <span class="number">4342638088</span>, <span class="number">4342640520</span>)</span><br></pre></td></tr></table></figure>
-
-<p>bus1 和 bus2 共享一个列表对象，因为 bus2 是 bus1 的浅复制，bus3 是 bus1 的深复制副本，因此它的 passengers 属性指代另一个列表。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/12/mysql-index/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/12/mysql-index/" itemprop="url">mysql 喂，你的索引没有用到诶</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-12T10:07:53+08:00">
-                2019-09-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>先说结论，以后无论是写代码还是查bug，都要认真写啊</p>
-<p>最近发现一个接口因为数据量大导致查询时间长，需要优化，我就去查了，其中最耗时的是一个类似这样的查询:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">obj = db.session.query(A.id, D.name)</span><br><span class="line">.filter(B.student_id == student_id, B.status=2)</span><br><span class="line">.filter(A.student_id == B.student_id, A.status&gt;0)</span><br><span class="line">.filter(B.teacher_id == C.id)</span><br><span class="line">.filter(C.class_id == D.id)</span><br><span class="line">.all()</span><br></pre></td></tr></table></figure>
-
-<p>看了代码，没什么问题嘛，用 MySQL 提供的 EXPLAIN 命令分析一下，结果如下:</p>
-<table>
-<thead>
-<tr>
-<th>id</th>
-<th>table</th>
-<th>type</th>
-<th>possible_keys</th>
-<th>key</th>
-<th>ref</th>
-<th>rows</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td>d</td>
-<td>eq_ref</td>
-<td>PRIMARY</td>
-<td>PRIMARY</td>
-<td><subquery2>.class_id</subquery2></td>
-<td>10000</td>
-</tr>
-<tr>
-<td>1</td>
-<td>a</td>
-<td>index</td>
-<td>-</td>
-<td>student_id</td>
-<td>-</td>
-<td>10000</td>
-</tr>
-<tr>
-<td>2</td>
-<td>b</td>
-<td>ALL</td>
-<td>teacher_id</td>
-<td>-</td>
-<td>-</td>
-<td>1000000</td>
-</tr>
-<tr>
-<td>2</td>
-<td>c</td>
-<td>eq_ref</td>
-<td>PRIMARY, class_id</td>
-<td>PRIMARY</td>
-<td>b.teacher_id</td>
-<td>10000</td>
-</tr>
-</tbody></table>
-<p>诶，数据量百万级的 B 竟然是全文搜索，怪不得要10s才查出来，没有索引吗，查了一下数据库， A.student_id, B.teacher_id, C.class_id 都创建了索引，那筛选 student_id 的时候都没有用到索引，那筛选改到 A 上面，改成如下:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">obj = db.session.query(A.id, D.name)</span><br><span class="line">.filter(A.student_id == student_id, A.status&gt;0 )</span><br><span class="line">.filter(A.student_id == B.student_id, B.status=2)</span><br><span class="line">.filter(B.teacher_id == C.id)</span><br><span class="line">.filter(C.class_id == D.id)</span><br><span class="line">.all()</span><br></pre></td></tr></table></figure>
-
-<p>结果果然快多了，整个查询降到了1s，，接下来看看其他语句吧<br>就酱。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1745,7 +1760,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">57</span>
+                  <span class="site-state-item-count">59</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1758,7 +1773,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-count">22</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
