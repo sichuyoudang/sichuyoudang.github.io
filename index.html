@@ -262,6 +262,136 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/13/wrapper/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/09/13/wrapper/" itemprop="url">Python 装饰器</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-09-13T16:47:52+08:00">
+                2020-09-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>有时候我们不想修改函数，但是需要添加额外处理（例如记录日志，计时统计，性能监控等）时，可以在函数加上一层包装（wrapper layer）来实现。</p>
+<h1 id="简单装饰器函数"><a href="#简单装饰器函数" class="headerlink" title="简单装饰器函数"></a>简单装饰器函数</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">timer</span><span class="params">(func)</span>:</span></span><br><span class="line"><span class="meta">	@wraps(func)</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args, **kwargs)</span>:</span></span><br><span class="line">		start = time.time()</span><br><span class="line">		results = func(*args, **kwargs)</span><br><span class="line">		print(start)</span><br><span class="line">		<span class="keyword">return</span> results</span><br><span class="line">	<span class="keyword">return</span> wrapper</span><br></pre></td></tr></table></figure>
+
+<p>装饰器函数内部创建一个新函数，利用 <code>*args</code> 和 <code>**kwargs</code>来接受任意参数，在这个函数内部，调用原来的输入函数（即被包装的函数）并返回它的结果。这个新创建的 wrapper 函数作为装饰器的结果返回，取代了原来的函数。</p>
+<p>装饰器一般不会修改调用签名，也不会修改被包装函数返回的结果，这是如何实现？</p>
+<p>最好的方式就是使用 @wraps 装饰器，因为 @wraps 装饰器的一个重要特征就是它可以通过 <code>__wrapped__</code> 属性来访问被包装的那个函数，底层的函数签名可以通过访问<code>__wrapped__</code> 属性来传递。</p>
+<p>当时要注意，不是所有的装饰器都使用了 @wraps，因此有些装饰器的行为可能和我们期望的有所区别，特殊时，由内建的装饰器 @staticmethod 和 @classmethod 构建的描述符对象并不遵循这个约定（相反，它们会把原始函数保存在<code>__func__</code> 属性中），所以具体问题具体分析。</p>
+<h1 id="可接受参数的装饰器"><a href="#可接受参数的装饰器" class="headerlink" title="可接受参数的装饰器"></a>可接受参数的装饰器</h1><p>编写一个函数为添加日志功能的装饰器，但是油允许用户指定日志的等级以及其他的细节作为参数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"><span class="keyword">import</span> logging</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">logged</span><span class="params">(level, name=None, message=None)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">decorate</span><span class="params">(func)</span>:</span></span><br><span class="line">		logname = name <span class="keyword">if</span> name <span class="keyword">else</span> func.__module__</span><br><span class="line">		log = logging.getLogger(logname)</span><br><span class="line">		logmsg = message <span class="keyword">if</span> message <span class="keyword">else</span> func.__name__</span><br><span class="line">		</span><br><span class="line"><span class="meta">		@wraps(func)</span></span><br><span class="line">		<span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args, **kwargs)</span>:</span></span><br><span class="line">			log.log(level, logmsg)</span><br><span class="line">			<span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">		<span class="keyword">return</span> wrapper</span><br><span class="line">	<span class="keyword">return</span> decorate</span><br><span class="line">	</span><br><span class="line"><span class="comment">#exp</span></span><br><span class="line"><span class="meta">@logged(logging.DEBUG)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(x, y)</span>:</span></span><br><span class="line">	<span class="keyword">return</span> x + y</span><br></pre></td></tr></table></figure>
+
+<p>如上，最外层的 logged() 函数接受所需的参数，并让它们对装饰器的内层函数可见，内层的 decorate() 函数接受一个函数并给它加上一个包装层，关键部分在于这个包装层可以使用传递给 logged() 的参数。<br>此外，decorate() 的结果必须是一个可调用对象，这个对象反过来接受一个函数作为输入，并对其进行包装。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/09/innodb-doublewrite/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1609,147 +1739,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/27/python-mro/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/02/27/python-mro/" itemprop="url">Python 多重继承顺序</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-02-27T14:53:42+08:00">
-                2020-02-27
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="Python-多重继承顺序"><a href="#Python-多重继承顺序" class="headerlink" title="Python 多重继承顺序"></a>Python 多重继承顺序</h1><p>任何实现多重继承的语言都要处理潜在的命名冲突，这种冲突由不相关的祖先类实现同名方法引起，这种冲突成为”菱形问题”。</p>
-<p>flu.py 中创建 A, B, C, D 4个类, B 和 C 的差别在于输出的大小写不同:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">ping</span><span class="params">(self)</span>:</span></span><br><span class="line">		print(<span class="string">"ping"</span>, self)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span><span class="params">(A)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">pong</span><span class="params">(self)</span>:</span></span><br><span class="line">		print(<span class="string">"pong"</span>, self)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">C</span><span class="params">(A)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">pong</span><span class="params">(self)</span>:</span></span><br><span class="line">		print(<span class="string">"PONG"</span>, self) </span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">D</span><span class="params">(B, C)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">ping</span><span class="params">(self)</span>:</span></span><br><span class="line">		super().ping()</span><br><span class="line">		print(<span class="string">"post_ping"</span>, self)</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">pingpong</span><span class="params">(self)</span>:</span></span><br><span class="line">		self.ping()</span><br><span class="line">		super().ping()</span><br><span class="line">		self.pong()</span><br><span class="line">		super().pong()</span><br><span class="line">		C.pong(self)</span><br></pre></td></tr></table></figure>
-
-<p>在D 实例上调用：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> flu <span class="keyword">import</span> *</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>d =D()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>d.pong()  <span class="comment">#1</span></span><br><span class="line">pong &lt;flu.D object at <span class="number">0x106748290</span>&gt;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>C.pong(d) <span class="comment">#2</span></span><br><span class="line">PONG &lt;flu.D object at <span class="number">0x106748290</span>&gt;</span><br></pre></td></tr></table></figure>
-
-<p>如上，#1 直接调用d.pong 用的是B 类中的版本， #2 超类中的方法都可以直接调用，此时要把实例作为显示参数传入。</p>
-<p>Python 能区分 d.pong() 调用的是哪个方法，是因为 Python 会按照特定的顺序遍历，这个顺序叫方法解析顺序（Method Resolution Order，MRO）。类都有一个 <code>__mro__</code> 属性，它的值是一个元祖，按照方法解析顺序列出各个超类，从当前类一直往上，直到 object 类。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>D.__mro__</span><br><span class="line">(&lt;class 'flu.D'&gt;, &lt;class 'flu.B'&gt;, &lt;class 'flu.C'&gt;, &lt;class 'flu.A'&gt;, &lt;class 'object'&gt;)</span><br></pre></td></tr></table></figure>
-
-<p>若想把超类调用委托给超类，推荐方式是使用内置的 <code>super()</code> 函数，在 Python3 中，这种方式很容易，如上面的D类的 pingpong方法所示。然而有时可能需要绕过方法解析，直接调用某个超类的方法，这样做更方便:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ping</span><span class="params">(self)</span>:</span></span><br><span class="line">    A.ping()    <span class="comment"># 而不是super().ping()</span></span><br><span class="line">    print(<span class="string">"post_ping"</span>, self)</span><br></pre></td></tr></table></figure>
-
-<p><strong>注意</strong>，直接在类上调用实例时，必须显示传入 self 参数，因为这样访问的是<code>未绑定方法</code>。然而使用<code>super()</code> 最安全，也不易过时，调用框架或不受自己控制的类层次结构中的方法时，尤其适合使用<code>super()</code>。使用<code>super()</code>调用方法时，会遵守MRO，如下：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>d.ping()</span><br><span class="line">ping &lt;flu.D object at <span class="number">0x106748290</span>&gt;</span><br><span class="line">post_ping &lt;flu.D object at <span class="number">0x106748290</span>&gt;</span><br></pre></td></tr></table></figure>
-
-<p>D类的ping方法做了两次调用，第一次调用 super().ping(), super 函数把ping调用委托给A类，由A.ping 输出，第二个调用是 print(“post_ping”, self)。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; d.pingpong()</span><br><span class="line">ping &lt;flu.D object at 0x106748290&gt;  #1</span><br><span class="line">post_ping &lt;flu.D object at 0x106748290&gt;</span><br><span class="line">ping &lt;flu.D object at 0x106748290&gt;  #2</span><br><span class="line">pong &lt;flu.D object at 0x106748290&gt;  #3</span><br><span class="line">pong &lt;flu.D object at 0x106748290&gt;  #4</span><br><span class="line">PONG &lt;flu.D object at 0x106748290&gt;  #5</span><br></pre></td></tr></table></figure>
-
-<p>第一个调用是 self.ping()，运行的是 D 类的 ping 方法，输出这一行和下一行<br>第二个调用是 super().ping()， 跳过 D 类的 ping 方法，找到 A 类的 ping 方法<br>第三个调用是 self.pong()，根据 <code>__mro__</code> 找到的是 B 类实现的 pong 方法<br>第四个调用是 super().pong()， 也根据 <code>__mro__</code> 找到的是 B 类实现的 pong 方法<br>第五个调用是 C.pong(self)， 忽略 <code>__mro__</code> 找到的是 C 类实现的 pong 方法</p>
-<p>子类声明中列出的超类顺序会影响方法解析顺序，例如把 D 类声明为 class D(C, B)，那么 D 类的 <code>__mro__</code> 属性就会不一样，会先搜索C类，再搜索 B 类。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1802,7 +1791,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">59</span>
+                  <span class="site-state-item-count">60</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

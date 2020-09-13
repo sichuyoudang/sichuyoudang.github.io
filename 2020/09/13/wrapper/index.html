@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="mysql,">
+  <meta name="keywords" content="python,">
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="通过 show engines 查看当前 MySQL 数据库所支持的存储引擎。 InnoDB 存储引擎InnoDB 存储引擎支持事务，其设计目标主要面向在线事务处理（OLTP Online Transation Processiong）的应用，特点是支持行锁设计，支持外键，并支持类似于 Oracle 的非锁定读，即默认状态读取操作不会产生锁。从5.5.8 版本开始，InnoDB 存储引擎是 MyS">
-<meta name="keywords" content="mysql">
+<meta name="description" content="有时候我们不想修改函数，但是需要添加额外处理（例如记录日志，计时统计，性能监控等）时，可以在函数加上一层包装（wrapper layer）来实现。 简单装饰器函数1234567891011import timefrom functools import wrapsdef timer(func):	@wraps(func)	def wrapper(*args, **kwargs):		start =">
+<meta name="keywords" content="python">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MySQL 存储引擎">
-<meta property="og:url" content="http://yoursite.com/2019/09/18/mysql-storage-engine/index.html">
+<meta property="og:title" content="Python 装饰器">
+<meta property="og:url" content="http://yoursite.com/2020/09/13/wrapper/index.html">
 <meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
-<meta property="og:description" content="通过 show engines 查看当前 MySQL 数据库所支持的存储引擎。 InnoDB 存储引擎InnoDB 存储引擎支持事务，其设计目标主要面向在线事务处理（OLTP Online Transation Processiong）的应用，特点是支持行锁设计，支持外键，并支持类似于 Oracle 的非锁定读，即默认状态读取操作不会产生锁。从5.5.8 版本开始，InnoDB 存储引擎是 MyS">
+<meta property="og:description" content="有时候我们不想修改函数，但是需要添加额外处理（例如记录日志，计时统计，性能监控等）时，可以在函数加上一层包装（wrapper layer）来实现。 简单装饰器函数1234567891011import timefrom functools import wrapsdef timer(func):	@wraps(func)	def wrapper(*args, **kwargs):		start =">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-09-18T06:45:04.265Z">
+<meta property="og:updated_time" content="2020-09-13T13:06:12.562Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="MySQL 存储引擎">
-<meta name="twitter:description" content="通过 show engines 查看当前 MySQL 数据库所支持的存储引擎。 InnoDB 存储引擎InnoDB 存储引擎支持事务，其设计目标主要面向在线事务处理（OLTP Online Transation Processiong）的应用，特点是支持行锁设计，支持外键，并支持类似于 Oracle 的非锁定读，即默认状态读取操作不会产生锁。从5.5.8 版本开始，InnoDB 存储引擎是 MyS">
+<meta name="twitter:title" content="Python 装饰器">
+<meta name="twitter:description" content="有时候我们不想修改函数，但是需要添加额外处理（例如记录日志，计时统计，性能监控等）时，可以在函数加上一层包装（wrapper layer）来实现。 简单装饰器函数1234567891011import timefrom functools import wrapsdef timer(func):	@wraps(func)	def wrapper(*args, **kwargs):		start =">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/09/18/mysql-storage-engine/">
+  <link rel="canonical" href="http://yoursite.com/2020/09/13/wrapper/">
 
 
 
 
 
-  <title>MySQL 存储引擎 | 我想，吃饭睡觉，走走停停</title>
+  <title>Python 装饰器 | 我想，吃饭睡觉，走走停停</title>
   
 
 
@@ -263,7 +263,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/18/mysql-storage-engine/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/13/wrapper/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="sichuyoudang">
@@ -280,7 +280,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">MySQL 存储引擎</h1>
+          <h1 class="post-title" itemprop="name headline">Python 装饰器</h1>
         
 
         <div class="post-meta">
@@ -292,8 +292,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-18T11:22:50+08:00">
-                2019-09-18
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-09-13T16:47:52+08:00">
+                2020-09-13
               </time>
             
 
@@ -330,22 +330,17 @@
       
 
       
-        <p>通过 show engines 查看当前 MySQL 数据库所支持的存储引擎。</p>
-<h1 id="InnoDB-存储引擎"><a href="#InnoDB-存储引擎" class="headerlink" title="InnoDB 存储引擎"></a>InnoDB 存储引擎</h1><p>InnoDB 存储引擎支持事务，其设计目标主要面向在线事务处理（OLTP Online Transation Processiong）的应用，特点是支持行锁设计，支持外键，并支持类似于 Oracle 的非锁定读，即默认状态读取操作不会产生锁。从5.5.8 版本开始，InnoDB 存储引擎是 MySQL 默认存储引擎。</p>
-<p>InnoDB 存储引擎将数据放在一个逻辑的表空间中，这个表空间就像黑盒一样由 InnoDB 存储引擎自身进行管理。从4.1 版本开始，它可以将每个InnoDB 存储引擎的表单独放到一个独立的 ibd 文件中。此外，InnoDB 存储引擎支持用裸设备用来建立其表空间。</p>
-<p>InnoDB 存储引擎通过使用多版本并发控制（MVCC）来获得高并发性，并且实现了 SQL 标准的4种隔离级别，默认 REPEATABLE 级别。同时使用一种称为 next-key locking 的策略来避免幻读的产生，除此之外，InnoDB 存储引擎还提供了插入缓冲，二次写，自适应哈希索引，预读等高性能和高可用的功能。</p>
-<p>对于表中数据的存储，InnoDB 存储引擎采用了聚集的方式，因此每张表都是按主键的顺序进行存放。如果没有显式的在表定义时指定主键，InnoDB 存储引擎会为每一行生成一个6字节的 ROWID ，并以此作为主键。</p>
-<h1 id="MyISAM-存储引擎"><a href="#MyISAM-存储引擎" class="headerlink" title="MyISAM 存储引擎"></a>MyISAM 存储引擎</h1><p>MyISAM 存储引擎不支持事务，表锁设计，支持全文索引，主要面向一些 OLAP 数据库应用。5.5.8 版本之前是 MySQL 默认存储引擎。数据库系统和文件系统很大的一个不同之处是对事务的支持，然而 MyISAM 存储引擎是不支持事务的。原因是用户并不是所有应用都需要事务。此外 MyISAM 存储引擎的另一个与众不同的地方是它的缓冲池只缓存索引文件，而不缓存数据文件，数据文件的缓存交由操作系统本身来完成，这点和大部分数据库都不同。</p>
-<p>MyISAM 存储引擎表由 MYD 和 MYI 组成，MYD 用来存放数据文件， MYI 用来存放索引文件。可以通过 myisampack 工具来进一步压缩数据文件，因为 myisampack 公交使用赫夫曼编码静态算法来压缩数据，因此使用 myisampack 工具压缩后的表是只读的，当然用户也可以通过 myisampack 来解压数据文件。</p>
-<p>MySQL 5.0 版本之前， MyISAM 默认支持的表大小为4GB ，如果需要支持大于4GB的 MyISAM 表，需要定制 MAX_ROWS 和 AVG_ROW_LENGTH 属性。从MySQL 5.0 版本开始，MyISAM 默认支持256TB 的单表数据，这足够满足一班应用需求。</p>
-<h1 id="NDB-存储引擎"><a href="#NDB-存储引擎" class="headerlink" title="NDB 存储引擎"></a>NDB 存储引擎</h1><p>2003 年，MySQL AB 从 Sony Ericsson 公司收购了 NDB 集群引擎， NDB 存储引擎是一个集群存储引擎，类似于 Oracle 的 RAC 集群，不过与 Oracle RAC share everything 架构不同的是，其结构是 share nothing 的集群架构，因此能提供更高的可用性。 NDB 的特点是数据全部放在内存中（MYSQL 从5.1 版本起，可以将非索引数据放在磁盘上）,因此主键查找的速度极快，并且通过添加 NDB 数据存储节点可以线性地提高数据库性能，是高可用，高性能的集群系统。</p>
-<p>关于 NDB 存储引擎，有一个问题， NDB 存储引擎的连接操作是在 MySQL 数据库层完成的，而不是在存储引擎层完成的。这意味着，复杂的连接操作需要巨大的网络开销，因此查询速度很慢。</p>
-<h1 id="Memory-存储引擎"><a href="#Memory-存储引擎" class="headerlink" title="Memory 存储引擎"></a>Memory 存储引擎</h1><p>Memory 存储引擎（之前称 HEAP 存储引擎）将表中的数据存放在内存中，如果数据库重启或发生崩溃，表中所有数据都将消失。它非常适合存储临时数据的临时表，以及数据仓库中的纬度表。Memory 存储引擎默认使用哈希索引，而不是B+数索引。</p>
-<p>虽然 Memory 存储引擎速度非常快，但在使用上还是有一定的限制。比如只支持表锁，并发性能较差，并且不支持 TEXT 和 BLOB 列类型。最重要的是，存储变长字段（varchar）时是按照定长字段（char）的方式进行的，因为会浪费内存。</p>
-<p>此外，MySQL 数据库使用 Memory 存储引擎作为临时表来存放查询的中间结果集。如果中间结果集大于 Memory 存储引擎表的容量设置，又或者中间结果含有 TEXT 或 BLOB 列类型字段，MySQL 数据库会把其转换到 MyISAM 存储引擎表而存放到磁盘中。前面提到 MyISAM 不缓存数据文件，因此这是产生的临时表的性能对于查询会有损失。</p>
-<h1 id="Archive-存储引擎"><a href="#Archive-存储引擎" class="headerlink" title="Archive 存储引擎"></a>Archive 存储引擎</h1><p>Archive 存储引擎只支持 INSERT 和 SELECT 操作，从 MySQL 5.1 开始支持索引。Archive 存储引擎使用 zlib算法将数据行（row）进行压缩后存储，压缩比一般可达1:10。正如其名字所示，Archive 存储引擎非常适合存储归档数据，如日志信息。Archive 存储引擎使用行锁来实现高并发的插入操作，但是其本身并不是事务安全的存储引擎，其设计目标主要是提供高速的插入和压缩功能。</p>
-<h1 id="Federated-存储引擎"><a href="#Federated-存储引擎" class="headerlink" title="Federated 存储引擎"></a>Federated 存储引擎</h1><p>Federated 存储引擎表并不存放数据，它只是指向一台远程 MySQL 数据库服务器上的表。这非常类似于 SQL Server 的链接服务器和 Oracle 的透明网关，不同的是，当前 Federated 存储引擎只支持 MySQL 数据库表，不支持异构数据库表。</p>
-<h1 id="Maria-存储引擎"><a href="#Maria-存储引擎" class="headerlink" title="Maria 存储引擎"></a>Maria 存储引擎</h1><p>Maria 存储引擎是新开发的引擎，设计目标是用来取代原有的 MyISAM 存储引擎，从而成为 MySQL 的默认存储引擎。Maria 存储引擎开发者是 MySQL 的创始人之一的 Michael Widenius。因为可以看作 MyISAM 存储引擎的后续版本。Maria 存储引擎的特点：支持缓存数据和索引数据，应用了行锁设计，提供了 MVCC 功能，支持事务和非事务安全的选项，以及更好的 BLOB 字符类型的处理性能。</p>
+        <p>有时候我们不想修改函数，但是需要添加额外处理（例如记录日志，计时统计，性能监控等）时，可以在函数加上一层包装（wrapper layer）来实现。</p>
+<h1 id="简单装饰器函数"><a href="#简单装饰器函数" class="headerlink" title="简单装饰器函数"></a>简单装饰器函数</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">timer</span><span class="params">(func)</span>:</span></span><br><span class="line"><span class="meta">	@wraps(func)</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args, **kwargs)</span>:</span></span><br><span class="line">		start = time.time()</span><br><span class="line">		results = func(*args, **kwargs)</span><br><span class="line">		print(start)</span><br><span class="line">		<span class="keyword">return</span> results</span><br><span class="line">	<span class="keyword">return</span> wrapper</span><br></pre></td></tr></table></figure>
+
+<p>装饰器函数内部创建一个新函数，利用 <code>*args</code> 和 <code>**kwargs</code>来接受任意参数，在这个函数内部，调用原来的输入函数（即被包装的函数）并返回它的结果。这个新创建的 wrapper 函数作为装饰器的结果返回，取代了原来的函数。</p>
+<p>装饰器一般不会修改调用签名，也不会修改被包装函数返回的结果，这是如何实现？</p>
+<p>最好的方式就是使用 @wraps 装饰器，因为 @wraps 装饰器的一个重要特征就是它可以通过 <code>__wrapped__</code> 属性来访问被包装的那个函数，底层的函数签名可以通过访问<code>__wrapped__</code> 属性来传递。</p>
+<p>当时要注意，不是所有的装饰器都使用了 @wraps，因此有些装饰器的行为可能和我们期望的有所区别，特殊时，由内建的装饰器 @staticmethod 和 @classmethod 构建的描述符对象并不遵循这个约定（相反，它们会把原始函数保存在<code>__func__</code> 属性中），所以具体问题具体分析。</p>
+<h1 id="可接受参数的装饰器"><a href="#可接受参数的装饰器" class="headerlink" title="可接受参数的装饰器"></a>可接受参数的装饰器</h1><p>编写一个函数为添加日志功能的装饰器，但是油允许用户指定日志的等级以及其他的细节作为参数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"><span class="keyword">import</span> logging</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">logged</span><span class="params">(level, name=None, message=None)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">decorate</span><span class="params">(func)</span>:</span></span><br><span class="line">		logname = name <span class="keyword">if</span> name <span class="keyword">else</span> func.__module__</span><br><span class="line">		log = logging.getLogger(logname)</span><br><span class="line">		logmsg = message <span class="keyword">if</span> message <span class="keyword">else</span> func.__name__</span><br><span class="line">		</span><br><span class="line"><span class="meta">		@wraps(func)</span></span><br><span class="line">		<span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args, **kwargs)</span>:</span></span><br><span class="line">			log.log(level, logmsg)</span><br><span class="line">			<span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">		<span class="keyword">return</span> wrapper</span><br><span class="line">	<span class="keyword">return</span> decorate</span><br><span class="line">	</span><br><span class="line"><span class="comment">#exp</span></span><br><span class="line"><span class="meta">@logged(logging.DEBUG)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(x, y)</span>:</span></span><br><span class="line">	<span class="keyword">return</span> x + y</span><br></pre></td></tr></table></figure>
+
+<p>如上，最外层的 logged() 函数接受所需的参数，并让它们对装饰器的内层函数可见，内层的 decorate() 函数接受一个函数并给它加上一个包装层，关键部分在于这个包装层可以使用传递给 logged() 的参数。<br>此外，decorate() 的结果必须是一个可调用对象，这个对象反过来接受一个函数作为输入，并对其进行包装。</p>
 
       
     </div>
@@ -363,7 +358,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/mysql/" rel="tag"># mysql</a>
+            <a href="/tags/python/" rel="tag"># python</a>
           
         </div>
       
@@ -376,8 +371,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/09/17/copy/" rel="next" title="python 复制">
-                <i class="fa fa-chevron-left"></i> python 复制
+              <a href="/2020/09/09/innodb-doublewrite/" rel="next" title="InnoDB 两次写">
+                <i class="fa fa-chevron-left"></i> InnoDB 两次写
               </a>
             
           </div>
@@ -385,10 +380,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/09/18/innodb-buffer-pool/" rel="prev" title="InnoDB 存储引擎中 LRU List，Free List 和 Flush List">
-                InnoDB 存储引擎中 LRU List，Free List 和 Flush List <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -513,7 +504,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#InnoDB-存储引擎"><span class="nav-number">1.</span> <span class="nav-text">InnoDB 存储引擎</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MyISAM-存储引擎"><span class="nav-number">2.</span> <span class="nav-text">MyISAM 存储引擎</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NDB-存储引擎"><span class="nav-number">3.</span> <span class="nav-text">NDB 存储引擎</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Memory-存储引擎"><span class="nav-number">4.</span> <span class="nav-text">Memory 存储引擎</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Archive-存储引擎"><span class="nav-number">5.</span> <span class="nav-text">Archive 存储引擎</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Federated-存储引擎"><span class="nav-number">6.</span> <span class="nav-text">Federated 存储引擎</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Maria-存储引擎"><span class="nav-number">7.</span> <span class="nav-text">Maria 存储引擎</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#简单装饰器函数"><span class="nav-number">1.</span> <span class="nav-text">简单装饰器函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#可接受参数的装饰器"><span class="nav-number">2.</span> <span class="nav-text">可接受参数的装饰器</span></a></li></ol></div>
             
 
           </div>
