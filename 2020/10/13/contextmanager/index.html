@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="python,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="with 块with 语句会设置一个临时的上下文，交给上下文管理器对象控制，并且负责清理上下文。这样既能避免错误又能减少样板代码。with 语句的目的是简化 try/finally 模式，这种模式用于保证一段代码运行完毕后执行某项操作，即便那段代码由于异常，return 语句或 sys.exit() 调用而终止，也会执行指定的操作。finally 字句中的代码通常用于释放重要资源，或者还原临时变更">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python 上下文管理器">
+<meta property="og:url" content="http://yoursite.com/2020/10/13/contextmanager/index.html">
+<meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
+<meta property="og:description" content="with 块with 语句会设置一个临时的上下文，交给上下文管理器对象控制，并且负责清理上下文。这样既能避免错误又能减少样板代码。with 语句的目的是简化 try/finally 模式，这种模式用于保证一段代码运行完毕后执行某项操作，即便那段代码由于异常，return 语句或 sys.exit() 调用而终止，也会执行指定的操作。finally 字句中的代码通常用于释放重要资源，或者还原临时变更">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-10-12T18:46:59.244Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python 上下文管理器">
+<meta name="twitter:description" content="with 块with 语句会设置一个临时的上下文，交给上下文管理器对象控制，并且负责清理上下文。这样既能避免错误又能减少样板代码。with 语句的目的是简化 try/finally 模式，这种模式用于保证一段代码运行完毕后执行某项操作，即便那段代码由于异常，return 语句或 sys.exit() 调用而终止，也会执行指定的操作。finally 字句中的代码通常用于释放重要资源，或者还原临时变更">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/10/13/contextmanager/">
+
+
+
+
+
+  <title>Python 上下文管理器 | 我想，吃饭睡觉，走走停停</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">我想，吃饭睡觉，走走停停</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">清绝，影也别。唯有知心月。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/13/contextmanager/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Python 上下文管理器</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-10-13T00:41:01+08:00">
+                2020-10-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="with-块"><a href="#with-块" class="headerlink" title="with 块"></a>with 块</h1><p>with 语句会设置一个临时的上下文，交给上下文管理器对象控制，并且负责清理上下文。这样既能避免错误又能减少样板代码。with 语句的目的是简化 try/finally 模式，这种模式用于保证一段代码运行完毕后执行某项操作，即便那段代码由于异常，return 语句或 sys.exit() 调用而终止，也会执行指定的操作。finally 字句中的代码通常用于释放重要资源，或者还原临时变更的状态。</p>
+<p>上下文管理器协议包括 <code>__enter__</code> 和 <code>__exit__</code> 两个方法。 with 语句开始运行时，会在上下文管理器对象上调用 <code>__enter__</code> 方法，返回除了上下文管理器之外，还可能返回其他对象，结束时调用  <code>__exit__</code> 。</p>
+<p>with 语句的 as 子句可选，对于 open 函数来说必须加上 as 子句，以便获取文件的引用。不过有些上下文管理器会返回 None，因为没什么有用的对象能提供给用户。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LookingGlass</span>:</span></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__enter__</span><span class="params">(self)</span>:</span>       <span class="comment"># 除self 之外，调用 __enter__ 方法时不传入其他参数</span></span><br><span class="line">		<span class="keyword">import</span> sys</span><br><span class="line">		self.original_write = sys.stdout.write    <span class="comment"># 把原来的 sys.stdout.write 方法保存在一个实例属性中，供后面使用</span></span><br><span class="line">		sys.stdout.write = self.reverse_write     <span class="comment"># 为 sys.stdout.write 打猴子补丁</span></span><br><span class="line">		<span class="keyword">return</span> <span class="string">"ABCDEFG"</span>          <span class="comment"># 返回字符串</span></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">reverse_write</span><span class="params">(self, text)</span>:</span>    <span class="comment"># 取代 sys.stdout.write 的方法，将 text 内容反转</span></span><br><span class="line">		self.original_write(text[::<span class="number">-1</span>])</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__exit__</span><span class="params">(self, exc_type, exc_value, traceback)</span>:</span>   <span class="comment"># 如果一切正常，__exit__ 方法传入的参数是 Node, Node, Node</span></span><br><span class="line">		<span class="keyword">import</span> sys   				      <span class="comment"># 重复导入不会消耗很多资源，因为 Python 会缓存导入的模块</span></span><br><span class="line">		sys.stdout.write = self.original_write        <span class="comment"># 还原成原来的 sys.stdout.write 方法</span></span><br><span class="line">		<span class="keyword">if</span> exc_type <span class="keyword">is</span> ZeroDivisionError:             <span class="comment"># 如果有异常，而且是 ZeroDivisionError 类型，打印消息</span></span><br><span class="line">			print(<span class="string">"please do not divide by zero"</span>)</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">True</span>             <span class="comment"># 。。。然后返回 True，告诉解释器，异常已经处理</span></span><br><span class="line">                             	 		<span class="comment"># 如果 __exit__ 方法返回 None，或者 True 之外的值，with 块中的任何异常都会向上冒泡</span></span><br><span class="line">			</span><br><span class="line">In [<span class="number">64</span>]: <span class="keyword">with</span> LookingGlass() <span class="keyword">as</span> wh:   <span class="comment"># 上下文管理器是 LookingGlass 类的实例，Python 在上下文管理器上调用 __enter__ 方法，把返回结果绑定在 wh 上</span></span><br><span class="line">    ...:     print(<span class="string">"hello, bob"</span>)      <span class="comment"># 打印一个字符串，然后打印 wh 变量的值</span></span><br><span class="line">    ...:     print(wh) </span><br><span class="line">    ...:                                                                                                                                                                     </span><br><span class="line">bob ,olleh                            <span class="comment"># 打印的内容是反向的</span></span><br><span class="line">GFEDCBA</span><br><span class="line">In [<span class="number">65</span>]: wh         		      <span class="comment"># 现在 with 块已经执行完毕，可见  __enter__  方法返回的值---即存储在 wh 变量中的值---是字符串  ABCDEFG                                                                                                                                                      </span></span><br><span class="line">Out[<span class="number">65</span>]: <span class="string">'ABCDEFG'</span></span><br><span class="line">In [<span class="number">66</span>]: print(<span class="string">"print normal"</span>)        <span class="comment"># 输出不再是反向的了                                                                                                                                      </span></span><br><span class="line"><span class="keyword">print</span> normal</span><br></pre></td></tr></table></figure>
+
+<p>参上，传给 <code>__exit__</code> 方法的三个参数列举如下：</p>
+<blockquote>
+<p><strong>exc_type</strong> 异常类<br><strong>exc_value</strong> 异常实例，有时会有参数传给异常构造方法，例如错误消息，这些参数可以使用 exc_value.args 获取<br><strong>traceback</strong> traceback 对象，在 try/finally 块中调用 sys.exc_info() 得到的就是 <code>__exit__</code> 接收的这三个参数</p>
+</blockquote>
+<h1 id="contextlib-模块"><a href="#contextlib-模块" class="headerlink" title="contextlib 模块"></a>contextlib 模块</h1><p>contextlib 模块中有一些类和函数也能实现上下文管理器：</p>
+<p><strong>closing</strong><br>如果对象提供了 close() 方法，但没有实现 <code>__enter__/__exit__</code> 协议，那么可以使用这个函数构建上下文管理器。</p>
+<p><strong>supress</strong><br>构建临时忽略指定异常的上下文管理器</p>
+<p><strong>@contextmanager</strong><br>这个装饰器把简单的生成器函数变成上下文管理器，这样就不用创建类去实现管理器协议了。</p>
+<p><strong>ContextDecorator</strong><br>基类，用于定义基于类的上下文管理器。这种上下文管理器也用于装饰函数，在受管理的上下文中运行整个函数。</p>
+<p><strong>ExitStack</strong><br>这个上下文管理器能进入多个上下文管理器。with 块结束时，ExitStack 按照后进先出的顺序调用栈中各个上下文管理器的 <code>__exit__</code>。如果事先不知道 with 块要进入多少个上下文管理器，可以使用这个类，例如同时打开任意一个文件列表中的所有文件。</p>
+<h1 id="使用-contextmanager"><a href="#使用-contextmanager" class="headerlink" title="使用 @contextmanager"></a>使用 @contextmanager</h1><p>@contextmanager 装饰器能减少创建上下文管理器的样板代码，因为不用编写一个完整的类，定义 <code>__enter__</code> 和 <code>__exit__</code> 方法，而只需实现一个 yield 语句的生成器，生成想让 <code>__enter__</code> 方法返回的值。</p>
+<p>在使用 @contextmanager 装饰的生成器中， yield 语句的作用是把函数的定义体分成两部分，yield 语句前面的所有代码在 with 块开始时（调用 <code>__enter__</code> 方法时）执行，yield 语句后面的代码在 with 块结束时（调用 <code>__exit__</code> 方法时）执行。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> contextlib</span><br><span class="line"></span><br><span class="line"><span class="meta">@contextlib.contextmanager     </span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">looking_glass</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="keyword">import</span> sys</span><br><span class="line">	original_write = sys.stdout.write  <span class="comment"># 应用原来的 sys.stdout.write 方法</span></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">reverse_write</span><span class="params">(text)</span>:</span>           <span class="comment"># 定义自定义的 reverse_write 函数，在闭包中访问 original_write</span></span><br><span class="line">		original_write(text[::<span class="number">-1</span>])</span><br><span class="line"></span><br><span class="line">	sys.stdout.write = reverse_write   <span class="comment"># 把 sys.stdout.write 替换成 reverse_write</span></span><br><span class="line">	<span class="keyword">yield</span> <span class="string">"ABCDEFG"</span>                    <span class="comment"># 产出一个值，这个值会绑定到 with 语句中的 as 子目标变量上。执行 with 块中的代码时，这个函数会在这一点暂停</span></span><br><span class="line">	sys.stdout.write = original_write  <span class="comment"># 控制权一旦跳出 with 块，继续执行 yield 语句之后的代码</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">68</span>]: <span class="keyword">with</span> looking_glass() <span class="keyword">as</span> wh: </span><br><span class="line">    ...:     print(<span class="string">"hello"</span>) </span><br><span class="line">    ...:     print(wh) </span><br><span class="line">    ...:                                                                                                                                                                     </span><br><span class="line">olleh</span><br><span class="line">GFEDCBA</span><br><span class="line">In [<span class="number">69</span>]: wh                                                                                                                                                                  </span><br><span class="line">Out[<span class="number">69</span>]: <span class="string">'ABCDEFG'</span></span><br></pre></td></tr></table></figure>
+
+<p>其实 @contextmanager 装饰器会把函数包装成 <code>__enter__</code> 和 <code>__exit__</code> 方法的类，这个类的 <code>__enter__</code> 方法有如下作用：</p>
+<blockquote>
+<p>调用生成器函数，保存生成器对象（此处称为 gen）<br>调用 next(gen) ，执行到 yield 关键字所在的位置<br>返回 next(gen) 产出的值，以便把产出的值绑定到 with/as 语句中的目标变更上</p>
+</blockquote>
+<p>with 块终止时，<code>__exit__</code> 方法会做以下几件事：</p>
+<blockquote>
+<p>检查有没有异常传给 exc_type，如果有，调用 gen.throw(exception)，在生成器函数定义体中包含 yield 关键字的哪一行抛出异常<br>否则，调用 next(gen) ，继续执行生成器函数定义体中的 yield 语句之后的代码</p>
+</blockquote>
+<p>所以上面代码示例中有一个严重错误，如果 with 块抛出了异常，没有处理错误的代码，则永远无法恢复成原来的 sys.stdout.write 方法，导致系统处于无效状态。</p>
+<p>所以修改如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> contextlib</span><br><span class="line"></span><br><span class="line"><span class="meta">@contextlib.contextmanager</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">looking_glass</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="keyword">import</span> sys</span><br><span class="line">	original_write = sys.stdout.write</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">reverse_write</span><span class="params">(text)</span>:</span></span><br><span class="line">		original_write(text[::<span class="number">-1</span>])</span><br><span class="line"></span><br><span class="line">	sys.stdout.write = reverse_write</span><br><span class="line">	msg = <span class="string">""</span>                               <span class="comment"># 设置一个变量，保存可能出现的错误消息</span></span><br><span class="line">	<span class="keyword">try</span>:</span><br><span class="line">		<span class="keyword">yield</span> <span class="string">"ABCDEFG"</span></span><br><span class="line">	<span class="keyword">except</span> ZeroDivisionError:              <span class="comment"># 处理 ZeroDivisionError 异常，设置一个错误消息</span></span><br><span class="line">		meg = <span class="string">"please do not divide by zero"</span></span><br><span class="line">	<span class="keyword">finally</span>:</span><br><span class="line">		sys.stdout.write = original_write   <span class="comment"># 撤销对 sys.stdout.write  方法所做的猴子补丁</span></span><br><span class="line">		<span class="keyword">if</span> msg:</span><br><span class="line">			print(msg)	    <span class="comment"># 如果设置了错误消息，打印出来</span></span><br></pre></td></tr></table></figure>
+
+<p>前文有讲，为了告诉解释器异常已经处理了，<code>__exit__</code> 方法会返回 True，此时解释器会压制异常，如果<code>__exit__</code> 方法没有显式返回一个值，那么解释器得到的是 None， 然后向上冒泡异常。使用 @contextmanager 装饰器时，默认的行为是相反的：装饰器提供的 <code>__exit__</code> 方法假定发给生成器的所有异常都得到处理了，因此应该压制异常，如果不想让 @contextmanager 压制异常，必须在被装饰的函数中显式重新抛出异常。</p>
+<h1 id="数据库事务的实现"><a href="#数据库事务的实现" class="headerlink" title="数据库事务的实现"></a>数据库事务的实现</h1><p>处理数据库事务，异常回滚:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> contextlib <span class="keyword">import</span> ContextDecorator</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">atomic</span><span class="params">(db)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    with transaction.atomic(db)</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="keyword">if</span> callable(db):</span><br><span class="line">        <span class="keyword">return</span> Atomic(db)(db)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> Atomic(db)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Atomic</span><span class="params">(ContextDecorator)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, db)</span>:</span></span><br><span class="line">        self.db = db</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__enter__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__exit__</span><span class="params">(self, exc_typ, exc_val, tb)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> exc_typ:</span><br><span class="line">            self.db.session.rollback()</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self.db.session.commit()</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/python/" rel="tag"># python</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/10/02/property/" rel="next" title="Python 增加实例属性额外处理的3种方法">
+                <i class="fa fa-chevron-left"></i> Python 增加实例属性额外处理的3种方法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="sichuyoudang">
+            
+              <p class="site-author-name" itemprop="name">sichuyoudang</p>
+              <p class="site-description motion-element" itemprop="description">记录学习经验，力求分享技术</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">64</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#with-块"><span class="nav-number">1.</span> <span class="nav-text">with 块</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#contextlib-模块"><span class="nav-number">2.</span> <span class="nav-text">contextlib 模块</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用-contextmanager"><span class="nav-number">3.</span> <span class="nav-text">使用 @contextmanager</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据库事务的实现"><span class="nav-number">4.</span> <span class="nav-text">数据库事务的实现</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sichuyoudang</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
