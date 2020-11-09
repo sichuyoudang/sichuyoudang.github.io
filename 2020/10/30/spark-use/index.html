@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="spark,pyspark,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="环境： spark 2.4.0 SparkSession 和 SparkContext每个 Spark 应用程序都需要一个 Spark 环境，这是 Spark RDD API 的主要入口点，在 Spark 的早期版本中，SparkContext 是 Spark 的主要切入点，因为 RDD 是主要的 API，我们通过 Sparkcontext 来创建和操作 RDD。 12345from pyspar">
+<meta name="keywords" content="spark,pyspark">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark 使用经验总结">
+<meta property="og:url" content="http://yoursite.com/2020/10/30/spark-use/index.html">
+<meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
+<meta property="og:description" content="环境： spark 2.4.0 SparkSession 和 SparkContext每个 Spark 应用程序都需要一个 Spark 环境，这是 Spark RDD API 的主要入口点，在 Spark 的早期版本中，SparkContext 是 Spark 的主要切入点，因为 RDD 是主要的 API，我们通过 Sparkcontext 来创建和操作 RDD。 12345from pyspar">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-11-09T12:46:28.236Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spark 使用经验总结">
+<meta name="twitter:description" content="环境： spark 2.4.0 SparkSession 和 SparkContext每个 Spark 应用程序都需要一个 Spark 环境，这是 Spark RDD API 的主要入口点，在 Spark 的早期版本中，SparkContext 是 Spark 的主要切入点，因为 RDD 是主要的 API，我们通过 Sparkcontext 来创建和操作 RDD。 12345from pyspar">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/10/30/spark-use/">
+
+
+
+
+
+  <title>Spark 使用经验总结 | 我想，吃饭睡觉，走走停停</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">我想，吃饭睡觉，走走停停</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">清绝，影也别。唯有知心月。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/30/spark-use/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Spark 使用经验总结</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-10-30T15:15:26+08:00">
+                2020-10-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>环境： spark 2.4.0</p>
+<h1 id="SparkSession-和-SparkContext"><a href="#SparkSession-和-SparkContext" class="headerlink" title="SparkSession 和 SparkContext"></a>SparkSession 和 SparkContext</h1><p>每个 Spark 应用程序都需要一个 Spark 环境，这是 Spark RDD API 的主要入口点，在 Spark 的早期版本中，SparkContext 是 Spark 的主要切入点，因为 RDD 是主要的 API，我们通过 Sparkcontext 来创建和操作 RDD。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkConf, SparkContext</span><br><span class="line"> </span><br><span class="line">conf = SparkConf().setAppName(<span class="string">"test"</span>).setMaster(<span class="string">"local"</span>)</span><br><span class="line">sc = SparkContext(conf=conf)</span><br><span class="line">rdd = sc.textFile(<span class="string">"lesson.txt"</span>)   <span class="comment"># SparkContext 不管读什么文件，输出格式都是 RDD</span></span><br></pre></td></tr></table></figure>
+
+<p>对于每个其他的 API，我们需要使用不同的 context。例如，对于 Streming，我们需要使用StreamingContext；对于 sql，使用 sqlContext；对于 Hive，使用 hiveContext。但是随着DataSet 和 DataFrame 的 API 逐渐成为标准的 API，就需要为他们建立接入点。</p>
+<p>所以在 spark2.0中，引入 SparkSession 作为 DataSet 和 DataFrame API 的切入点，SparkSession 封装了 SparkConf、SparkContext 和 SQLContext。为了向后兼容，SQLContext 和 HiveContext 也被保存下来。SparkSession 实质上是 SQLContext 和 HiveContext 的组合（未来可能还会加上StreamingContext），所以在 SQLContext 和 HiveContext 上可用的 API 在 SparkSession 上同样是可以使用的。SparkSession 内部封装了 SparkContext，所以计算实际上是由 SparkContext完成的。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark.sql <span class="keyword">import</span> SparkSession</span><br><span class="line"></span><br><span class="line">sc = SparkSession.Builder().appName(<span class="string">"test"</span>).master(<span class="string">"local[*]"</span>).getOrCreate()</span><br><span class="line">df = sc.read.format(<span class="string">"csv"</span>).option(<span class="string">"header"</span>,<span class="string">"true"</span>).csv(<span class="string">"file:///lession.csv"</span>)  <span class="comment"># 不管文件是什么类型，输出格式都是 dataframe</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="执行任务方式，spark-submit-和-spark-shell"><a href="#执行任务方式，spark-submit-和-spark-shell" class="headerlink" title="执行任务方式，spark-submit 和 spark-shell"></a>执行任务方式，spark-submit 和 spark-shell</h1><p>Spark Shell 提供了一个名为 <code>sc</code> 的预配置 Spark 环境(SparkContext)和一个名为 <code>spark</code> 的预配置 Spark 会话(SparkSession)。 如果启动 spark shell 不写任何参数，则默认启动 local 模式。</p>
+<p>在 spark shell 中 scala 语言编写 spark 程序:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">./bin/spark-submit \</span><br><span class="line">  --class &lt;main-class&gt;</span><br><span class="line">  --master &lt;master-url&gt; \</span><br><span class="line">  --deploy-mode &lt;deploy-mode&gt; \</span><br><span class="line">  --conf &lt;key&gt;=&lt;value&gt; \</span><br></pre></td></tr></table></figure>
+
+<p>spark submit脚本将编写好的spark应用（比如java和scala编写并打包好的jar包）提交给spark集群进行处理</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">spark-submit \      </span><br><span class="line">--master yarn \       </span><br><span class="line">--deploy-mode client \       </span><br><span class="line">--driver-memory 3g \       </span><br><span class="line">--executor-memory 2g \       </span><br><span class="line">--total-executor-cores 12 \ </span><br><span class="line">--conf spark.default.parallelism=16 \  </span><br><span class="line">file_path  \   # py文件路径    </span><br><span class="line">para1 \      </span><br><span class="line">&quot;args&quot;</span><br></pre></td></tr></table></figure>
+
+<h1 id="rdd-和-dataframe"><a href="#rdd-和-dataframe" class="headerlink" title="rdd 和 dataframe"></a>rdd 和 dataframe</h1><p>DataFrame 出现在Spark版本1.3中。可以将 DataFrame 称为数据集，将其组织为命名列。DataFrame 类似于 R/Python 中的关系数据库或数据框架中的表。它可以说是一个具有良好优化技术的关系表。DataFrame背后的想法是允许处理大量结构化数据。DataFrame 包含具有 Schema 模型的行。<br>DataFrame 优于 RDD，但也包含 RDD 的功能(不包含 map 功能)。RDD 和 DataFrame 的共同特性是不可变性，在内存中，弹性，分布式计算能力。它允许用户将结构强加到分布式数据集合上，从而提供更高级别的抽象。</p>
+<h1 id="pyspark-生成-dataframe"><a href="#pyspark-生成-dataframe" class="headerlink" title="pyspark 生成 dataframe"></a>pyspark 生成 dataframe</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> pyspark.sql <span class="keyword">import</span> SparkSession</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> pyspark.sql.types <span class="keyword">import</span> LongType, StructField, StructType, StringType</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>sc = SparkSession.builder.appName(<span class="string">"test"</span>).master(<span class="string">"local[*]"</span>).getOrCreate()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取文件</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df = sc.read.format(<span class="string">"csv"</span>).option(<span class="string">"header"</span>,<span class="string">"true"</span>).csv(<span class="string">"file:///train.csv"</span>, inferSchema=<span class="keyword">True</span>)   <span class="comment"># header 第一行不作为数据内容，作为标题，inferSchema 自动推测字段类型</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 自己创建</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>schema = StructType([StructField(<span class="string">"id"</span>, LongType(), <span class="keyword">True</span>),StructField(<span class="string">"name"</span>, StringType(), <span class="keyword">True</span>)])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df1 = spark.createDataFrame([(<span class="number">3333</span>, <span class="string">'F'</span>)], schema)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df2 = spark.createDataFrame([(<span class="number">4444</span>, <span class="string">'D'</span>)], schema)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ka = df1.union(df2)     <span class="comment"># 交集</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ka.show()</span><br><span class="line">+----+----+</span><br><span class="line">|  id|name|</span><br><span class="line">+----+----+</span><br><span class="line">|<span class="number">3333</span>|   F|</span><br><span class="line">|<span class="number">4444</span>|   D|</span><br><span class="line">+----+----+</span><br></pre></td></tr></table></figure>
+
+<h1 id="添加一列自定义函数"><a href="#添加一列自定义函数" class="headerlink" title="添加一列自定义函数"></a>添加一列自定义函数</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> pyspark.sql.functions <span class="keyword">import</span> udf</span><br><span class="line"><span class="comment"># 代码接上文</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">uu</span><span class="params">(s)</span>:</span></span><br><span class="line"><span class="meta">... </span>    res = random.SystemRandom().getrandbits(<span class="number">128</span>)</span><br><span class="line"><span class="meta">... </span>    <span class="keyword">return</span> res</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>index = dfs.withColumn(<span class="string">'bb'</span>, udf)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ka = ka.withColumn(<span class="string">'bb'</span>, index(ka[<span class="string">'id'</span>]))ßß</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ka.show()</span><br><span class="line">+----+----+--------------------+</span><br><span class="line">|  id|name|                  bb|</span><br><span class="line">+----+----+--------------------+</span><br><span class="line">|<span class="number">3333</span>|   F|<span class="number">14971403966253688.</span>..|</span><br><span class="line">|<span class="number">4444</span>|   D|<span class="number">15404687898086055.</span>..|</span><br><span class="line">+----+----+--------------------+</span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/spark/" rel="tag"># spark</a>
+          
+            <a href="/tags/pyspark/" rel="tag"># pyspark</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/10/15/linux-python3-env/" rel="next" title="linux 环境配置 python3 开发环境">
+                <i class="fa fa-chevron-left"></i> linux 环境配置 python3 开发环境
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="sichuyoudang">
+            
+              <p class="site-author-name" itemprop="name">sichuyoudang</p>
+              <p class="site-description motion-element" itemprop="description">记录学习经验，力求分享技术</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">66</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SparkSession-和-SparkContext"><span class="nav-number">1.</span> <span class="nav-text">SparkSession 和 SparkContext</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#执行任务方式，spark-submit-和-spark-shell"><span class="nav-number">2.</span> <span class="nav-text">执行任务方式，spark-submit 和 spark-shell</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#rdd-和-dataframe"><span class="nav-number">3.</span> <span class="nav-text">rdd 和 dataframe</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#pyspark-生成-dataframe"><span class="nav-number">4.</span> <span class="nav-text">pyspark 生成 dataframe</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#添加一列自定义函数"><span class="nav-number">5.</span> <span class="nav-text">添加一列自定义函数</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sichuyoudang</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

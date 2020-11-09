@@ -262,6 +262,253 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/27/sql-null/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/06/27/sql-null/" itemprop="url">sql 查询空值</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-06-27T16:43:44+08:00">
+                2018-06-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="sql-查询空值"><a href="#sql-查询空值" class="headerlink" title="sql 查询空值"></a>sql 查询空值</h1><p>查询值为 null 的数据，sql 语句:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; SELECT * FROM user_model WHERE tel IS NULL;</span><br><span class="line">&gt; SELECT * FROM user_model WHERE tel IS not NULL;</span><br></pre></td></tr></table></figure>
+
+<p>sqlalchemy 语句:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; user_list = user_model.query.filter(UserModel.tel!=<span class="keyword">None</span>).all()</span><br><span class="line">&gt; user_list = user_model.query.filter(UserModel.tel==<span class="keyword">None</span>).all()</span><br><span class="line">&gt; user_list = user_model.query.filter(UserModel.tel.is_(<span class="keyword">None</span>)).all()</span><br><span class="line">&gt; user_list = user_model.query.filter_by(tel=<span class="keyword">None</span>).all()</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/22/decimal/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/06/22/decimal/" itemprop="url">decimal</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-06-22T16:42:16+08:00">
+                2018-06-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Decimal-float-double"><a href="#Decimal-float-double" class="headerlink" title="Decimal float double"></a>Decimal float double</h1><p>float 单精度说明符，double 双精度说明符。在Turbo C中单精度型占4个字节（32位）内存空间，其数值范围为3.4E-38～3.4E+38，只能提供七位有效数字。双精度型占8 个字节（64位）内存空间，其数值范围为1.7E-308～1.7E+308，可提供16位有效数字。</p>
+<p>当我们的计算需要使用更高的精度（超过17位小数）的时候</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> decimal <span class="keyword">import</span> *</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a = <span class="string">"%.30f"</span> % (<span class="number">1</span>/<span class="number">3</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a</span><br><span class="line"><span class="string">'0.333333333333333314829616256247'</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>b = Decimal(<span class="number">1</span>)/Decimal(<span class="number">3</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>b</span><br><span class="line">Decimal(<span class="string">'0.3333333333333333333333333333'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>getcontext()</span><br><span class="line">Context(prec=<span class="number">28</span>, rounding=ROUND_HALF_EVEN, Emin=<span class="number">-999999</span>, Emax=<span class="number">999999</span>, capitals=<span class="number">1</span>, clamp=<span class="number">0</span>, flags=[Inexact, FloatOperation, Rounded], traps=[InvalidOperation, DivisionByZero, Overflow])</span><br></pre></td></tr></table></figure>
+
+<p>默认的context的精度是28位，可以设置为50位甚至更高，都可以。这样在分析复杂的浮点数的时候，可以有更高的自己可以控制的精度<br>decimal 类型是适合财务和货币计算的128位数据类型</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> decimal <span class="keyword">import</span> Decimal</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a = Decimal(<span class="string">'2'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>b = <span class="number">3.45</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>c = Decimal(b)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>c</span><br><span class="line">Decimal(<span class="string">'3.45000000000000017763568394002504646778106689453125'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>d = Decimal(str(b))</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>d</span><br><span class="line">Decimal(<span class="string">'3.45'</span>)</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/08/dict-update-key/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1303,262 +1550,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/06/git/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/06/git/" itemprop="url">git 基本操作</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-03-06T16:16:11+08:00">
-                2018-03-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>个人目前工作中常用的 git 操作：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">git clone  xxx          # 拉起代码</span><br><span class="line">git init                # 创建新git库或初始化原有库</span><br><span class="line"></span><br><span class="line">git add  .              # 添加所有修改到暂存区</span><br><span class="line">git add file            # 添加指定文件到暂存区</span><br><span class="line">git add file -p         # 查看修改代码</span><br><span class="line">git mv -f File file     # 重命名</span><br><span class="line">git rm file             # 从暂存区移除文件</span><br><span class="line">git rm --cached file    # 从暂存区域移除，但仍在工作区中</span><br><span class="line"></span><br><span class="line">git reset [--hard|soft|mixed|merge|keep] [&lt;commit&gt;/HEAD]</span><br><span class="line">git reset [commit hash/分支名/快捷方式]         # 类似“git add的反操作”，直接将所在commit的文件状态恢复到暂存区域。省略commit则默认为HEAD，省略文件名默认为所有文件。只改变暂存目录，不改变工作目录，当前commit不变。</span><br><span class="line">git reset --soft [commit hash/分支名/快捷方式]  # 软恢复，将恢复前所在commit的文件状态恢复到暂存区，当前最新commit为参数中的commit。只改变暂存目录，不改变工作目录，当前commit改变。</span><br><span class="line">git reset --hard [commit hash/分支名/快捷方式]  # 硬恢复，强制将整个项目恢复为参数中的commit时的文件状态，清空暂存目录，工作目录clean。暂存目录和工作目录同时被改变，当前commit改变。</span><br><span class="line"></span><br><span class="line">git status            # 列出修改过/新创建/已经暂存但未提交的文件</span><br><span class="line">git diff              # 显示还没有暂存起来的改动，工作区改动,暂存区为空时，为工作区与上次的commit的记录对比，暂存区不为空，即为工作区和暂存区的记录对比</span><br><span class="line">git diff --cached     # 暂存区和最新版本库</span><br><span class="line">git diff HEAD         # 工作区和最新版本库</span><br><span class="line">git diff branch-a branch-b   # a 分支和 b分支的对比</span><br><span class="line">git diff &lt;commit&gt;    # 工作区与指定commit-id的差异</span><br><span class="line"></span><br><span class="line">git log                 # commit log</span><br><span class="line">git show  &lt;commit&gt;    # 指定 commit 提交的内容</span><br><span class="line"></span><br><span class="line">git merge master feature   # 将 master 分支合并到 feature 分支</span><br><span class="line">git pull                   # 下拉分支，以及合并代码</span><br><span class="line">git push					</span><br><span class="line"></span><br><span class="line">git stash              # 备份当前的工作区的内容</span><br><span class="line">git stash pop          # 从Git栈中读取最近一次保存的内容，恢复工作区的相关内容       </span><br><span class="line"></span><br><span class="line">git blame  file               # 查看是谁提交的代码</span><br><span class="line">git blame -L  n,m  file       # 查看第n,m 行是谁提交的代码</span><br><span class="line"></span><br><span class="line">git revert  &lt;commit&gt;          # 生成一个新的commit，撤销劳动&lt;commit&gt;</span><br><span class="line"></span><br><span class="line">git cherry-pick &lt;commit&gt;      # 再次提交一次commit</span><br></pre></td></tr></table></figure>
-
-<p>其他操作</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 取消操作</span><br><span class="line">git checkout . </span><br><span class="line">git clean -xdf     # 没有加入到暂存区</span><br><span class="line">git reset --hard 	# 加到了暂存区</span><br><span class="line">git clean -xdf</span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/05/sqlalchemy-paginate/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/05/sqlalchemy-paginate/" itemprop="url">sqlalchemy paginate 分页</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-03-05T16:06:32+08:00">
-                2018-03-05
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>在 Flask 中，为了简化配置和操作，我们使用的 ORM 框架是 Flask-SQLAlchemy，这个 Flask 扩展封装了 SQLAlchemy 框架。</p>
-<p>sqlalchemy 中使用 query 查询，而 flask-sqlalchemy 中使用basequery 查询，他们是子类与父类的关系。</p>
-<p>本文主要进行分页操作：</p>
-<p>设定： page_num=1,page_size=50</p>
-<h1 id="用offset-设置索引偏移量-limit-限制取出量"><a href="#用offset-设置索引偏移量-limit-限制取出量" class="headerlink" title="用offset()设置索引偏移量,limit()限制取出量"></a>用offset()设置索引偏移量,limit()限制取出量</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">db.session.query(Book.name)</span><br><span class="line">\.filter_by(Book.auther=auther)</span><br><span class="line">\.order_by(Book.id.desc()</span><br><span class="line">\.limit(page_size)</span><br><span class="line">\.offset((page_num<span class="number">-1</span>)*page_size)</span><br><span class="line">\.all()</span><br></pre></td></tr></table></figure>
-
-<p>正常情况下，较高的偏移量会减慢查询速度，因为查询需要计数第一个OFFSET + LIMIT记录（并且只取其中的LIMIT ）。 该值越高，查询运行时间越长。</p>
-<p>查询不能进入OFFSET因为首先，记录的长度可能不同，其次，删除的记录可能存在差距。 它需要检查和计数每个记录的方式。</p>
-<h1 id="用slice-偏移量，取出量-函数"><a href="#用slice-偏移量，取出量-函数" class="headerlink" title="用slice(偏移量，取出量)函数"></a>用slice(偏移量，取出量)函数</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">db.session.query(Book.name)</span><br><span class="line">\.filter_by(Book.auther=auther)</span><br><span class="line">\.order_by(Book.id.desc()</span><br><span class="line">\.slice((page_num<span class="number">-1</span>)*page_size, page_size*page_page_num)</span><br><span class="line">\.all()</span><br></pre></td></tr></table></figure>
-
-<h1 id="用paginate-偏移量，取出量-函数-用于BaseQuery"><a href="#用paginate-偏移量，取出量-函数-用于BaseQuery" class="headerlink" title="用paginate(偏移量，取出量)函数,用于BaseQuery"></a>用paginate(偏移量，取出量)函数,用于BaseQuery</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">db.session.query(Book.name)</span><br><span class="line">\.filter_by(Book.auther=auther)</span><br><span class="line">\.order_by(Book.id.desc()</span><br><span class="line">\.paginate(page_num,page_size)</span><br><span class="line">\.items</span><br><span class="line"><span class="comment"># 遍历时要加上items</span></span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1611,7 +1602,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">64</span>
+                  <span class="site-state-item-count">66</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1624,7 +1615,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-count">23</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
