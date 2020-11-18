@@ -262,6 +262,129 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/02/pandas/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/09/02/pandas/" itemprop="url">Pandas 常用操作</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-09-02T23:09:52+08:00">
+                2020-09-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> numpy <span class="keyword">as</span> np       <span class="comment"># 将numpy用别名np表示</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> pandas <span class="keyword">as</span> pd      <span class="comment"># 将pandas用别名pd表示</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建DataFrame对象</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df = pd.DataFrame(np.array(np.arange(<span class="number">12</span>).reshape(<span class="number">4</span>,<span class="number">3</span>)), index=list(<span class="string">'ABCD'</span>), columns=list(<span class="string">'bde'</span>))</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df</span><br><span class="line">   b   d   e</span><br><span class="line">A  <span class="number">0</span>   <span class="number">1</span>   <span class="number">2</span></span><br><span class="line">B  <span class="number">3</span>   <span class="number">4</span>   <span class="number">5</span></span><br><span class="line">C  <span class="number">6</span>   <span class="number">7</span>   <span class="number">8</span></span><br><span class="line">D  <span class="number">9</span>  <span class="number">10</span>  <span class="number">11</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取txt/excel/csv文件时，输出的就是df格式</span></span><br><span class="line">df = pd.read_excel(“file_name.xlsx”)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df[df[<span class="string">'b'</span>] &gt; <span class="number">6</span>]        <span class="comment"># 取列名为b的值大于6为true的行</span></span><br><span class="line">   b   d   e</span><br><span class="line">D  <span class="number">9</span>  <span class="number">10</span>  <span class="number">11</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df[df[<span class="string">'b'</span>] &gt; <span class="number">6</span>][<span class="string">'d'</span>]</span><br><span class="line">D    <span class="number">10</span></span><br><span class="line">Name: d, dtype: int64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df[<span class="string">'b'</span>].describe()     <span class="comment"># 显示数字特征</span></span><br><span class="line">count    <span class="number">4.000000</span></span><br><span class="line">mean     <span class="number">4.500000</span></span><br><span class="line">std      <span class="number">3.872983</span></span><br><span class="line">min      <span class="number">0.000000</span></span><br><span class="line"><span class="number">25</span>%      <span class="number">2.250000</span></span><br><span class="line"><span class="number">50</span>%      <span class="number">4.500000</span></span><br><span class="line"><span class="number">75</span>%      <span class="number">6.750000</span></span><br><span class="line">max      <span class="number">9.000000</span></span><br><span class="line">Name: b, dtype: float64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.groupby(<span class="string">'e'</span>)[<span class="string">'b'</span>].mean()   <span class="comment"># 按照e列分组，显示b列的平均值</span></span><br><span class="line">e</span><br><span class="line"><span class="number">2</span>     <span class="number">0</span></span><br><span class="line"><span class="number">5</span>     <span class="number">3</span></span><br><span class="line"><span class="number">8</span>     <span class="number">6</span></span><br><span class="line"><span class="number">11</span>    <span class="number">9</span></span><br><span class="line">Name: b, dtype: int64</span><br><span class="line"><span class="comment"># ascending 是否按指定列的数组升序排列，默认为True，即升序排列</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.groupby(<span class="string">'e'</span>)[<span class="string">'b'</span>].mean().sort_values(ascending=<span class="keyword">False</span>)</span><br><span class="line">e</span><br><span class="line"><span class="number">11</span>    <span class="number">9</span></span><br><span class="line"><span class="number">8</span>     <span class="number">6</span></span><br><span class="line"><span class="number">5</span>     <span class="number">3</span></span><br><span class="line"><span class="number">2</span>     <span class="number">0</span></span><br><span class="line">Name: b, dtype: int64</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df[<span class="string">'b*e'</span>] = df[<span class="string">'b'</span>]*df[<span class="string">'e'</span>]     <span class="comment"># 计算出的值作为新列添加进去</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df.head()</span><br><span class="line">   b   d   e  b*e</span><br><span class="line">A  <span class="number">0</span>   <span class="number">1</span>   <span class="number">2</span>    <span class="number">0</span></span><br><span class="line">B  <span class="number">3</span>   <span class="number">4</span>   <span class="number">5</span>   <span class="number">15</span></span><br><span class="line">C  <span class="number">6</span>   <span class="number">7</span>   <span class="number">8</span>   <span class="number">48</span></span><br><span class="line">D  <span class="number">9</span>  <span class="number">10</span>  <span class="number">11</span>   <span class="number">99</span></span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/02/numpy/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1666,129 +1789,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/04/anaconda/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/12/04/anaconda/" itemprop="url">Anaconda</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-04T11:59:58+08:00">
-                2019-12-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><a href="https://www.anaconda.com/distribution/" target="_blank" rel="noopener">Anaconda</a> 是一个用于科学计算的 Python发行版，它可以便捷获取包且对包能够进行管理，同时对环境进行统一管理。Anaconda 包含了 conda、Python 在内的超过180个科学包及其依赖项。</p>
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>从官网下载 Python 3.7 version <code>64-Bit Command-Line Installe</code> 版本，下载完成后双击下载文件，一直点 “下一步” 直至完成安装。在终端中输入命令 <code>conda list</code>，如果显示已安装的包名和版本号，则安装成功。</p>
-<h1 id="conda-使用"><a href="#conda-使用" class="headerlink" title="conda 使用"></a>conda 使用</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">conda --version      # 当前conda 版本</span><br><span class="line"></span><br><span class="line">conda create --name &lt;env_name&gt; &lt;package_names&gt;   # 创建新环境</span><br><span class="line">conda create -n python3 python=3.5 numpy pandas</span><br><span class="line"></span><br><span class="line">source activate &lt;env_name&gt;    # 激活环境</span><br><span class="line">activate &lt;env_name&gt;        	 # 退出环境</span><br><span class="line"></span><br><span class="line">conda info --envs     # 显示环境信息</span><br><span class="line">conda env list        # 显示环境列表</span><br><span class="line">conda create --name &lt;new_env_name&gt; --clone &lt;copied_env_name&gt;    # 复制环境</span><br><span class="line">conda remove --name &lt;env_name&gt; --all    # 删除环境</span><br><span class="line"></span><br><span class="line">conda search &lt;text&gt;      # 模糊查找包</span><br><span class="line">conda search --full-name &lt;package_full_name&gt;    # 精确查找包</span><br><span class="line">conda list     # 获取环境中已安装包信息</span><br><span class="line"></span><br><span class="line">conda install --name &lt;env_name&gt; &lt;package_name&gt;     # 安装包</span><br><span class="line">conda install &lt;package_name&gt;     # 在当前环境中安装包</span><br><span class="line"></span><br><span class="line">conda update --all   # 更新所有包</span><br><span class="line">conda update &lt;package_name&gt; # 更新指定包</span><br><span class="line"></span><br><span class="line">conda remove --name &lt;env_name&gt; &lt;package_name&gt;    # 卸载指定环境中的包</span><br><span class="line">conda remove &lt;package_name&gt;   # 卸载当前环境中的包</span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1841,7 +1841,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">66</span>
+                  <span class="site-state-item-count">67</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1854,7 +1854,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-count">26</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
