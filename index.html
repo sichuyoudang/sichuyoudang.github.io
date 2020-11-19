@@ -593,8 +593,8 @@
 <h1 id="SparkSession-和-SparkContext"><a href="#SparkSession-和-SparkContext" class="headerlink" title="SparkSession 和 SparkContext"></a>SparkSession 和 SparkContext</h1><p>每个 Spark 应用程序都需要一个 Spark 环境，这是 Spark RDD API 的主要入口点，在 Spark 的早期版本中，SparkContext 是 Spark 的主要切入点，因为 RDD 是主要的 API，我们通过 Sparkcontext 来创建和操作 RDD。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkConf, SparkContext</span><br><span class="line"> </span><br><span class="line">conf = SparkConf().setAppName(<span class="string">"test"</span>).setMaster(<span class="string">"local"</span>)</span><br><span class="line">sc = SparkContext(conf=conf)</span><br><span class="line">rdd = sc.textFile(<span class="string">"lesson.txt"</span>)   <span class="comment"># SparkContext 不管读什么文件，输出格式都是 RDD</span></span><br></pre></td></tr></table></figure>
 
-<p>对于每个其他的 API，我们需要使用不同的 context。例如，对于 Streming，我们需要使用StreamingContext；对于 sql，使用 sqlContext；对于 Hive，使用 hiveContext。但是随着DataSet 和 DataFrame 的 API 逐渐成为标准的 API，就需要为他们建立接入点。</p>
-<p>所以在 spark2.0中，引入 SparkSession 作为 DataSet 和 DataFrame API 的切入点，SparkSession 封装了 SparkConf、SparkContext 和 SQLContext。为了向后兼容，SQLContext 和 HiveContext 也被保存下来。SparkSession 实质上是 SQLContext 和 HiveContext 的组合（未来可能还会加上StreamingContext），所以在 SQLContext 和 HiveContext 上可用的 API 在 SparkSession 上同样是可以使用的。SparkSession 内部封装了 SparkContext，所以计算实际上是由 SparkContext完成的。</p>
+<p>对于每个其他的 API，我们需要使用不同的 context。例如，对于 Streming，我们需要使用StreamingContext；对于 sql，使用 sqlContext；对于 Hive，使用 hiveContext。SparkSession 本质上是对这些环境的组合。</p>
+<p>SparkSession 现在是读取数据，处理元数据，配置会话和管理集群资源的入口。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark.sql <span class="keyword">import</span> SparkSession</span><br><span class="line"></span><br><span class="line">sc = SparkSession.Builder().appName(<span class="string">"test"</span>).master(<span class="string">"local[*]"</span>).getOrCreate()</span><br><span class="line">df = sc.read.format(<span class="string">"csv"</span>).option(<span class="string">"header"</span>,<span class="string">"true"</span>).csv(<span class="string">"file:///lession.csv"</span>)  <span class="comment"># 不管文件是什么类型，输出格式都是 dataframe</span></span><br></pre></td></tr></table></figure>
 
 <h1 id="执行任务方式，spark-submit-和-spark-shell"><a href="#执行任务方式，spark-submit-和-spark-shell" class="headerlink" title="执行任务方式，spark-submit 和 spark-shell"></a>执行任务方式，spark-submit 和 spark-shell</h1><p>Spark Shell 提供了一个名为 <code>sc</code> 的预配置 Spark 环境(SparkContext)和一个名为 <code>spark</code> 的预配置 Spark 会话(SparkSession)。 如果启动 spark shell 不写任何参数，则默认启动 local 模式。</p>
@@ -1729,7 +1729,7 @@
               
               
               <div class="site-state-item site-state-tags">
-                <a href="/categories/index.html">
+                <a href="/tags/index.html">
                   <span class="site-state-item-count">25</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
