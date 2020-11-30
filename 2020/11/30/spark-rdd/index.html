@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="spark,pyspark,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="RDD 基础概念RDD 弹性分布式数据集，数据集被划分成块，执行时分发到执行器执行，它是没有 schema 的数据结构，所以可以随意混合 dict, list, tuple。 变换(Transformations):懒执行,变换只是一些指令集并不会去马上执行,需要等到有Actions操作的时候才会真正的计算结果，比如: map, flatMap, groupByKey, reduceByKey操作">
+<meta name="keywords" content="spark,pyspark">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark RDD 基本操作">
+<meta property="og:url" content="http://yoursite.com/2020/11/30/spark-rdd/index.html">
+<meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
+<meta property="og:description" content="RDD 基础概念RDD 弹性分布式数据集，数据集被划分成块，执行时分发到执行器执行，它是没有 schema 的数据结构，所以可以随意混合 dict, list, tuple。 变换(Transformations):懒执行,变换只是一些指令集并不会去马上执行,需要等到有Actions操作的时候才会真正的计算结果，比如: map, flatMap, groupByKey, reduceByKey操作">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/2020/11/30/spark-rdd/rdd1.png">
+<meta property="og:updated_time" content="2020-11-30T09:04:18.018Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spark RDD 基本操作">
+<meta name="twitter:description" content="RDD 基础概念RDD 弹性分布式数据集，数据集被划分成块，执行时分发到执行器执行，它是没有 schema 的数据结构，所以可以随意混合 dict, list, tuple。 变换(Transformations):懒执行,变换只是一些指令集并不会去马上执行,需要等到有Actions操作的时候才会真正的计算结果，比如: map, flatMap, groupByKey, reduceByKey操作">
+<meta name="twitter:image" content="http://yoursite.com/2020/11/30/spark-rdd/rdd1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/11/30/spark-rdd/">
+
+
+
+
+
+  <title>Spark RDD 基本操作 | 我想，吃饭睡觉，走走停停</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">我想，吃饭睡觉，走走停停</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">清绝，影也别。唯有知心月。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/30/spark-rdd/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Spark RDD 基本操作</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-11-30T16:20:21+08:00">
+                2020-11-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="RDD-基础概念"><a href="#RDD-基础概念" class="headerlink" title="RDD 基础概念"></a>RDD 基础概念</h1><p>RDD 弹性分布式数据集，数据集被划分成块，执行时分发到执行器执行，它是没有 schema 的数据结构，所以可以随意混合 dict, list, tuple。</p>
+<p><strong>变换(Transformations)</strong>:懒执行,变换只是一些指令集并不会去马上执行,需要等到有Actions操作的时候才会真正的计算结果，比如: map, flatMap, groupByKey, reduceByKey<br><strong>操作(Actions)</strong>: 立即执行, count，take，collect，top，first</p>
+<p>数据如下：</p>
+<img src="/2020/11/30/spark-rdd/rdd1.png">
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkConf, SparkContext</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>conf = SparkConf().setAppName(<span class="string">"test"</span>).setMaster(<span class="string">"local"</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>sc = SparkContext(conf=conf)</span><br><span class="line"><span class="comment"># 从文件中读取</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>rdd = sc.textFile(<span class="string">"file:///test.csv"</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="操作-Actions"><a href="#操作-Actions" class="headerlink" title="操作(Actions)"></a>操作(Actions)</h1><p>collect()方法的作用是收集分布在各个worker的数据到driver节点<br>take(n) 返回单个数据分区的前n 行<br>count() 返回 RDD 里面数据量</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>rdd.collect()</span><br><span class="line">[<span class="string">'1,500,4,4,5,7'</span>,</span><br><span class="line"> <span class="string">'2,300,1,1,1,2'</span>,</span><br><span class="line"> <span class="string">'3,600,8,8,1,3'</span>,</span><br><span class="line"> <span class="string">'4,400,1,1,3,2'</span>,</span><br><span class="line"> <span class="string">'5,800,10,10,8,7'</span>,</span><br><span class="line"> <span class="string">'6,100,1,1,1,2'</span>]</span><br></pre></td></tr></table></figure>
+
+<h1 id="变换-Transformations"><a href="#变换-Transformations" class="headerlink" title="变换(Transformations)"></a>变换(Transformations)</h1><h2 id="map操作"><a href="#map操作" class="headerlink" title="map操作"></a>map操作</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 自定义函数</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">split_int</span><span class="params">(x)</span>:</span></span><br><span class="line">		l = x.split(<span class="string">','</span>)</span><br><span class="line">		<span class="keyword">return</span> [int(i) <span class="keyword">for</span> i <span class="keyword">in</span> l]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>map_rdd = rdd.map(<span class="keyword">lambda</span> x: split_int(x))</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>map_rdd.collect()</span><br><span class="line">[[<span class="number">1</span>, <span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>],</span><br><span class="line"> [<span class="number">2</span>, <span class="number">300</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>],</span><br><span class="line"> [<span class="number">3</span>, <span class="number">600</span>, <span class="number">8</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">3</span>],</span><br><span class="line"> [<span class="number">4</span>, <span class="number">400</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>],</span><br><span class="line"> [<span class="number">5</span>, <span class="number">800</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">8</span>, <span class="number">7</span>],</span><br><span class="line"> [<span class="number">6</span>, <span class="number">100</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>]]</span><br></pre></td></tr></table></figure>
+
+<h2 id="flatMap-操作"><a href="#flatMap-操作" class="headerlink" title="flatMap 操作"></a>flatMap 操作</h2><p>map 是将一个长度为N的RDD转换为另一个长度为N的RDD<br>flatMap会将一个长度为N的RDD转换成一个N个元素的集合，然后再把这N个元素合成到一个单个RDD的结果集</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>m_rdd = map_rdd.map(<span class="keyword">lambda</span> x: (x[<span class="number">0</span>], x[<span class="number">0</span>]*<span class="number">20</span>))</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>flat_rdd = map_rdd.flatMap(<span class="keyword">lambda</span> x: (x[<span class="number">0</span>], x[<span class="number">0</span>]*<span class="number">20</span>))</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="string">"map"</span>, m_rdd.collect())</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="string">"flat_map"</span>, flat_rdd.collect())</span><br><span class="line">map [(<span class="number">1</span>, <span class="number">20</span>), (<span class="number">2</span>, <span class="number">40</span>), (<span class="number">3</span>, <span class="number">60</span>), (<span class="number">4</span>, <span class="number">80</span>), (<span class="number">5</span>, <span class="number">100</span>), (<span class="number">6</span>, <span class="number">120</span>)]</span><br><span class="line">flat_map [<span class="number">1</span>, <span class="number">20</span>, <span class="number">2</span>, <span class="number">40</span>, <span class="number">3</span>, <span class="number">60</span>, <span class="number">4</span>, <span class="number">80</span>, <span class="number">5</span>, <span class="number">100</span>, <span class="number">6</span>, <span class="number">120</span>]</span><br></pre></td></tr></table></figure>
+
+<h2 id="union-联合"><a href="#union-联合" class="headerlink" title="union 联合"></a>union 联合</h2><p>union 返回两个 RDD 并集，不去重<br>distinct 数据去重<br>intersection 返回两个RDD的交集，并且去重<br>subtract 返回只在 左RDD 且不在 右RDD 的数据</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 自定义数据集</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>new = sc.parallelize([[<span class="number">1</span>,<span class="number">500</span>,<span class="number">4</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">7</span>], [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>],[<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>]])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>union_rdd = map_rdd.union(new)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>r1 = sc.parallelize([<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>r2 = sc.parallelize([<span class="number">5</span>,<span class="number">6</span>,<span class="number">1</span>,<span class="number">2</span>])</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>union_r = r1.union(r2)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>inter_r = r1.intersection(r2)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>only_r1 = r1.subtract(r2)</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="string">"union_r"</span>, union_r.collect())</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="string">"distinct"</span>, union_r.distinct().collect())</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="string">"intersection"</span>, inter_r.collect())</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="string">"only_r1"</span>, only_r1.collect())</span><br><span class="line">union_r [<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">2</span>]</span><br><span class="line">distinct [<span class="number">2</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>]</span><br><span class="line">intersection [<span class="number">2</span>, <span class="number">1</span>]</span><br><span class="line">only_r1 [<span class="number">3</span>]</span><br></pre></td></tr></table></figure>
+
+<h2 id="filter-过滤"><a href="#filter-过滤" class="headerlink" title="filter 过滤"></a>filter 过滤</h2><p>filter 数据过滤 , 将符合条件的数据留下来</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>union_rdd.filter(<span class="keyword">lambda</span> x: int(x[<span class="number">0</span>]) &gt; <span class="number">1</span>).collect()</span><br><span class="line">[[<span class="number">2</span>, <span class="number">300</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>],</span><br><span class="line"> [<span class="number">3</span>, <span class="number">600</span>, <span class="number">8</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">3</span>],</span><br><span class="line"> [<span class="number">4</span>, <span class="number">400</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>],</span><br><span class="line"> [<span class="number">5</span>, <span class="number">800</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">8</span>, <span class="number">7</span>],</span><br><span class="line"> [<span class="number">6</span>, <span class="number">100</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>],</span><br><span class="line"> [<span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>]]</span><br></pre></td></tr></table></figure>
+
+<h2 id="reduce-操作"><a href="#reduce-操作" class="headerlink" title="reduce 操作"></a>reduce 操作</h2><p>reduce 将 RDD 中元素前两个传给输入函数，产生一个新的return值，新产生的return值与RDD中下一个元素（第三个元素）组成两个元素，再被传给输入函数，直到最后只有一个值为止。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>reduce_l = map_rdd.reduce(<span class="keyword">lambda</span> x, y : x+y)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="string">"reduce_l"</span>, reduce_l)</span><br><span class="line">reduce_l [<span class="number">1</span>, <span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">2</span>, <span class="number">300</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">600</span>, <span class="number">8</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">400</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">5</span>, <span class="number">800</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">8</span>, <span class="number">7</span>, <span class="number">6</span>, <span class="number">100</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 简单例子</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>r = sc.parallelize(range(<span class="number">20</span>))</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(r.collect())</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>rr = r.reduce(<span class="keyword">lambda</span> x, y : x+y)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(rr)</span><br><span class="line">[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">18</span>, <span class="number">19</span>]</span><br><span class="line"><span class="number">190</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="sample-抽样"><a href="#sample-抽样" class="headerlink" title="sample 抽样"></a>sample 抽样</h2><p>sample(withReplacement : scala.Boolean, fraction : scala.Double，seed scala.Long)<br>sample算子时用来抽样用的，其有3个参数<br>withReplacement：表示抽出样本后是否在放回去，true表示会放回去，这也就意味着抽出的样本可能有重复<br>fraction ：抽出多少，这是一个double类型的参数,0-1之间，eg:0.3表示抽出30%<br>seed：表示一个种子，根据这个seed随机抽取，一般情况下只用前两个参数就可以，那么这个参数是干嘛的呢，这个参数一般用于调试，有时候不知道是程序出问题还是数据出了问题，就可以将这个参数设置为定值。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>num_rdd = sc.parallelize(range(<span class="number">20</span>))</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(num_rdd.collect())</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>sample_rdd = num_rdd.sample(withReplacement=<span class="keyword">False</span>, fraction=<span class="number">0.4</span>, seed=<span class="number">1</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>sample_rdd.collect()</span><br><span class="line">[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">18</span>, <span class="number">19</span>]</span><br><span class="line"></span><br><span class="line">[<span class="number">2</span>, <span class="number">6</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">13</span>]</span><br></pre></td></tr></table></figure>
+
+<h2 id="takeSample"><a href="#takeSample" class="headerlink" title="takeSample"></a>takeSample</h2><p>takeSample 返回一个Array, 该方法仅在预期结果数组很小的情况下使用，因为所有数据都被加载到driver的内存中</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>map_rdd.takeSample(<span class="keyword">False</span>, <span class="number">1</span>, seed=<span class="number">0</span>)</span><br><span class="line">[[<span class="number">5</span>, <span class="number">800</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">8</span>, <span class="number">7</span>]]</span><br></pre></td></tr></table></figure>
+
+<h1 id="Pair-RDD"><a href="#Pair-RDD" class="headerlink" title="Pair RDD"></a>Pair RDD</h1><p>Spark 为包含键值对对类型的 RDD 提供了一些专有操作，这些操作就被称为 <strong>Pair RDD</strong>，Pair RDD 是很多程序的构成要素，因为它们提供了并行操作对各个键或跨节点重新进行数据分组的操作接口。</p>
+<p>提取每个元素的第一个元素作为 key 剩余元素作为 value 创建 Pair RDD，Pair RDD 由于有 key 的存在，与普通的 RDD 相比更加格式化，这种特性就会给 Pair RDD 赋予一些特殊的操作，例如 groupByKey() 可以将具有相同 key 进行分组，其结果仍然得到 Pair RDD，然后利用 mapValues() 对相同 key 的 value 进行函数计算，reduceByKey()、countByKey()和sortByKey()等一系列<strong>ByKey()</strong>操作</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>pair_rdd = union_rdd.map(<span class="keyword">lambda</span> x: (x[<span class="number">0</span>], x[<span class="number">1</span>:]))</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>pair_rdd.collect()</span><br><span class="line"></span><br><span class="line">[(<span class="number">1</span>, [<span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>]),</span><br><span class="line"> (<span class="number">2</span>, [<span class="number">300</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>]),</span><br><span class="line"> (<span class="number">3</span>, [<span class="number">600</span>, <span class="number">8</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">3</span>]),</span><br><span class="line"> (<span class="number">4</span>, [<span class="number">400</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>]),</span><br><span class="line"> (<span class="number">5</span>, [<span class="number">800</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">8</span>, <span class="number">7</span>]),</span><br><span class="line"> (<span class="number">6</span>, [<span class="number">100</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>]),</span><br><span class="line"> (<span class="number">1</span>, [<span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>]),</span><br><span class="line"> (<span class="number">1</span>, [<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]),</span><br><span class="line"> (<span class="number">2</span>, [<span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>])]</span><br></pre></td></tr></table></figure>
+
+<h2 id="sortByKey-排序"><a href="#sortByKey-排序" class="headerlink" title="sortByKey 排序"></a>sortByKey 排序</h2><p>sortByKey([ascending], [numTasks])  升序还是降序取决于 ascending 参数 </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>pair_rdd.sortByKey(<span class="keyword">False</span>).collect()</span><br><span class="line">[(<span class="number">6</span>, [<span class="number">100</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>]),</span><br><span class="line"> (<span class="number">5</span>, [<span class="number">800</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">8</span>, <span class="number">7</span>]),</span><br><span class="line"> (<span class="number">4</span>, [<span class="number">400</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>]),</span><br><span class="line"> (<span class="number">3</span>, [<span class="number">600</span>, <span class="number">8</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">3</span>]),</span><br><span class="line"> (<span class="number">2</span>, [<span class="number">300</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>]),</span><br><span class="line"> (<span class="number">2</span>, [<span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>]),</span><br><span class="line"> (<span class="number">1</span>, [<span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>]),</span><br><span class="line"> (<span class="number">1</span>, [<span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>]),</span><br><span class="line"> (<span class="number">1</span>, [<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>])]</span><br></pre></td></tr></table></figure>
+
+<h2 id="reduceByKey"><a href="#reduceByKey" class="headerlink" title="reduceByKey"></a>reduceByKey</h2><p>reduceByKey 合并具有相同键值的值</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>reduce_rdd = pair_rdd.reduceByKey(<span class="keyword">lambda</span> x, y : x + y)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>reduce_rdd.collect()</span><br><span class="line">[(<span class="number">2</span>, [<span class="number">300</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>]),</span><br><span class="line"> (<span class="number">4</span>, [<span class="number">400</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>]),</span><br><span class="line"> (<span class="number">6</span>, [<span class="number">100</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>]),</span><br><span class="line"> (<span class="number">1</span>, [<span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]),</span><br><span class="line"> (<span class="number">3</span>, [<span class="number">600</span>, <span class="number">8</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">3</span>]),</span><br><span class="line"> (<span class="number">5</span>, [<span class="number">800</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">8</span>, <span class="number">7</span>])]</span><br></pre></td></tr></table></figure>
+
+<h2 id="mapValues"><a href="#mapValues" class="headerlink" title="mapValues"></a>mapValues</h2><p>mapValues 对键值对RDD中的每个value都应用一个函数 </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>pair_rdd.mapValues(<span class="keyword">lambda</span> x: sum(x)).collect()</span><br><span class="line">[(<span class="number">1</span>, <span class="number">520</span>),</span><br><span class="line"> (<span class="number">2</span>, <span class="number">305</span>),</span><br><span class="line"> (<span class="number">3</span>, <span class="number">620</span>),</span><br><span class="line"> (<span class="number">4</span>, <span class="number">407</span>),</span><br><span class="line"> (<span class="number">5</span>, <span class="number">835</span>),</span><br><span class="line"> (<span class="number">6</span>, <span class="number">105</span>),</span><br><span class="line"> (<span class="number">1</span>, <span class="number">520</span>),</span><br><span class="line"> (<span class="number">1</span>, <span class="number">20</span>),</span><br><span class="line"> (<span class="number">2</span>, <span class="number">10</span>)]</span><br><span class="line"><span class="comment"># 自定义函数对value 进行操作</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> math</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">po</span><span class="params">(l)</span>:</span></span><br><span class="line">    	<span class="keyword">return</span> math.pow(l[<span class="number">1</span>], l[<span class="number">2</span>])</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>pair_rdd.mapValues(po).collect()</span><br><span class="line">[(<span class="number">1</span>, <span class="number">256.0</span>),</span><br><span class="line"> (<span class="number">2</span>, <span class="number">1.0</span>),</span><br><span class="line"> (<span class="number">3</span>, <span class="number">16777216.0</span>),</span><br><span class="line"> (<span class="number">4</span>, <span class="number">1.0</span>),</span><br><span class="line"> (<span class="number">5</span>, <span class="number">10000000000.0</span>),</span><br><span class="line"> (<span class="number">6</span>, <span class="number">1.0</span>),</span><br><span class="line"> (<span class="number">1</span>, <span class="number">256.0</span>),</span><br><span class="line"> (<span class="number">1</span>, <span class="number">81.0</span>),</span><br><span class="line"> (<span class="number">2</span>, <span class="number">4.0</span>)]</span><br></pre></td></tr></table></figure>
+
+<h2 id="keys-values"><a href="#keys-values" class="headerlink" title="keys values"></a>keys values</h2><p>keys 返回所有的键值<br>values 返回所有的值</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>keys = pair_rdd.keys()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>values = pair_rdd.values()</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="string">"key"</span>, keys.collect())</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="string">"value"</span>, values.collect())</span><br><span class="line"></span><br><span class="line">key [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>]</span><br><span class="line">value [[<span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>], [<span class="number">300</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>], [<span class="number">600</span>, <span class="number">8</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">3</span>], [<span class="number">400</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>], [<span class="number">800</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">8</span>, <span class="number">7</span>], [<span class="number">100</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>], [<span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>], [<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>], [<span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>]]</span><br></pre></td></tr></table></figure>
+
+<h2 id="join-连接"><a href="#join-连接" class="headerlink" title="join 连接"></a>join 连接</h2><p>join 根据两个数据集中都有的值来连接两个 RDD， leftOuterJoin：返回左侧数据集的记录，rightOuterJoin 返回右侧数据集的记录。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>x = sc.parallelize([(<span class="number">1</span>, <span class="number">1111</span>), (<span class="number">3</span>,<span class="number">3333</span>), (<span class="number">7</span>,<span class="number">7777</span>)])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>join_rdd = pair_rdd.join(x)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>left_rdd = pair_rdd.leftOuterJoin(x)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>right_rdd = pair_rdd.rightOuterJoin(x)</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="string">"pair_rdd"</span>, pair_rdd.collect())</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="string">"join_rdd"</span>, join_rdd.collect())</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="string">"left_rdd"</span>, left_rdd.collect())</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="string">"right_rdd"</span>, right_rdd.collect())</span><br><span class="line"></span><br><span class="line">pair_rdd [(<span class="number">1</span>, [<span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>]), (<span class="number">2</span>, [<span class="number">300</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>]), (<span class="number">3</span>, [<span class="number">600</span>, <span class="number">8</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">3</span>]), (<span class="number">4</span>, [<span class="number">400</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>]), (<span class="number">5</span>, [<span class="number">800</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">8</span>, <span class="number">7</span>]), (<span class="number">6</span>, [<span class="number">100</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>]), (<span class="number">1</span>, [<span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>]), (<span class="number">1</span>, [<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]), (<span class="number">2</span>, [<span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>])]</span><br><span class="line">join_rdd [(<span class="number">3</span>, ([<span class="number">600</span>, <span class="number">8</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">3</span>], <span class="number">3333</span>)), (<span class="number">1</span>, ([<span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>], <span class="number">1111</span>)), (<span class="number">1</span>, ([<span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>], <span class="number">1111</span>)), (<span class="number">1</span>, ([<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>], <span class="number">1111</span>))]</span><br><span class="line">left_rdd [(<span class="number">3</span>, ([<span class="number">600</span>, <span class="number">8</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">3</span>], <span class="number">3333</span>)), (<span class="number">6</span>, ([<span class="number">100</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>], <span class="keyword">None</span>)), (<span class="number">1</span>, ([<span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>], <span class="number">1111</span>)), (<span class="number">1</span>, ([<span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>], <span class="number">1111</span>)), (<span class="number">1</span>, ([<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>], <span class="number">1111</span>)), (<span class="number">4</span>, ([<span class="number">400</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>], <span class="keyword">None</span>)), (<span class="number">2</span>, ([<span class="number">300</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>], <span class="keyword">None</span>)), (<span class="number">2</span>, ([<span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>], <span class="keyword">None</span>)), (<span class="number">5</span>, ([<span class="number">800</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">8</span>, <span class="number">7</span>], <span class="keyword">None</span>))]</span><br><span class="line">right_rdd [(<span class="number">3</span>, ([<span class="number">600</span>, <span class="number">8</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">3</span>], <span class="number">3333</span>)), (<span class="number">1</span>, ([<span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>], <span class="number">1111</span>)), (<span class="number">1</span>, ([<span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>], <span class="number">1111</span>)), (<span class="number">1</span>, ([<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>], <span class="number">1111</span>)), (<span class="number">7</span>, (<span class="keyword">None</span>, <span class="number">7777</span>))]</span><br></pre></td></tr></table></figure>
+
+<h2 id="reduceByKey-1"><a href="#reduceByKey-1" class="headerlink" title="reduceByKey"></a>reduceByKey</h2><p>reduceByKey 方法和 reduce 类似，但是是在 键-值 基础上运行的</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>reduce_k = pair_rdd.reduceByKey(<span class="keyword">lambda</span> x, y : x+y)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="string">"reduce_k"</span>, reduce_k.collect())</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>union_pair_rdd = union_rdd.map(<span class="keyword">lambda</span> x: (x[<span class="number">0</span>], x[<span class="number">1</span>:]))</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>reduce_u = union_pair_rdd.reduceByKey(<span class="keyword">lambda</span> x, y : x+y)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="string">"union_pair_rdd"</span>, union_pair_rdd.collect())</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="string">"reduce_u"</span>, reduce_u.collect())</span><br><span class="line"></span><br><span class="line">reduce_k [(<span class="number">2</span>, [<span class="number">300</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>]), (<span class="number">4</span>, [<span class="number">400</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>]), (<span class="number">6</span>, [<span class="number">100</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>]), (<span class="number">1</span>, [<span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]), (<span class="number">3</span>, [<span class="number">600</span>, <span class="number">8</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">3</span>]), (<span class="number">5</span>, [<span class="number">800</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">8</span>, <span class="number">7</span>])]</span><br><span class="line">union_pair_rdd [(<span class="number">1</span>, [<span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>]), (<span class="number">2</span>, [<span class="number">300</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>]), (<span class="number">3</span>, [<span class="number">600</span>, <span class="number">8</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">3</span>]), (<span class="number">4</span>, [<span class="number">400</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>]), (<span class="number">5</span>, [<span class="number">800</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">8</span>, <span class="number">7</span>]), (<span class="number">6</span>, [<span class="number">100</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>]), (<span class="number">1</span>, [<span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>]), (<span class="number">1</span>, [<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]), (<span class="number">2</span>, [<span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>])]</span><br><span class="line">reduce_u [(<span class="number">2</span>, [<span class="number">300</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>]), (<span class="number">4</span>, [<span class="number">400</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>]), (<span class="number">6</span>, [<span class="number">100</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>]), (<span class="number">1</span>, [<span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">500</span>, <span class="number">4</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]), (<span class="number">3</span>, [<span class="number">600</span>, <span class="number">8</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">3</span>]), (<span class="number">5</span>, [<span class="number">800</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">8</span>, <span class="number">7</span>])]</span><br></pre></td></tr></table></figure>
+
+<h1 id="Statistics-基础统计"><a href="#Statistics-基础统计" class="headerlink" title="Statistics 基础统计"></a>Statistics 基础统计</h1><p>MLlib Statistics是基础统计模块，能对RDD数据进行统计，包括最大值(max)，最小值(min)，均值mean、方差(variance)、总数(count), L1范数normL1,  L2范数normL2。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> pyspark.mllib.stat <span class="keyword">as</span> st</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>stats = st.Statistics.colStats(map_rdd)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>stats.mean()</span><br><span class="line">array([  <span class="number">3.5</span>       , <span class="number">450.</span>        ,   <span class="number">4.16666667</span>,   <span class="number">4.16666667</span>,</span><br><span class="line">         <span class="number">3.16666667</span>,   <span class="number">3.83333333</span>])</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/spark/" rel="tag"># spark</a>
+          
+            <a href="/tags/pyspark/" rel="tag"># pyspark</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/11/17/spark-func/" rel="next" title="Spark udf 实现统一调用自定义函数">
+                <i class="fa fa-chevron-left"></i> Spark udf 实现统一调用自定义函数
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="sichuyoudang">
+            
+              <p class="site-author-name" itemprop="name">sichuyoudang</p>
+              <p class="site-description motion-element" itemprop="description">记录学习经验，力求分享技术</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">25</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#RDD-基础概念"><span class="nav-number">1.</span> <span class="nav-text">RDD 基础概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#操作-Actions"><span class="nav-number">2.</span> <span class="nav-text">操作(Actions)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#变换-Transformations"><span class="nav-number">3.</span> <span class="nav-text">变换(Transformations)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#map操作"><span class="nav-number">3.1.</span> <span class="nav-text">map操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#flatMap-操作"><span class="nav-number">3.2.</span> <span class="nav-text">flatMap 操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#union-联合"><span class="nav-number">3.3.</span> <span class="nav-text">union 联合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#filter-过滤"><span class="nav-number">3.4.</span> <span class="nav-text">filter 过滤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reduce-操作"><span class="nav-number">3.5.</span> <span class="nav-text">reduce 操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sample-抽样"><span class="nav-number">3.6.</span> <span class="nav-text">sample 抽样</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#takeSample"><span class="nav-number">3.7.</span> <span class="nav-text">takeSample</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Pair-RDD"><span class="nav-number">4.</span> <span class="nav-text">Pair RDD</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#sortByKey-排序"><span class="nav-number">4.1.</span> <span class="nav-text">sortByKey 排序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reduceByKey"><span class="nav-number">4.2.</span> <span class="nav-text">reduceByKey</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mapValues"><span class="nav-number">4.3.</span> <span class="nav-text">mapValues</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#keys-values"><span class="nav-number">4.4.</span> <span class="nav-text">keys values</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#join-连接"><span class="nav-number">4.5.</span> <span class="nav-text">join 连接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reduceByKey-1"><span class="nav-number">4.6.</span> <span class="nav-text">reduceByKey</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Statistics-基础统计"><span class="nav-number">5.</span> <span class="nav-text">Statistics 基础统计</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sichuyoudang</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

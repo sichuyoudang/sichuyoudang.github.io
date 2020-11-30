@@ -262,6 +262,144 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/09/innodb-logical-storage/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/09/09/innodb-logical-storage/" itemprop="url">InnoDB 逻辑存储结构</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-09-09T06:46:47+08:00">
+                2020-09-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>从 InnoDB 存储引擎的逻辑存储结构看，所有数据都被逻辑的存放在一个空间中，成为表空间（tablespace），表空间又由段（segment），区（extent），页（page）组成，页在一些文档中有时也称为块（block）。</p>
+<img src="/2020/09/09/innodb-logical-storage/innodb_1.png">
+
+
+
+<h1 id="表空间"><a href="#表空间" class="headerlink" title="表空间"></a>表空间</h1><p>表空间可以看作是 InnoDB 存储引擎逻辑结构的最高层，所有数据都存放在表空间中，默认情况下 InnoDB 存储引擎有一个共享空间 ibdata1，即所有数据都存放在这个表空间内，如果用户启用了参数 innodb_file_per_table,则每张表内的数据可以单独放到一个表空间内。</p>
+<p>如果启用了 innodb_file_per_table 参数，每张表的表空间内存放的只是数据，索引和插入缓冲 Bitmap 页，其他类的数据如回滚信息，插入缓冲索引页，系统事务信息，二次写等还是放在原来的共享表空间内。因此技术启用了参数 innodb_file_per_table ，共享表空间还是会不断增加其大小。</p>
+<h1 id="段"><a href="#段" class="headerlink" title="段"></a>段</h1><p>常见的段有数据段，索引段，回滚段等，因为 InnoDB 存储引擎表是索引组织的，因此数据即索引，索引即数据。那么数据段即为 B+ 树的叶子节点（Leaf node segment），索引段即为 B+ 树的非索引节点（Non-leaf node segment），回滚段较为特殊。</p>
+<p>在 InnoDB 存储引擎中，对段段管理都是由引擎自身完成。DBA 不能也没必要对其进行控制。</p>
+<h1 id="区"><a href="#区" class="headerlink" title="区"></a>区</h1><p>区是由连续页组成的空间，在任何情况下每个区的大小都是 1MB。为了保证区中页的连续性，InnoDB 存储引擎一次从磁盘申请 4～5 个区。在默认情况下，InnoDB 存储引擎页的大小为 16KB，即一个区中一共有64 个连续的页。</p>
+<p>InnoDB 1.0.x 版本开始引入压缩页，即每个页的大小可以通过参数 KEY_BLOCK_SIZE 设置为2K，4K，8K，因此每个区对应页的数量就应该为512，256，128。</p>
+<p>InnoDB 1.2.x 版本新增了参数 innodb_page_size，通过该参数可以将默认页的大小设置为4K，8K，但是页中的数据库不是压缩。这时区中的数量同样也为256，128。总之不论页的大小怎么变化，区的大小总是1MB。</p>
+<p>但是还有一个问题，在用户启用了参数 innodb_file_per_table 后，创建的表默认大小是96KB，区中是64个连续的页，创建的表的大小至少是 1MB 才对啊？其实这是因为在每个段开始时，先用32个页大小的碎片页来存放数据，在使用完这些页之后才是64个连续页的申请。这样做的目的是，对于一些小表，或者是 undo 这类的段，可以在开始时申请较少的空间，节省磁盘容量的开销。</p>
+<h1 id="页"><a href="#页" class="headerlink" title="页"></a>页</h1><p>同大多数数据库一样，InnoDB 有页的概念（也可称为块），页是 InnoDB 磁盘管理的最小单位。在 InnoDB 存储引擎中，默认每个页的大小为 16KB。而从 InnoDB 1.2.x 版本开始，可以通过参数 innodb_page_size 将页的大小设置为 4K, 8K, 16k。若设置完成，则表中页的大小都为 innodb_page_size，不可以对其再次进行修改，除非通过 mysqldump 导入和导出操作来产生新的库。</p>
+<p>在 nnoDB 存储引擎中，常见的页类型有：</p>
+<blockquote>
+<p>数据页 （B-tree Node）<br>undo 页（undo Log Page）<br>系统页（System Page）<br>事务数据页（Transaction system Page）<br>插入缓冲位图页（Insert Buffer Bitmap）<br>插入缓冲空闲列表页（Insert Buffer Free List）<br>未压缩的二进制大对象页（Uncompressed BLOB Page）<br>压缩的二进制大对象页（compressed BLOB Page）</p>
+</blockquote>
+<h1 id="行"><a href="#行" class="headerlink" title="行"></a>行</h1><p>InnoDB 存储引擎是面向列的（row-oriented），也就说数据是按行进行存放的。每个页存放的行记录也是有硬性定义的，最多允许存放 16KB/2-200行的记录，即 7992 行记录。这里提到了row-oriented 的数据库，也就是说，存在有 column-oriented 的数据库。MySQL infobright 存储引擎就是按照列来存放数据的，这对于数据仓库下的分析列 SQL 语句的执行及数据压缩非常有帮助。类似的数据库还有 Sybase IQ, Google Big Table。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/02/pandas/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1661,134 +1799,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/18/linux-disk/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/12/18/linux-disk/" itemprop="url">Linux 查看磁盘使用情况</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-18T10:42:50+08:00">
-                2019-12-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="df"><a href="#df" class="headerlink" title="df"></a>df</h1><p>df 用于显示 Linux 系统中各文件系统的硬盘使用情况，包括文件系统所在硬盘分区的总容量、已使用的容量、剩余容量等。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[]# df [选项] 目录或文件</span><br><span class="line">-a：显示所有文件系统信息，包括系统特有的/proc、/sysfs等文件系统。</span><br><span class="line">-k：以KB为单位显示容量，默认。</span><br><span class="line">-m：以MB为单位显示容量。</span><br><span class="line">-h：使用人们习惯的KB、MB或GB等单位自行显示容量。</span><br><span class="line">-H：以M=1000K取代M=1024K的进位方式显示容量。</span><br><span class="line">-T：显示该分区的文件系统名称（例如xfs）。</span><br><span class="line">-i：不用硬盘容量显示，而是以含有inode的数量来显示。</span><br></pre></td></tr></table></figure>
-
-<h1 id="du"><a href="#du" class="headerlink" title="du"></a>du</h1><p>du 查看单独目录点的使用情况，它使用递归方式总结磁盘使用情况，以获取目录及其子目录的大小。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[]# du [选项] 目录或文件</span><br><span class="line">	-h – 以易读的格式显示大小 (例如 1K 234M 2G)</span><br><span class="line">	-s – 仅显示每个参数的总数</span><br><span class="line">	--max-depth=N – 目录的打印深度</span><br><span class="line">	</span><br><span class="line">[]# du -h /xxx/ | sort -rh | head -20</span><br><span class="line">xxG	/data/</span><br><span class="line">xxG	/data/x</span><br><span class="line">xxG	/data/xx</span><br><span class="line">xxG	/data/xxx/x</span><br><span class="line">xxG	/data/xxxx</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1841,7 +1851,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">67</span>
+                  <span class="site-state-item-count">68</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

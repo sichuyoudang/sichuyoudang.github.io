@@ -262,6 +262,183 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/12/mysql-index/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/12/mysql-index/" itemprop="url">mysql 喂，你的索引没有用到诶</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-12T10:07:53+08:00">
+                2019-09-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>先说结论，以后无论是写代码还是查bug，都要认真写啊</p>
+<p>最近发现一个接口因为数据量大导致查询时间长，需要优化，我就去查了，其中最耗时的是一个类似这样的查询:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">obj = db.session.query(A.id, D.name)</span><br><span class="line">.filter(B.student_id == student_id, B.status=2)</span><br><span class="line">.filter(A.student_id == B.student_id, A.status&gt;0)</span><br><span class="line">.filter(B.teacher_id == C.id)</span><br><span class="line">.filter(C.class_id == D.id)</span><br><span class="line">.all()</span><br></pre></td></tr></table></figure>
+
+<p>看了代码，没什么问题嘛，用 MySQL 提供的 EXPLAIN 命令分析一下，结果如下:</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>table</th>
+<th>type</th>
+<th>possible_keys</th>
+<th>key</th>
+<th>ref</th>
+<th>rows</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>d</td>
+<td>eq_ref</td>
+<td>PRIMARY</td>
+<td>PRIMARY</td>
+<td><subquery2>.class_id</subquery2></td>
+<td>10000</td>
+</tr>
+<tr>
+<td>1</td>
+<td>a</td>
+<td>index</td>
+<td>-</td>
+<td>student_id</td>
+<td>-</td>
+<td>10000</td>
+</tr>
+<tr>
+<td>2</td>
+<td>b</td>
+<td>ALL</td>
+<td>teacher_id</td>
+<td>-</td>
+<td>-</td>
+<td>1000000</td>
+</tr>
+<tr>
+<td>2</td>
+<td>c</td>
+<td>eq_ref</td>
+<td>PRIMARY, class_id</td>
+<td>PRIMARY</td>
+<td>b.teacher_id</td>
+<td>10000</td>
+</tr>
+</tbody></table>
+<p>诶，数据量百万级的 B 竟然是全文搜索，怪不得要10s才查出来，没有索引吗，查了一下数据库， A.student_id, B.teacher_id, C.class_id 都创建了索引，那筛选 student_id 的时候都没有用到索引，那筛选改到 A 上面，改成如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">obj = db.session.query(A.id, D.name)</span><br><span class="line">.filter(A.student_id == student_id, A.status&gt;0 )</span><br><span class="line">.filter(A.student_id == B.student_id, B.status=2)</span><br><span class="line">.filter(B.teacher_id == C.id)</span><br><span class="line">.filter(C.class_id == D.id)</span><br><span class="line">.all()</span><br></pre></td></tr></table></figure>
+
+<p>结果果然快多了，整个查询降到了1s，，接下来看看其他语句吧<br>就酱。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/06/closure/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1461,129 +1638,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/17/tensorflow-mnist/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/10/17/tensorflow-mnist/" itemprop="url">tensorflow mnist 识别数字</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-10-17T10:48:53+08:00">
-                2018-10-17
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>识别图中模糊的手写数字<br>本次用到一个开源的训练数据集 – MNIST,它包含四部分,可从 <a href="http://yann.lecun.com/exdb/mnist/" target="_blank" rel="noopener">Yann LeCun’s MNIST page</a> 下载:</p>
-<p><a href="http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz" target="_blank" rel="noopener">train-images-idx3-ubyte.gz</a><br><a href="http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz" target="_blank" rel="noopener">train-labels-idx1-ubyte.gz</a><br><a href="http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz" target="_blank" rel="noopener">t10k-images-idx3-ubyte.gz</a><br><a href="http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz" target="_blank" rel="noopener">t10k-labels-idx1-ubyte.gz</a></p>
-<h2 id="利用-Tensorflow-下载-MNIST"><a href="#利用-Tensorflow-下载-MNIST" class="headerlink" title="利用 Tensorflow 下载 MNIST"></a>利用 Tensorflow 下载 MNIST</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow.examples.tutorials.mnist.input_data</span><br><span class="line">mnist = input_data.read_data_sets(<span class="string">"MNIST_data/"</span>, one_hot=<span class="keyword">True</span>)</span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1636,7 +1690,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">67</span>
+                  <span class="site-state-item-count">68</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

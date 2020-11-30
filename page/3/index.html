@@ -262,6 +262,134 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/18/linux-disk/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/18/linux-disk/" itemprop="url">Linux 查看磁盘使用情况</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-18T10:42:50+08:00">
+                2019-12-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="df"><a href="#df" class="headerlink" title="df"></a>df</h1><p>df 用于显示 Linux 系统中各文件系统的硬盘使用情况，包括文件系统所在硬盘分区的总容量、已使用的容量、剩余容量等。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[]# df [选项] 目录或文件</span><br><span class="line">-a：显示所有文件系统信息，包括系统特有的/proc、/sysfs等文件系统。</span><br><span class="line">-k：以KB为单位显示容量，默认。</span><br><span class="line">-m：以MB为单位显示容量。</span><br><span class="line">-h：使用人们习惯的KB、MB或GB等单位自行显示容量。</span><br><span class="line">-H：以M=1000K取代M=1024K的进位方式显示容量。</span><br><span class="line">-T：显示该分区的文件系统名称（例如xfs）。</span><br><span class="line">-i：不用硬盘容量显示，而是以含有inode的数量来显示。</span><br></pre></td></tr></table></figure>
+
+<h1 id="du"><a href="#du" class="headerlink" title="du"></a>du</h1><p>du 查看单独目录点的使用情况，它使用递归方式总结磁盘使用情况，以获取目录及其子目录的大小。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[]# du [选项] 目录或文件</span><br><span class="line">	-h – 以易读的格式显示大小 (例如 1K 234M 2G)</span><br><span class="line">	-s – 仅显示每个参数的总数</span><br><span class="line">	--max-depth=N – 目录的打印深度</span><br><span class="line">	</span><br><span class="line">[]# du -h /xxx/ | sort -rh | head -20</span><br><span class="line">xxG	/data/</span><br><span class="line">xxG	/data/x</span><br><span class="line">xxG	/data/xx</span><br><span class="line">xxG	/data/xxx/x</span><br><span class="line">xxG	/data/xxxx</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/04/anaconda/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1536,183 +1664,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/12/mysql-index/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/12/mysql-index/" itemprop="url">mysql 喂，你的索引没有用到诶</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-12T10:07:53+08:00">
-                2019-09-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>先说结论，以后无论是写代码还是查bug，都要认真写啊</p>
-<p>最近发现一个接口因为数据量大导致查询时间长，需要优化，我就去查了，其中最耗时的是一个类似这样的查询:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">obj = db.session.query(A.id, D.name)</span><br><span class="line">.filter(B.student_id == student_id, B.status=2)</span><br><span class="line">.filter(A.student_id == B.student_id, A.status&gt;0)</span><br><span class="line">.filter(B.teacher_id == C.id)</span><br><span class="line">.filter(C.class_id == D.id)</span><br><span class="line">.all()</span><br></pre></td></tr></table></figure>
-
-<p>看了代码，没什么问题嘛，用 MySQL 提供的 EXPLAIN 命令分析一下，结果如下:</p>
-<table>
-<thead>
-<tr>
-<th>id</th>
-<th>table</th>
-<th>type</th>
-<th>possible_keys</th>
-<th>key</th>
-<th>ref</th>
-<th>rows</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td>d</td>
-<td>eq_ref</td>
-<td>PRIMARY</td>
-<td>PRIMARY</td>
-<td><subquery2>.class_id</subquery2></td>
-<td>10000</td>
-</tr>
-<tr>
-<td>1</td>
-<td>a</td>
-<td>index</td>
-<td>-</td>
-<td>student_id</td>
-<td>-</td>
-<td>10000</td>
-</tr>
-<tr>
-<td>2</td>
-<td>b</td>
-<td>ALL</td>
-<td>teacher_id</td>
-<td>-</td>
-<td>-</td>
-<td>1000000</td>
-</tr>
-<tr>
-<td>2</td>
-<td>c</td>
-<td>eq_ref</td>
-<td>PRIMARY, class_id</td>
-<td>PRIMARY</td>
-<td>b.teacher_id</td>
-<td>10000</td>
-</tr>
-</tbody></table>
-<p>诶，数据量百万级的 B 竟然是全文搜索，怪不得要10s才查出来，没有索引吗，查了一下数据库， A.student_id, B.teacher_id, C.class_id 都创建了索引，那筛选 student_id 的时候都没有用到索引，那筛选改到 A 上面，改成如下:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">obj = db.session.query(A.id, D.name)</span><br><span class="line">.filter(A.student_id == student_id, A.status&gt;0 )</span><br><span class="line">.filter(A.student_id == B.student_id, B.status=2)</span><br><span class="line">.filter(B.teacher_id == C.id)</span><br><span class="line">.filter(C.class_id == D.id)</span><br><span class="line">.all()</span><br></pre></td></tr></table></figure>
-
-<p>结果果然快多了，整个查询降到了1s，，接下来看看其他语句吧<br>就酱。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1765,7 +1716,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">67</span>
+                  <span class="site-state-item-count">68</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
