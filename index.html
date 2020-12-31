@@ -262,6 +262,132 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/12/31/dataframe-interval/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/12/31/dataframe-interval/" itemprop="url">Pandas DataFrame 添加一列 interval 数据</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-12-31T13:43:52+08:00">
+                2020-12-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="interval"><a href="#interval" class="headerlink" title="interval"></a>interval</h1><p>Pandas 数据被切分后（cut）生成的区间（箱/桶），</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a = pd.cut(np.array([<span class="number">1</span>, <span class="number">7</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">3</span>]), <span class="number">3</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a</span><br><span class="line">[(<span class="number">0.994</span>, <span class="number">3.0</span>], (<span class="number">5.0</span>, <span class="number">7.0</span>], (<span class="number">3.0</span>, <span class="number">5.0</span>], (<span class="number">3.0</span>, <span class="number">5.0</span>], (<span class="number">5.0</span>, <span class="number">7.0</span>], (<span class="number">0.994</span>, <span class="number">3.0</span>]]</span><br><span class="line">Categories (<span class="number">3</span>, interval[float64]): [(<span class="number">0.994</span>, <span class="number">3.0</span>] &lt; (<span class="number">3.0</span>, <span class="number">5.0</span>] &lt; (<span class="number">5.0</span>, <span class="number">7.0</span>]]</span><br></pre></td></tr></table></figure>
+
+<h1 id="字符串转成-interval"><a href="#字符串转成-interval" class="headerlink" title="字符串转成 interval"></a>字符串转成 interval</h1><p>在实际业务中，我需要把 dataframe 数据保存到 csv 上，然后再读取出来，数据中有一列是 interval 格式，保存到 csv 中读取出来就是字符串格式，所以需要将这个数据转成 interval ，虽然有些丑，但还好实现了。</p>
+<p>基本思路是先切割字符串，获取 left/right 两列数字，然后通过 IntervalIndex 转成 interval 格式，使用 pd.IntervalIndex.from_tuple 方法，所以前期转成 tuple 列表格式，具体如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> re</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>wo = pd.read_csv(<span class="string">"wo.csv"</span>, index_col=<span class="keyword">False</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>wo</span><br><span class="line">                   x  num       a         b</span><br><span class="line"><span class="number">0</span>  (<span class="number">-0.001</span>, <span class="number">0.00579</span>]   <span class="number">57</span>  <span class="number">0.0179</span> <span class="number">-1.237725</span></span><br><span class="line"><span class="number">1</span>  (<span class="number">0.00579</span>, <span class="number">0.0535</span>]  <span class="number">114</span>  <span class="number">0.0270</span> <span class="number">-0.823291</span></span><br><span class="line"><span class="number">2</span>    (<span class="number">0.0535</span>, <span class="number">0.089</span>]   <span class="number">57</span>  <span class="number">0.0179</span> <span class="number">-1.237725</span></span><br><span class="line"><span class="number">3</span>     (<span class="number">0.089</span>, <span class="number">0.181</span>]   <span class="number">57</span>  <span class="number">0.0179</span> <span class="number">-1.237725</span></span><br><span class="line"><span class="number">4</span>     (<span class="number">0.181</span>, <span class="number">0.292</span>]   <span class="number">56</span>  <span class="number">0.0182</span> <span class="number">-1.219707</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>wo[<span class="string">'x'</span>]</span><br><span class="line"><span class="number">0</span>    (<span class="number">-0.001</span>, <span class="number">0.00579</span>]</span><br><span class="line"><span class="number">1</span>    (<span class="number">0.00579</span>, <span class="number">0.0535</span>]</span><br><span class="line"><span class="number">2</span>      (<span class="number">0.0535</span>, <span class="number">0.089</span>]</span><br><span class="line"><span class="number">3</span>       (<span class="number">0.089</span>, <span class="number">0.181</span>]</span><br><span class="line"><span class="number">4</span>       (<span class="number">0.181</span>, <span class="number">0.292</span>]</span><br><span class="line">Name: x, dtype: object</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>wo_tmp = pd.DataFrame([])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>wo_tmp[<span class="string">'left'</span>] = wo[<span class="string">'x'</span>].map(<span class="keyword">lambda</span> x: re.split(<span class="string">",|\]|\("</span>, x)[<span class="number">1</span>]).astype(<span class="string">'float'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>wo_tmp[<span class="string">'right'</span>] = wo[<span class="string">'x'</span>].map(<span class="keyword">lambda</span> x: re.split(<span class="string">",|\]|\("</span>, x)[<span class="number">2</span>]).astype(<span class="string">'float'</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>wo_tmp</span><br><span class="line">      left    right</span><br><span class="line"><span class="number">0</span> <span class="number">-0.00100</span>  <span class="number">0.00579</span></span><br><span class="line"><span class="number">1</span>  <span class="number">0.00579</span>  <span class="number">0.05350</span></span><br><span class="line"><span class="number">2</span>  <span class="number">0.05350</span>  <span class="number">0.08900</span></span><br><span class="line"><span class="number">3</span>  <span class="number">0.08900</span>  <span class="number">0.18100</span></span><br><span class="line"><span class="number">4</span>  <span class="number">0.18100</span>  <span class="number">0.29200</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>wo_list = wo_tmp.values.tolist()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>wo_list</span><br><span class="line">[[<span class="number">-0.001</span>, <span class="number">0.00579</span>], [<span class="number">0.00579</span>, <span class="number">0.0535</span>], [<span class="number">0.0535</span>, <span class="number">0.089</span>], [<span class="number">0.089</span>, <span class="number">0.181</span>], [<span class="number">0.181</span>, <span class="number">0.292</span>]]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>wo_tuple = [tuple(i) <span class="keyword">for</span> i <span class="keyword">in</span> wo_list]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>wo_tuple</span><br><span class="line">[(<span class="number">-0.001</span>, <span class="number">0.00579</span>), (<span class="number">0.00579</span>, <span class="number">0.0535</span>), (<span class="number">0.0535</span>, <span class="number">0.089</span>), (<span class="number">0.089</span>, <span class="number">0.181</span>), (<span class="number">0.181</span>, <span class="number">0.292</span>)]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>interval_index = pd.IntervalIndex.from_tuples(wo_tuple)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>interval_index</span><br><span class="line">IntervalIndex([(<span class="number">-0.001</span>, <span class="number">0.00579</span>], (<span class="number">0.00579</span>, <span class="number">0.0535</span>], (<span class="number">0.0535</span>, <span class="number">0.089</span>], (<span class="number">0.089</span>, <span class="number">0.181</span>], (<span class="number">0.181</span>, <span class="number">0.292</span>]],</span><br><span class="line">              closed=<span class="string">'right'</span>,</span><br><span class="line">              dtype=<span class="string">'interval[float64]'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>wo_columns = wo.columns</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>wo_columns</span><br><span class="line">Index([<span class="string">'x'</span>, <span class="string">'num'</span>, <span class="string">'a'</span>, <span class="string">'b'</span>], dtype=<span class="string">'object'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>wo = wo.drop(columns=<span class="string">'x'</span>, axis=<span class="number">1</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>wo</span><br><span class="line">   num       a         b</span><br><span class="line"><span class="number">0</span>   <span class="number">57</span>  <span class="number">0.0179</span> <span class="number">-1.237725</span></span><br><span class="line"><span class="number">1</span>  <span class="number">114</span>  <span class="number">0.0270</span> <span class="number">-0.823291</span></span><br><span class="line"><span class="number">2</span>   <span class="number">57</span>  <span class="number">0.0179</span> <span class="number">-1.237725</span></span><br><span class="line"><span class="number">3</span>   <span class="number">57</span>  <span class="number">0.0179</span> <span class="number">-1.237725</span></span><br><span class="line"><span class="number">4</span>   <span class="number">56</span>  <span class="number">0.0182</span> <span class="number">-1.219707</span></span><br><span class="line">&gt;&gt;&gt;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>wo[<span class="string">'x'</span>] = interval_index</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>wo</span><br><span class="line">   num       a         b                  x</span><br><span class="line"><span class="number">0</span>   <span class="number">57</span>  <span class="number">0.0179</span> <span class="number">-1.237725</span>  (<span class="number">-0.001</span>, <span class="number">0.00579</span>]</span><br><span class="line"><span class="number">1</span>  <span class="number">114</span>  <span class="number">0.0270</span> <span class="number">-0.823291</span>  (<span class="number">0.00579</span>, <span class="number">0.0535</span>]</span><br><span class="line"><span class="number">2</span>   <span class="number">57</span>  <span class="number">0.0179</span> <span class="number">-1.237725</span>    (<span class="number">0.0535</span>, <span class="number">0.089</span>]</span><br><span class="line"><span class="number">3</span>   <span class="number">57</span>  <span class="number">0.0179</span> <span class="number">-1.237725</span>     (<span class="number">0.089</span>, <span class="number">0.181</span>]</span><br><span class="line"><span class="number">4</span>   <span class="number">56</span>  <span class="number">0.0182</span> <span class="number">-1.219707</span>     (<span class="number">0.181</span>, <span class="number">0.292</span>]</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>wo.reindex(columns=wo_columns)</span><br><span class="line">                   x  num       a         b</span><br><span class="line"><span class="number">0</span>  (<span class="number">-0.001</span>, <span class="number">0.00579</span>]   <span class="number">57</span>  <span class="number">0.0179</span> <span class="number">-1.237725</span></span><br><span class="line"><span class="number">1</span>  (<span class="number">0.00579</span>, <span class="number">0.0535</span>]  <span class="number">114</span>  <span class="number">0.0270</span> <span class="number">-0.823291</span></span><br><span class="line"><span class="number">2</span>    (<span class="number">0.0535</span>, <span class="number">0.089</span>]   <span class="number">57</span>  <span class="number">0.0179</span> <span class="number">-1.237725</span></span><br><span class="line"><span class="number">3</span>     (<span class="number">0.089</span>, <span class="number">0.181</span>]   <span class="number">57</span>  <span class="number">0.0179</span> <span class="number">-1.237725</span></span><br><span class="line"><span class="number">4</span>     (<span class="number">0.181</span>, <span class="number">0.292</span>]   <span class="number">56</span>  <span class="number">0.0182</span> <span class="number">-1.219707</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>wo[<span class="string">'x'</span>]</span><br><span class="line"><span class="number">0</span>    (<span class="number">-0.001</span>, <span class="number">0.00579</span>]</span><br><span class="line"><span class="number">1</span>    (<span class="number">0.00579</span>, <span class="number">0.0535</span>]</span><br><span class="line"><span class="number">2</span>      (<span class="number">0.0535</span>, <span class="number">0.089</span>]</span><br><span class="line"><span class="number">3</span>       (<span class="number">0.089</span>, <span class="number">0.181</span>]</span><br><span class="line"><span class="number">4</span>       (<span class="number">0.181</span>, <span class="number">0.292</span>]</span><br><span class="line">Name: x, dtype: interval</span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/30/spark-rdd/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1580,133 +1706,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/09/innodb-doublewrite/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/09/09/innodb-doublewrite/" itemprop="url">InnoDB 两次写</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-09-09T16:49:49+08:00">
-                2020-09-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>如果说 Insert Buffer 带给 InnoDB 存储引擎的是性能上的提升，那个 doublewrite（两次写）带给<br>InnoDB 存储引擎的则是数据页的可靠性。</p>
-<p>党发生数据库宕机时，可能 InnoDB 存储引擎正在写入某个列表中，而这个页只写了一部分，比如16KB 的页，只写了前 4KB，之后发生了宕机，这种情况称为局部写失效，在 InnoDB 存储引擎未使用 doublewrite 技术前，曾经出现过部分因为写失效而导致数据丢失的情况。</p>
-<p>doublewrite 由两部分组成，一部分是内存中的 doublewrite buffer ，大小为 2MB，另一部分是物理磁盘上共享表空间中连续的128个页，即2个区，大小同样为2MB。在对缓冲池的脏页进行刷新时，并不直接写磁盘，而是会通过 memcpy 函数将脏页先复制到内存中的 doublewrite buffer，之后通过 doublewrite buffer 再分两次，每次1MB顺序地写入共享表空间的物理磁盘上，然后马上调用 fsync 函数，同步磁盘，避免缓冲写带来的问题。在这个过程中，因为 doublewrite buffer 页是连续的，因此这个过程是顺序写的，开销并不大，在完成 doublewrite 页的写入后，再将 doublewrite buffer 中的页写入各个表空间文件中，此时的写入则是离散的。</p>
-<img src="/2020/09/09/innodb-doublewrite/double.png">
-
-<p>如果操作系统在将页写入磁盘的过程中发生了崩溃，在恢复过程中，InnoDB 存储引擎可以从共享表空间中的 doublewrite 中找到该页的一个副本，将其复制到表空间文件，再应用重做日志。</p>
-<p>MySQL 官方手册中，命令 SHOW GLOBAL STATUS 中 buffer_pool_pages_flushed 变量表示当前从缓冲池中刷新首先都需要放入到 doublewrite 中，因此该变量应该和 InnoDB_dblwr_pages_written 一致，然而在 MySQL 5.5.24 版本之前，buffer_pool_pages_flushed 总是 InnoDB_dblwr_pages_written 的2倍，直至5.5.24才修复。因此用户若需要统计数据库在生产环境中写入到量，最安全的还是根据 InnoDB_dblwr_pages_written 来统计，这在所有版本中都是正确的。</p>
-<p>参数 skip_innodb_doublewrite 可以禁止 doublewrite 功能，这时可能会发生前面提及的写失效问题。不过如果用户有多个从服务器，需要提供较快的性能，也行启用这个参数是一个办法。不过对于需要提供数据高可靠性的主服务器，任何时候用户都应确保开启 doublewrite 功能。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1759,7 +1758,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-count">69</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1771,7 +1770,7 @@
               
               
               <div class="site-state-item site-state-tags">
-                <a href="/tags/index.html">
+                <a href="/categories/index.html">
                   <span class="site-state-item-count">25</span>
                   <span class="site-state-item-name">tags</span>
                 </a>

@@ -262,6 +262,139 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/17/copy/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/17/copy/" itemprop="url">python 复制</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-17T11:48:40+08:00">
+                2019-09-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="浅复制"><a href="#浅复制" class="headerlink" title="浅复制"></a>浅复制</h1><p>复制列表</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">l1 = [<span class="number">3</span>, [<span class="number">55</span>, <span class="number">66</span>, <span class="number">77</span>], (<span class="number">88</span>, <span class="number">99</span>)]</span><br><span class="line">l2 = list(l1)</span><br><span class="line">l1.append(<span class="number">100</span>)</span><br><span class="line">l1[<span class="number">1</span>].remove(<span class="number">55</span>)</span><br><span class="line">l1      <span class="comment"># [3, [66, 77], (88, 99), 100]</span></span><br><span class="line">l2      <span class="comment"># [3, [66, 77], (88, 99)]</span></span><br><span class="line">l2[<span class="number">1</span>] += [<span class="number">33</span>, <span class="number">32</span>]</span><br><span class="line">l1      <span class="comment"># [3, [66, 77, 33, 32], (88, 99), 100]</span></span><br><span class="line">l2 		<span class="comment"># [3, [66, 77, 33, 32], (88, 99)]</span></span><br><span class="line">l2[<span class="number">2</span>] += (<span class="number">10</span>, <span class="number">11</span>) </span><br><span class="line">l1			<span class="comment"># [3, [66, 77, 33, 32], (88, 99), 100]</span></span><br><span class="line">l2 		<span class="comment"># [3, [66, 77, 33, 32], (88, 99, 10, 11)]</span></span><br></pre></td></tr></table></figure>
+
+<p>这个包含一个列表，一个元祖的列表。<br>l1追加100这个元素对l2没有影响，删除55有影响，因为l2[1]绑定的列表与l1[1]是同一个。</p>
+<p>对于可变对象来说，+= 运算符就地修改列表，这次修改在l1[1]中也有体现，因为它是l2[1]的别名。</p>
+<p>对于元祖来说，+= 运算符创建一个新元祖，然后重新绑定给变量l2[2]。这等同于l2[2] = l2[2] + (10, 11)。现在，l1 和 l2 中最后位置上的元祖不是同一个对象。</p>
+<h1 id="深复制"><a href="#深复制" class="headerlink" title="深复制"></a>深复制</h1><p>深复制，即副本不共享内部对象的引用。copy 模块提供的 deepcopy 和 copy 函数能为任意对象做深复制和浅复制。</p>
+<p>创建一个公交车上下车的类</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bus</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, passengers=None)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> passengers <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            self.passengers = []</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self.passengers = list(passengers)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pick</span><span class="params">(self, name)</span>:</span></span><br><span class="line">    	self.passengers.append(name)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">drop</span><span class="params">(self, name)</span>:</span></span><br><span class="line">    	self.passengers.remove(name)</span><br></pre></td></tr></table></figure>
+
+<p>然后创建一个实例，2个副本</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">In[<span class="number">4</span>]: <span class="keyword">import</span> copy</span><br><span class="line">In[<span class="number">5</span>]: bus1 = Bus([<span class="string">"alice"</span>, <span class="string">"bill"</span>, <span class="string">"cliare"</span>, <span class="string">"david"</span>])</span><br><span class="line">In[<span class="number">6</span>]: bus2 = copy.copy(bus1)</span><br><span class="line">In[<span class="number">7</span>]: bus3 = copy.deepcopy(bus1)</span><br><span class="line">In[<span class="number">8</span>]: id(bus1), id(bus2), id(bus3)</span><br><span class="line">Out[<span class="number">8</span>]: (<span class="number">4342669832</span>, <span class="number">4342629208</span>, <span class="number">4320004360</span>)</span><br><span class="line">In[<span class="number">9</span>]: bus1.drop(<span class="string">'bill'</span>)</span><br><span class="line">In[<span class="number">10</span>]: bus2.passengers</span><br><span class="line">Out[<span class="number">10</span>]: [<span class="string">'alice'</span>, <span class="string">'cliare'</span>, <span class="string">'david'</span>]</span><br><span class="line">In[<span class="number">11</span>]: bus3.passengers</span><br><span class="line">Out[<span class="number">11</span>]: [<span class="string">'alice'</span>, <span class="string">'bill'</span>, <span class="string">'cliare'</span>, <span class="string">'david'</span>]</span><br><span class="line">In[<span class="number">12</span>]: id(bus1.passengers), id(bus2.passengers), id(bus3.passengers)</span><br><span class="line">Out[<span class="number">12</span>]: (<span class="number">4342638088</span>, <span class="number">4342638088</span>, <span class="number">4342640520</span>)</span><br></pre></td></tr></table></figure>
+
+<p>bus1 和 bus2 共享一个列表对象，因为 bus2 是 bus1 的浅复制，bus3 是 bus1 的深复制副本，因此它的 passengers 属性指代另一个列表。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/12/mysql-index/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1510,134 +1643,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/18/pylab/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/10/18/pylab/" itemprop="url">pylab</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-10-18T10:52:08+08:00">
-                2018-10-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>使用 pylab 报错</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">  File <span class="string">"/Users/zlw/py36/lib/python3.6/site-packages/pylab.py"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    <span class="keyword">from</span> matplotlib.pylab <span class="keyword">import</span> *</span><br><span class="line">  File <span class="string">"/Users/zlw/py36/lib/python3.6/site-packages/matplotlib/pylab.py"</span>, line <span class="number">245</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    <span class="keyword">from</span> matplotlib <span class="keyword">import</span> cbook, mlab, pyplot <span class="keyword">as</span> plt</span><br><span class="line">  File <span class="string">"/Users/zlw/py36/lib/python3.6/site-packages/matplotlib/pyplot.py"</span>, line <span class="number">2371</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    switch_backend(rcParams[<span class="string">"backend"</span>])</span><br><span class="line">  File <span class="string">"/Users/zlw/py36/lib/python3.6/site-packages/matplotlib/pyplot.py"</span>, line <span class="number">207</span>, <span class="keyword">in</span> switch_backend</span><br><span class="line">    backend_mod = importlib.import_module(backend_name)</span><br><span class="line">  File <span class="string">"/Users/zlw/py36/lib/python3.6/importlib/__init__.py"</span>, line <span class="number">126</span>, <span class="keyword">in</span> import_module</span><br><span class="line">    <span class="keyword">return</span> _bootstrap._gcd_import(name[level:], package, level)</span><br><span class="line">  File <span class="string">"/Users/zlw/py36/lib/python3.6/site-packages/matplotlib/backends/backend_macosx.py"</span>, line <span class="number">14</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    <span class="keyword">from</span> matplotlib.backends <span class="keyword">import</span> _macosx</span><br><span class="line">ImportError: Python <span class="keyword">is</span> <span class="keyword">not</span> installed <span class="keyword">as</span> a framework. The Mac OS X backend will <span class="keyword">not</span> be able to function correctly <span class="keyword">if</span> Python <span class="keyword">is</span> <span class="keyword">not</span> installed <span class="keyword">as</span> a framework. See the Python documentation <span class="keyword">for</span> more information on installing Python <span class="keyword">as</span> a framework on Mac OS X. Please either reinstall Python <span class="keyword">as</span> a framework, <span class="keyword">or</span> <span class="keyword">try</span> one of the other backends. If you are using (Ana)Conda please install python.app <span class="keyword">and</span> replace the use of <span class="string">'python'</span> <span class="keyword">with</span> <span class="string">'pythonw'</span>. See <span class="string">'Working with Matplotlib on OSX'</span> <span class="keyword">in</span> the Matplotlib FAQ <span class="keyword">for</span> more information.</span><br></pre></td></tr></table></figure>
-
-<p>解决方法：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo  backend: TkAgg &gt; ~/.matplotlib/matplotlibrc</span><br></pre></td></tr></table></figure>
-
-<p>或者在运行文件顶部添加：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib</span><br><span class="line">matplotlib.use(<span class="string">'TkAgg'</span>)</span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1690,7 +1695,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-count">69</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1702,7 +1707,7 @@
               
               
               <div class="site-state-item site-state-tags">
-                <a href="/tags/index.html">
+                <a href="/categories/index.html">
                   <span class="site-state-item-count">25</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
