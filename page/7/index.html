@@ -764,6 +764,8 @@
 
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># 添加空目录，git 不允许提交空目录，所以在空目录里新建一个文件隐藏文件(以.开头)，一般是 .gitkeep</span><br></pre></td></tr></table></figure>
 
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 获取指定 tag 代码</span><br><span class="line">git tag      # 查看本地git仓库下的tag</span><br><span class="line">git checkout [tag_name]    # 切换到某一个tag下, 当前处于一个“detached HEAD” 状态 ,每一个 tag 就是代码仓库中的一个快照，如果你想编辑此tag 下的代码,你需要把 tag 快照对应的代码拉取到一个分支上</span><br><span class="line">git checkout -b [分支名称] [tag标签名称]</span><br></pre></td></tr></table></figure>
+
 
           
         
@@ -1572,7 +1574,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
