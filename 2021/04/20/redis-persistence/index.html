@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="redis,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Redis 的普遍使用场景是在内存中存储数据，但如果系统宕机了，数据就会消失，为了预防这个问题，Redis 提供了两种机制： AOF(Append Only File)日志和 RDB 快照(Napshotting)。 AOFAOF 是先执行命令，把数据写入内存，然后再记录日志。其中日志记录的是每一步是记录 Redis 收到的每一条命令，这些命令以文本形式保存。 优点 为避免额外开销，写日志时不会对">
+<meta name="keywords" content="redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis 持久化">
+<meta property="og:url" content="http://yoursite.com/2021/04/20/redis-persistence/index.html">
+<meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
+<meta property="og:description" content="Redis 的普遍使用场景是在内存中存储数据，但如果系统宕机了，数据就会消失，为了预防这个问题，Redis 提供了两种机制： AOF(Append Only File)日志和 RDB 快照(Napshotting)。 AOFAOF 是先执行命令，把数据写入内存，然后再记录日志。其中日志记录的是每一步是记录 Redis 收到的每一条命令，这些命令以文本形式保存。 优点 为避免额外开销，写日志时不会对">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2021-05-31T06:05:06.120Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis 持久化">
+<meta name="twitter:description" content="Redis 的普遍使用场景是在内存中存储数据，但如果系统宕机了，数据就会消失，为了预防这个问题，Redis 提供了两种机制： AOF(Append Only File)日志和 RDB 快照(Napshotting)。 AOFAOF 是先执行命令，把数据写入内存，然后再记录日志。其中日志记录的是每一步是记录 Redis 收到的每一条命令，这些命令以文本形式保存。 优点 为避免额外开销，写日志时不会对">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/04/20/redis-persistence/">
+
+
+
+
+
+  <title>Redis 持久化 | 我想，吃饭睡觉，走走停停</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">我想，吃饭睡觉，走走停停</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">清绝，影也别。唯有知心月。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/04/20/redis-persistence/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Redis 持久化</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-04-20T14:46:11+08:00">
+                2021-04-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Redis 的普遍使用场景是在内存中存储数据，但如果系统宕机了，数据就会消失，为了预防这个问题，Redis 提供了两种机制： AOF(Append Only File)日志和 RDB 快照(Napshotting)。</p>
+<h2 id="AOF"><a href="#AOF" class="headerlink" title="AOF"></a>AOF</h2><p>AOF 是先执行命令，把数据写入内存，然后再记录日志。其中日志记录的是每一步是记录 Redis 收到的每一条命令，这些命令以文本形式保存。</p>
+<h4 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h4><ol>
+<li>为避免额外开销，写日志时不会对命令进行语法检查，所以如果先写日志，日志中可能记录了错误的命令，Redis 使用日志恢复数据时，就可能出错。而后写日志，就是让系统先执行命令，命令执行成功再写入日志，所以 Redis 用后写日志方式可以避免出现错误命令的情况。</li>
+<li>后写日志不会阻塞当前的写操作。</li>
+</ol>
+<h4 id="风险"><a href="#风险" class="headerlink" title="风险"></a>风险</h4><ol>
+<li>刚执行完一个命令，系统宕机了，命令和数据有丢失的风险</li>
+<li>AOF 虽避免了对当前命令的阻塞，但可能会给下一个操作带来阻塞风险</li>
+</ol>
+<p>上面风险都是和 AOF 写回磁盘的时机相关，所以解决了时机问题，上面的风险就大大降低了。</p>
+<h3 id="三种写回策略"><a href="#三种写回策略" class="headerlink" title="三种写回策略"></a>三种写回策略</h3><p>对于上面的问题， AOF 配置项 appendfsync 有3种可选项：</p>
+<h4 id="Always"><a href="#Always" class="headerlink" title="Always"></a>Always</h4><p>同步写回，每个写命令执行完，立马同步将日志写回磁盘</p>
+<p>影响：数据基本不会丢失，但在每个写命令后有一个慢落盘的操作，影响主线程性能</p>
+<h4 id="Everysec"><a href="#Everysec" class="headerlink" title="Everysec"></a>Everysec</h4><p>每秒写回，每个写命令执行完，先把日志写到 AOF 文件的内存缓冲区，每隔1秒把缓冲区的内容写入磁盘</p>
+<p>影响：如果 AOF 没有写回磁盘，一旦宕机对应的数据就丢失了，丢失1秒的数据</p>
+<h4 id="No"><a href="#No" class="headerlink" title="No"></a>No</h4><p>操作系统控制的写回，每个写命令执行完，先把日志写到 AOF 文件的内存缓冲区，由操作系统决定何时把缓冲区的内容写入磁盘</p>
+<p>影响：在影响主性能和数据丢失两者之间取个折中</p>
+<h3 id="文件过大怎么办"><a href="#文件过大怎么办" class="headerlink" title="文件过大怎么办"></a>文件过大怎么办</h3><ol>
+<li>文件系统本身对文件大小有限制，无法保存过大的文件</li>
+<li>文件太大的话，后续往里面追加命令的时候效率会变低</li>
+<li>如果发生当即，AOF 里面的命令被一个个重新执行，如果文件太大，恢复过程会很慢</li>
+</ol>
+<p>因此要采用一定的控制手段，例如 AOF 重写机制。</p>
+<h4 id="AOF-重写机制"><a href="#AOF-重写机制" class="headerlink" title="AOF 重写机制"></a>AOF 重写机制</h4><p>在重写时，Redis 根据数据库现状创建一个新的 AOF 文件，即读取数据库的所有键值对，然后对每一个键值对用一条命令记录它的写入，实现 “多变一” 功能，即旧日志文件中的多条命令，在重新的新日志中变成了一条命令，因为当一个键值被多条命令反复修改时，重写时只写入键值的最新状态。</p>
+<p>和 AOF 日志由主进程写回不同，重写过程是由后台进程 bgrewriteaof 来完成的，避免了阻塞主进程。每次执行重写时，主线程 fork 出后台的 bgrewriteaof 子进程，把主进程的内存<strong>拷贝</strong>一份给子进程，里面包含数据库的最新数据，数据写入日志时不影响主进程。</p>
+<p>因为主进程未阻塞，仍然可以处理新来的操作，所以有写操作时，<strong>第一处日志</strong>（正在使用的 AOF 日志），Redis 会把这个操作写进它的缓冲区，这样即使宕机，这个日志的操作仍然是齐全可操作的。</p>
+<p><strong>第二处日志</strong>（新的 AOF 重写日志），这个操作也会被写到重写日志的缓冲区，这样重写日志也不会丢失最新的操作。等拷贝数据的所有操作记录重写完成后，重写日志记录的最新操作也会写入新的 AOF 日志，以保证数据库最新状态的记录，此时，可以用新的 AOF 文件替代旧文件了。</p>
+<p>总之，每次 AOF 重写时， Redis 会先执行一个内存拷贝，用于重写，然后使用两个日志保证重写过程中，新写入的数据不会丢失。而且因为 Redis 采用额外线程进行重写，不会造成主线程的堵塞。</p>
+<h2 id="RDB"><a href="#RDB" class="headerlink" title="RDB"></a>RDB</h2><p><strong>内存快照</strong> 内存中的数据在某一时刻的状态记录</p>
+<p><strong>RDB</strong> Redis 把某一时刻的状态以文件的形式写到磁盘上。</p>
+<p>以后再写。。。。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/redis/" rel="tag"># redis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/12/31/dataframe-interval/" rel="next" title="Pandas DataFrame 添加一列 interval 数据">
+                <i class="fa fa-chevron-left"></i> Pandas DataFrame 添加一列 interval 数据
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="sichuyoudang">
+            
+              <p class="site-author-name" itemprop="name">sichuyoudang</p>
+              <p class="site-description motion-element" itemprop="description">记录学习经验，力求分享技术</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">70</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#AOF"><span class="nav-number">1.</span> <span class="nav-text">AOF</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#优点"><span class="nav-number">1.0.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#风险"><span class="nav-number">1.0.2.</span> <span class="nav-text">风险</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三种写回策略"><span class="nav-number">1.1.</span> <span class="nav-text">三种写回策略</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Always"><span class="nav-number">1.1.1.</span> <span class="nav-text">Always</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Everysec"><span class="nav-number">1.1.2.</span> <span class="nav-text">Everysec</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#No"><span class="nav-number">1.1.3.</span> <span class="nav-text">No</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文件过大怎么办"><span class="nav-number">1.2.</span> <span class="nav-text">文件过大怎么办</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#AOF-重写机制"><span class="nav-number">1.2.1.</span> <span class="nav-text">AOF 重写机制</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#RDB"><span class="nav-number">2.</span> <span class="nav-text">RDB</span></a></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sichuyoudang</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -262,6 +262,147 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/27/python-mro/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/02/27/python-mro/" itemprop="url">Python 多重继承顺序</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-02-27T14:53:42+08:00">
+                2020-02-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Python-多重继承顺序"><a href="#Python-多重继承顺序" class="headerlink" title="Python 多重继承顺序"></a>Python 多重继承顺序</h1><p>任何实现多重继承的语言都要处理潜在的命名冲突，这种冲突由不相关的祖先类实现同名方法引起，这种冲突成为”菱形问题”。</p>
+<p>flu.py 中创建 A, B, C, D 4个类, B 和 C 的差别在于输出的大小写不同:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">ping</span><span class="params">(self)</span>:</span></span><br><span class="line">		print(<span class="string">"ping"</span>, self)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span><span class="params">(A)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">pong</span><span class="params">(self)</span>:</span></span><br><span class="line">		print(<span class="string">"pong"</span>, self)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">C</span><span class="params">(A)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">pong</span><span class="params">(self)</span>:</span></span><br><span class="line">		print(<span class="string">"PONG"</span>, self) </span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">D</span><span class="params">(B, C)</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">ping</span><span class="params">(self)</span>:</span></span><br><span class="line">		super().ping()</span><br><span class="line">		print(<span class="string">"post_ping"</span>, self)</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">pingpong</span><span class="params">(self)</span>:</span></span><br><span class="line">		self.ping()</span><br><span class="line">		super().ping()</span><br><span class="line">		self.pong()</span><br><span class="line">		super().pong()</span><br><span class="line">		C.pong(self)</span><br></pre></td></tr></table></figure>
+
+<p>在D 实例上调用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> flu <span class="keyword">import</span> *</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>d =D()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>d.pong()  <span class="comment">#1</span></span><br><span class="line">pong &lt;flu.D object at <span class="number">0x106748290</span>&gt;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>C.pong(d) <span class="comment">#2</span></span><br><span class="line">PONG &lt;flu.D object at <span class="number">0x106748290</span>&gt;</span><br></pre></td></tr></table></figure>
+
+<p>如上，#1 直接调用d.pong 用的是B 类中的版本， #2 超类中的方法都可以直接调用，此时要把实例作为显示参数传入。</p>
+<p>Python 能区分 d.pong() 调用的是哪个方法，是因为 Python 会按照特定的顺序遍历，这个顺序叫方法解析顺序（Method Resolution Order，MRO）。类都有一个 <code>__mro__</code> 属性，它的值是一个元祖，按照方法解析顺序列出各个超类，从当前类一直往上，直到 object 类。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>D.__mro__</span><br><span class="line">(&lt;class 'flu.D'&gt;, &lt;class 'flu.B'&gt;, &lt;class 'flu.C'&gt;, &lt;class 'flu.A'&gt;, &lt;class 'object'&gt;)</span><br></pre></td></tr></table></figure>
+
+<p>若想把超类调用委托给超类，推荐方式是使用内置的 <code>super()</code> 函数，在 Python3 中，这种方式很容易，如上面的D类的 pingpong方法所示。然而有时可能需要绕过方法解析，直接调用某个超类的方法，这样做更方便:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ping</span><span class="params">(self)</span>:</span></span><br><span class="line">    A.ping()    <span class="comment"># 而不是super().ping()</span></span><br><span class="line">    print(<span class="string">"post_ping"</span>, self)</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意</strong>，直接在类上调用实例时，必须显示传入 self 参数，因为这样访问的是<code>未绑定方法</code>。然而使用<code>super()</code> 最安全，也不易过时，调用框架或不受自己控制的类层次结构中的方法时，尤其适合使用<code>super()</code>。使用<code>super()</code>调用方法时，会遵守MRO，如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>d.ping()</span><br><span class="line">ping &lt;flu.D object at <span class="number">0x106748290</span>&gt;</span><br><span class="line">post_ping &lt;flu.D object at <span class="number">0x106748290</span>&gt;</span><br></pre></td></tr></table></figure>
+
+<p>D类的ping方法做了两次调用，第一次调用 super().ping(), super 函数把ping调用委托给A类，由A.ping 输出，第二个调用是 print(“post_ping”, self)。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; d.pingpong()</span><br><span class="line">ping &lt;flu.D object at 0x106748290&gt;  #1</span><br><span class="line">post_ping &lt;flu.D object at 0x106748290&gt;</span><br><span class="line">ping &lt;flu.D object at 0x106748290&gt;  #2</span><br><span class="line">pong &lt;flu.D object at 0x106748290&gt;  #3</span><br><span class="line">pong &lt;flu.D object at 0x106748290&gt;  #4</span><br><span class="line">PONG &lt;flu.D object at 0x106748290&gt;  #5</span><br></pre></td></tr></table></figure>
+
+<p>第一个调用是 self.ping()，运行的是 D 类的 ping 方法，输出这一行和下一行<br>第二个调用是 super().ping()， 跳过 D 类的 ping 方法，找到 A 类的 ping 方法<br>第三个调用是 self.pong()，根据 <code>__mro__</code> 找到的是 B 类实现的 pong 方法<br>第四个调用是 super().pong()， 也根据 <code>__mro__</code> 找到的是 B 类实现的 pong 方法<br>第五个调用是 C.pong(self)， 忽略 <code>__mro__</code> 找到的是 C 类实现的 pong 方法</p>
+<p>子类声明中列出的超类顺序会影响方法解析顺序，例如把 D 类声明为 class D(C, B)，那么 D 类的 <code>__mro__</code> 属性就会不一样，会先搜索C类，再搜索 B 类。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/19/bt-dht/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1572,141 +1713,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/18/mysql-storage-engine/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/18/mysql-storage-engine/" itemprop="url">MySQL 存储引擎</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-18T11:22:50+08:00">
-                2019-09-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>通过 show engines 查看当前 MySQL 数据库所支持的存储引擎。</p>
-<h1 id="InnoDB-存储引擎"><a href="#InnoDB-存储引擎" class="headerlink" title="InnoDB 存储引擎"></a>InnoDB 存储引擎</h1><p>InnoDB 存储引擎支持事务，其设计目标主要面向在线事务处理（OLTP Online Transation Processiong）的应用，特点是支持行锁设计，支持外键，并支持类似于 Oracle 的非锁定读，即默认状态读取操作不会产生锁。从5.5.8 版本开始，InnoDB 存储引擎是 MySQL 默认存储引擎。</p>
-<p>InnoDB 存储引擎将数据放在一个逻辑的表空间中，这个表空间就像黑盒一样由 InnoDB 存储引擎自身进行管理。从4.1 版本开始，它可以将每个InnoDB 存储引擎的表单独放到一个独立的 ibd 文件中。此外，InnoDB 存储引擎支持用裸设备用来建立其表空间。</p>
-<p>InnoDB 存储引擎通过使用多版本并发控制（MVCC）来获得高并发性，并且实现了 SQL 标准的4种隔离级别，默认 REPEATABLE 级别。同时使用一种称为 next-key locking 的策略来避免幻读的产生，除此之外，InnoDB 存储引擎还提供了插入缓冲，二次写，自适应哈希索引，预读等高性能和高可用的功能。</p>
-<p>对于表中数据的存储，InnoDB 存储引擎采用了聚集的方式，因此每张表都是按主键的顺序进行存放。如果没有显式的在表定义时指定主键，InnoDB 存储引擎会为每一行生成一个6字节的 ROWID ，并以此作为主键。</p>
-<h1 id="MyISAM-存储引擎"><a href="#MyISAM-存储引擎" class="headerlink" title="MyISAM 存储引擎"></a>MyISAM 存储引擎</h1><p>MyISAM 存储引擎不支持事务，表锁设计，支持全文索引，主要面向一些 OLAP 数据库应用。5.5.8 版本之前是 MySQL 默认存储引擎。数据库系统和文件系统很大的一个不同之处是对事务的支持，然而 MyISAM 存储引擎是不支持事务的。原因是用户并不是所有应用都需要事务。此外 MyISAM 存储引擎的另一个与众不同的地方是它的缓冲池只缓存索引文件，而不缓存数据文件，数据文件的缓存交由操作系统本身来完成，这点和大部分数据库都不同。</p>
-<p>MyISAM 存储引擎表由 MYD 和 MYI 组成，MYD 用来存放数据文件， MYI 用来存放索引文件。可以通过 myisampack 工具来进一步压缩数据文件，因为 myisampack 公交使用赫夫曼编码静态算法来压缩数据，因此使用 myisampack 工具压缩后的表是只读的，当然用户也可以通过 myisampack 来解压数据文件。</p>
-<p>MySQL 5.0 版本之前， MyISAM 默认支持的表大小为4GB ，如果需要支持大于4GB的 MyISAM 表，需要定制 MAX_ROWS 和 AVG_ROW_LENGTH 属性。从MySQL 5.0 版本开始，MyISAM 默认支持256TB 的单表数据，这足够满足一班应用需求。</p>
-<h1 id="NDB-存储引擎"><a href="#NDB-存储引擎" class="headerlink" title="NDB 存储引擎"></a>NDB 存储引擎</h1><p>2003 年，MySQL AB 从 Sony Ericsson 公司收购了 NDB 集群引擎， NDB 存储引擎是一个集群存储引擎，类似于 Oracle 的 RAC 集群，不过与 Oracle RAC share everything 架构不同的是，其结构是 share nothing 的集群架构，因此能提供更高的可用性。 NDB 的特点是数据全部放在内存中（MYSQL 从5.1 版本起，可以将非索引数据放在磁盘上）,因此主键查找的速度极快，并且通过添加 NDB 数据存储节点可以线性地提高数据库性能，是高可用，高性能的集群系统。</p>
-<p>关于 NDB 存储引擎，有一个问题， NDB 存储引擎的连接操作是在 MySQL 数据库层完成的，而不是在存储引擎层完成的。这意味着，复杂的连接操作需要巨大的网络开销，因此查询速度很慢。</p>
-<h1 id="Memory-存储引擎"><a href="#Memory-存储引擎" class="headerlink" title="Memory 存储引擎"></a>Memory 存储引擎</h1><p>Memory 存储引擎（之前称 HEAP 存储引擎）将表中的数据存放在内存中，如果数据库重启或发生崩溃，表中所有数据都将消失。它非常适合存储临时数据的临时表，以及数据仓库中的纬度表。Memory 存储引擎默认使用哈希索引，而不是B+数索引。</p>
-<p>虽然 Memory 存储引擎速度非常快，但在使用上还是有一定的限制。比如只支持表锁，并发性能较差，并且不支持 TEXT 和 BLOB 列类型。最重要的是，存储变长字段（varchar）时是按照定长字段（char）的方式进行的，因为会浪费内存。</p>
-<p>此外，MySQL 数据库使用 Memory 存储引擎作为临时表来存放查询的中间结果集。如果中间结果集大于 Memory 存储引擎表的容量设置，又或者中间结果含有 TEXT 或 BLOB 列类型字段，MySQL 数据库会把其转换到 MyISAM 存储引擎表而存放到磁盘中。前面提到 MyISAM 不缓存数据文件，因此这是产生的临时表的性能对于查询会有损失。</p>
-<h1 id="Archive-存储引擎"><a href="#Archive-存储引擎" class="headerlink" title="Archive 存储引擎"></a>Archive 存储引擎</h1><p>Archive 存储引擎只支持 INSERT 和 SELECT 操作，从 MySQL 5.1 开始支持索引。Archive 存储引擎使用 zlib算法将数据行（row）进行压缩后存储，压缩比一般可达1:10。正如其名字所示，Archive 存储引擎非常适合存储归档数据，如日志信息。Archive 存储引擎使用行锁来实现高并发的插入操作，但是其本身并不是事务安全的存储引擎，其设计目标主要是提供高速的插入和压缩功能。</p>
-<h1 id="Federated-存储引擎"><a href="#Federated-存储引擎" class="headerlink" title="Federated 存储引擎"></a>Federated 存储引擎</h1><p>Federated 存储引擎表并不存放数据，它只是指向一台远程 MySQL 数据库服务器上的表。这非常类似于 SQL Server 的链接服务器和 Oracle 的透明网关，不同的是，当前 Federated 存储引擎只支持 MySQL 数据库表，不支持异构数据库表。</p>
-<h1 id="Maria-存储引擎"><a href="#Maria-存储引擎" class="headerlink" title="Maria 存储引擎"></a>Maria 存储引擎</h1><p>Maria 存储引擎是新开发的引擎，设计目标是用来取代原有的 MyISAM 存储引擎，从而成为 MySQL 的默认存储引擎。Maria 存储引擎开发者是 MySQL 的创始人之一的 Michael Widenius。因为可以看作 MyISAM 存储引擎的后续版本。Maria 存储引擎的特点：支持缓存数据和索引数据，应用了行锁设计，提供了 MVCC 功能，支持事务和非事务安全的选项，以及更好的 BLOB 字符类型的处理性能。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1759,7 +1765,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">69</span>
+                  <span class="site-state-item-count">70</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1772,7 +1778,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">25</span>
+                  <span class="site-state-item-count">26</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
