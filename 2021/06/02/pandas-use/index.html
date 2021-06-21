@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="fabric,">
+  <meta name="keywords" content="pandas,">
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="最近需要频繁对一个服务器进行代码更新，重启程序，数据库备份，升级等操作，操作简单繁琐，所以用 fabric 实现。 安装用 pip : 12pip install fabricwhich fab # 查看安装地址  使用的时候，新建 fabfile.py 文件，执行 fab hello 即可. 12def test():    print(&quot;Hello World&quot;)  如果不想用 fabfile">
-<meta name="keywords" content="fabric">
+<meta name="description" content="前面介绍过一些 pandas 常用操作，本文继续添加更多功能。 准备数据如下: 1234567891011121314151617&amp;gt;&amp;gt;&amp;gt; import pandas as pd&amp;gt;&amp;gt;&amp;gt; import numpy as np&amp;gt;&amp;gt;&amp;gt; df = pd.read_csv(&apos;dddd.csv&apos;)&amp;gt;&amp;gt;&amp;gt; df     d">
+<meta name="keywords" content="pandas">
 <meta property="og:type" content="article">
-<meta property="og:title" content="fabric">
-<meta property="og:url" content="http://yoursite.com/2018/03/28/fabric/index.html">
+<meta property="og:title" content="Pandas 更多功能">
+<meta property="og:url" content="http://yoursite.com/2021/06/02/pandas-use/index.html">
 <meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
-<meta property="og:description" content="最近需要频繁对一个服务器进行代码更新，重启程序，数据库备份，升级等操作，操作简单繁琐，所以用 fabric 实现。 安装用 pip : 12pip install fabricwhich fab # 查看安装地址  使用的时候，新建 fabfile.py 文件，执行 fab hello 即可. 12def test():    print(&quot;Hello World&quot;)  如果不想用 fabfile">
+<meta property="og:description" content="前面介绍过一些 pandas 常用操作，本文继续添加更多功能。 准备数据如下: 1234567891011121314151617&amp;gt;&amp;gt;&amp;gt; import pandas as pd&amp;gt;&amp;gt;&amp;gt; import numpy as np&amp;gt;&amp;gt;&amp;gt; df = pd.read_csv(&apos;dddd.csv&apos;)&amp;gt;&amp;gt;&amp;gt; df     d">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-02-21T07:06:26.000Z">
+<meta property="og:updated_time" content="2021-06-03T02:12:19.120Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="fabric">
-<meta name="twitter:description" content="最近需要频繁对一个服务器进行代码更新，重启程序，数据库备份，升级等操作，操作简单繁琐，所以用 fabric 实现。 安装用 pip : 12pip install fabricwhich fab # 查看安装地址  使用的时候，新建 fabfile.py 文件，执行 fab hello 即可. 12def test():    print(&quot;Hello World&quot;)  如果不想用 fabfile">
+<meta name="twitter:title" content="Pandas 更多功能">
+<meta name="twitter:description" content="前面介绍过一些 pandas 常用操作，本文继续添加更多功能。 准备数据如下: 1234567891011121314151617&amp;gt;&amp;gt;&amp;gt; import pandas as pd&amp;gt;&amp;gt;&amp;gt; import numpy as np&amp;gt;&amp;gt;&amp;gt; df = pd.read_csv(&apos;dddd.csv&apos;)&amp;gt;&amp;gt;&amp;gt; df     d">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/03/28/fabric/">
+  <link rel="canonical" href="http://yoursite.com/2021/06/02/pandas-use/">
 
 
 
 
 
-  <title>fabric | 我想，吃饭睡觉，走走停停</title>
+  <title>Pandas 更多功能 | 我想，吃饭睡觉，走走停停</title>
   
 
 
@@ -263,7 +263,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/28/fabric/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/06/02/pandas-use/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="sichuyoudang">
@@ -280,7 +280,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">fabric</h1>
+          <h1 class="post-title" itemprop="name headline">Pandas 更多功能</h1>
         
 
         <div class="post-meta">
@@ -292,8 +292,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-03-28T16:37:16+08:00">
-                2018-03-28
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-02T17:54:01+08:00">
+                2021-06-02
               </time>
             
 
@@ -330,24 +330,13 @@
       
 
       
-        <p>最近需要频繁对一个服务器进行代码更新，重启程序，数据库备份，升级等操作，操作简单繁琐，所以用 fabric 实现。</p>
-<p>安装用 pip :</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip install fabric</span><br><span class="line">which fab # 查看安装地址</span><br></pre></td></tr></table></figure>
+        <p>前面介绍过一些 <a href="https://sichuyoudang.github.io/2020/09/02/pandas/" target="_blank" rel="noopener">pandas 常用操作</a>，本文继续添加更多功能。</p>
+<p>准备数据如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df = pd.read_csv(<span class="string">'dddd.csv'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df</span><br><span class="line">     d                  <span class="number">0</span>       <span class="number">1</span>                     <span class="number">2</span>     <span class="number">3</span>  <span class="number">4</span>    q</span><br><span class="line"><span class="number">0</span>    <span class="number">0</span>  (<span class="number">-0.001</span>, <span class="number">0.00579</span>]    <span class="number">57.0</span>                <span class="number">0.0179</span>  <span class="number">4444</span>  a  NaN</span><br><span class="line"><span class="number">1</span>    <span class="number">1</span>  (<span class="number">0.00579</span>, <span class="number">0.0535</span>]   <span class="number">114.0</span>  <span class="number">0.027000000000000000</span>  <span class="number">4444</span>  b    发</span><br><span class="line"><span class="number">2</span>    <span class="number">2</span>    (<span class="number">0.0535</span>, <span class="number">0.089</span>]    <span class="number">57.0</span>                <span class="number">0.0179</span>  <span class="number">4444</span>  c  NaN</span><br><span class="line"><span class="number">3</span>    <span class="number">3</span>     (<span class="number">0.089</span>, <span class="number">0.181</span>]    <span class="number">57.0</span>                <span class="number">0.0179</span>  <span class="number">4444</span>  s  NaN</span><br><span class="line"><span class="number">4</span>    <span class="number">4</span>     (<span class="number">0.181</span>, <span class="number">0.292</span>]    <span class="number">56.0</span>                <span class="number">0.0182</span>  <span class="number">4444</span>  v  NaN</span><br><span class="line"><span class="number">5</span>    <span class="number">5</span>                NaN     NaN                   <span class="number">0.1</span>     <span class="number">4</span>  a  NaN</span><br><span class="line"><span class="number">6</span>    <span class="number">6</span>      (<span class="number">0.30</span>, <span class="number">0.392</span>]    <span class="number">54.0</span>                   NaN     <span class="number">5</span>  b  NaN</span><br><span class="line"><span class="number">7</span>    <span class="number">7</span>      (<span class="number">0.40</span>, <span class="number">0.492</span>]     NaN                   <span class="number">0.2</span>     <span class="number">6</span>  v  NaN</span><br><span class="line"><span class="number">8</span>    <span class="number">8</span>      (<span class="number">0.50</span>, <span class="number">0.592</span>]  <span class="number">5444.0</span>                   NaN     <span class="number">7</span>  a  NaN</span><br><span class="line"><span class="number">9</span>    <span class="number">9</span>                NaN    <span class="number">44.0</span>                    “”     <span class="number">4</span>  b  NaN</span><br><span class="line"><span class="number">10</span>  <span class="number">10</span>                NaN     <span class="number">6.0</span>                   NaN     <span class="number">2</span>  v  NaN</span><br></pre></td></tr></table></figure>
 
-<p>使用的时候，新建 fabfile.py 文件，执行 fab hello 即可.</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">    print(<span class="string">"Hello World"</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="处理空值"><a href="#处理空值" class="headerlink" title="处理空值"></a>处理空值</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>np.any(df.isna())			                   <span class="comment"># 是否有空值</span></span><br><span class="line"><span class="keyword">True</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df = df.dropna(subset=[<span class="string">'2'</span>])               <span class="comment"># 删除指定列或列</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df = df.dropna(axis=<span class="number">1</span>)	                  <span class="comment"># axis=0表示index行,axis=1表示columns列，默认为0</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df = df.dropna(how=<span class="string">'all'</span>)                  <span class="comment"># 所有值全为缺失值才删除</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df = df.fillna(df.mean())   <span class="comment"># 平均值填充  model(众数)</span></span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
 
-<p>如果不想用 fabfile.py 文件， 那需要用 -f 指定文件名:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fab -f  test.py command</span><br></pre></td></tr></table></figure>
 
-<p>本地运行</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> fabric.api <span class="keyword">import</span> *</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">    local(<span class="string">'cd /home/'</span>)</span><br><span class="line">    local(<span class="string">'ls -l|wc -l'</span>)</span><br></pre></td></tr></table></figure>
-
-<p>远程调用，指定服务器</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> fabric.api <span class="keyword">import</span> *</span><br><span class="line"> </span><br><span class="line">env.hosts=[<span class="string">"192.168.34:22:443"</span>]</span><br><span class="line">env.password=<span class="string">'test'</span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">with</span> cd(<span class="string">'/home'</span>):</span><br><span class="line">        run(<span class="string">"id"</span>)</span><br></pre></td></tr></table></figure>
-
-<p>多服务器，指定公钥文件免密登录</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> fabric.api <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> fabric.tasks <span class="keyword">import</span> execute</span><br><span class="line"> </span><br><span class="line">env.key_filename = <span class="string">"xxx/.ssh/id_rsa.pub"</span></span><br><span class="line">env.roledefs = &#123;<span class="string">'test'</span>: [<span class="string">"user@192.168.34.22:443"</span>],</span><br><span class="line">[<span class="string">"user@192.168.35.22:443"</span>],</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@task</span></span><br><span class="line"><span class="meta">@roles('test')</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">with</span> cd(<span class="string">'/home'</span>):</span><br><span class="line">        run(<span class="string">"id"</span>)</span><br><span class="line">        </span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    execute(test)</span><br></pre></td></tr></table></figure>
       
     </div>
     
@@ -364,7 +353,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/fabric/" rel="tag"># fabric</a>
+            <a href="/tags/pandas/" rel="tag"># pandas</a>
           
         </div>
       
@@ -377,8 +366,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/03/27/python-defaultdict/" rel="next" title="python defaultdict">
-                <i class="fa fa-chevron-left"></i> python defaultdict
+              <a href="/2021/06/02/celery-use/" rel="next" title="celery_use">
+                <i class="fa fa-chevron-left"></i> celery_use
               </a>
             
           </div>
@@ -387,8 +376,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/04/10/sqlalchemy-and-or/" rel="prev" title="sqlalchemy 查询条件 and or">
-                sqlalchemy 查询条件 and or <i class="fa fa-chevron-right"></i>
+              <a href="/2021/06/21/gmpy2-install/" rel="prev" title="gmpy2 安装">
+                gmpy2 安装 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -441,8 +430,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -495,6 +493,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#处理空值"><span class="nav-number">1.</span> <span class="nav-text">处理空值</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       

@@ -262,6 +262,270 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/15/sqlalchemy-query/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/15/sqlalchemy-query/" itemprop="url">sqlalchemy 查询</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-15T17:14:02+08:00">
+                2019-08-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="子查询-subquery"><a href="#子查询-subquery" class="headerlink" title="子查询 subquery"></a>子查询 subquery</h1><p>在一个查询语句中想要对某个字段进行计算（统计/求和），可以用子查询实现。</p>
+<p>例如2张表，一张表<code>Book</code>里面是数据信息，另一个张表<code>BookTrading</code>里面记录每次书籍售出数据，现在要获取书籍信息以及统计每种书籍各卖了多少钱</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">trading_subquery = db.session.query(func.ifnull(func.sum(BookTrading.total_price),0)\</span><br><span class="line">		.filter(BookTrading.book_id == Book.id, BookTrading.status&gt;0)\</span><br><span class="line">		.correlate(Book).as_scalar()</span><br><span class="line">book_query = db.session.query(Book, trading_subquery).filter(Book.status&gt;0).all()</span><br></pre></td></tr></table></figure>
+
+<p><code>User</code> 一个用户的介绍人，及其介绍的数量</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">subquery = db.session.query(User.introducer_id, func.count(&apos;*&apos;).label(&apos;introduce_count&apos;)).group_by(User.introducer_id).subquery()</span><br><span class="line"></span><br><span class="line">db.session.query(User.name, subquery.c.introduce_count).outerjoin(subquery, User.id==subquery.c.introducer_id).all()</span><br></pre></td></tr></table></figure>
+
+<h1 id="合并查询-union"><a href="#合并查询-union" class="headerlink" title="合并查询 union"></a>合并查询 union</h1><p>例如2张表，<code>TMOrder</code> 和 <code>JDOrder</code> 2张表存储的字段部分相同，现在我需要取2个表的数据合并且根据创建时间进行排序</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">tm_query = db.session.query(TMOrder.id.label(&quot;order_id&quot;),</span><br><span class="line">			    TMOrder.price.label(&quot;order_price&quot;),</span><br><span class="line">			    TMOrder.create_time.label(&quot;create_time&quot;)),</span><br><span class="line">			    func.ifnull(None, 1).label(&quot;shop_type&quot;)\</span><br><span class="line">			    .filter(TMOrder.user_id=1)</span><br><span class="line">		</span><br><span class="line">jd_query = db.session.query(JDOrder.id.label(&quot;order_id&quot;),</span><br><span class="line">		       	JDOrder.price.label(&quot;order_price&quot;),</span><br><span class="line">		       	JDOrder.create_time.label(&quot;create_time&quot;)),</span><br><span class="line">		       	func.ifnull(None, 2).label(&quot;shop_type&quot;)\</span><br><span class="line">		       	.filter(TMOrder.user_id=1)</span><br><span class="line">									  </span><br><span class="line">total_order_query = union(course_query, training_query).alias(&apos;order&apos;)</span><br><span class="line"></span><br><span class="line">order_query = db.session.query(total_order_query).order_by(total_order_query.c.create_time())</span><br></pre></td></tr></table></figure>
+
+<h1 id="多条件查询对应常量-case"><a href="#多条件查询对应常量-case" class="headerlink" title="多条件查询对应常量 case"></a>多条件查询对应常量 case</h1><p>例如查询<code>Book</code> 是否有销量 <code>BookTrading</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">trading_subquery = db.session.query(func.count())\</span><br><span class="line">		.filter(BookTrading.book_id == Book.id, BookTrading.status&gt;0)\</span><br><span class="line">		.correlate(Book).as_scalar()</span><br><span class="line">book_query = db.session.query(Book, case(whens=((trading_subquery, 1),), else_=0).label(&quot;is_selled&quot;)).filter(Book.status&gt;0).all()</span><br></pre></td></tr></table></figure>
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/08/python3-groupby/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/08/python3-groupby/" itemprop="url">python3 通过 itertools.groupby 进行分组</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-08T10:30:54+08:00">
+                2019-08-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>python3 通过 <code>itertools.groupby()</code> 函数将某个记录按照字段分组，详情见<a href="https://python3-cookbook.readthedocs.io/zh_CN/latest/c01/p15_group_records_based_on_field.html?highlight=groupby" target="_blank" rel="noopener">python3_coobook_groupby</a></p>
+<p>groupby 的使用形式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">itertools.groupby(iterable[, keyfunc])</span><br></pre></td></tr></table></figure>
+
+<p>iterable 是一个可迭代对象，keyfunc 是分组函数，用于对 iterable 的连续项进行分组，如果不指定，则默认对 iterable 中的连续相同项进行分组，返回一个 (key, sub-iterator) 的迭代器。</p>
+<p>defaultdict 使用形式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">collections.defaultdict([default_factory[, ...]])</span><br></pre></td></tr></table></figure>
+
+<p>default_factory 接收一个工厂函数作为参数, 例如int str list set等,这样当key不存在时，返回的是工厂函数的默认值，比如list对应[ ]，str对应的是空字符串，set对应set( )，int对应0。</p>
+<p>将不同记录按照省市区进行分组，因为分组是针对连续项的，所以需要先按照省份排序，按照省份进行分组后，通过 <code>defaultdict</code> 将同一市下面的区进行分组，操作如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> itertools <span class="keyword">import</span> groupby</span><br><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> defaultdict</span><br><span class="line"></span><br><span class="line">obj = [</span><br><span class="line">(<span class="string">'上海'</span>, <span class="string">'上海'</span>, <span class="string">'闸北区'</span>), (<span class="string">'河北'</span>, <span class="string">'张家口'</span>, <span class="string">'宣化区'</span>), (<span class="string">'上海'</span>, <span class="string">'上海'</span>, <span class="string">'长宁区'</span>), </span><br><span class="line">(<span class="string">'上海'</span>, <span class="string">'上海'</span>, <span class="string">'静安区'</span>), (<span class="string">'上海'</span>, <span class="string">'上海'</span>, <span class="string">'青浦区'</span>), (<span class="string">'河南'</span>, <span class="string">'郑州'</span>, <span class="string">'新密市'</span>),</span><br><span class="line">(<span class="string">'上海'</span>, <span class="string">'上海'</span>, <span class="string">'杨浦区'</span>), (<span class="string">'河南'</span>, <span class="string">'开封'</span>, <span class="string">'龙亭区'</span>), (<span class="string">'浙江'</span>, <span class="string">'金华'</span>, <span class="string">'义乌市'</span>), </span><br><span class="line">(<span class="string">'北京'</span>, <span class="string">'北京'</span>, <span class="string">'海淀区'</span>), (<span class="string">'广西'</span>, <span class="string">'北海'</span>, <span class="string">'海城区'</span>), (<span class="string">'吉林'</span>, <span class="string">'白城'</span>, <span class="string">'洮北区'</span>), </span><br><span class="line">(<span class="string">'北京'</span>, <span class="string">'北京'</span>, <span class="string">'朝阳区'</span>), (<span class="string">'河北'</span>, <span class="string">'保定'</span>, <span class="string">'北城区'</span>), (<span class="string">'湖北'</span>, <span class="string">'武汉'</span>, <span class="string">'江汉区'</span>)</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">obj_dict = dict()</span><br><span class="line">obj.sort(key=<span class="keyword">lambda</span> x: x[<span class="number">0</span>])</span><br><span class="line"><span class="keyword">for</span> g, v <span class="keyword">in</span> groupby(obj, key=<span class="keyword">lambda</span> x: x[<span class="number">0</span>]):</span><br><span class="line">    city_dict = defaultdict(list)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> v:</span><br><span class="line">        city_dict[i[<span class="number">1</span>]].append(i[<span class="number">2</span>])</span><br><span class="line">    obj_dict[g] = city_dict</span><br><span class="line">   </span><br><span class="line"><span class="comment"># obj_dict</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="string">'上海'</span>: &#123;<span class="string">'上海'</span>: [<span class="string">'闸北区'</span>, <span class="string">'长宁区'</span>, <span class="string">'静安区'</span>, <span class="string">'青浦区'</span>, <span class="string">'杨浦区'</span>]&#125;), </span><br><span class="line"><span class="string">'北京'</span>: &#123;<span class="string">'北京'</span>: [<span class="string">'海淀区'</span>, <span class="string">'朝阳区'</span>]&#125;), </span><br><span class="line"><span class="string">'吉林'</span>: &#123;<span class="string">'白城'</span>: [<span class="string">'洮北区'</span>]&#125;), </span><br><span class="line"><span class="string">'广西'</span>: &#123;<span class="string">'北海'</span>: [<span class="string">'海城区'</span>]&#125;), </span><br><span class="line"><span class="string">'河北'</span>: &#123;<span class="string">'保定'</span>: [<span class="string">'北城区'</span>], <span class="string">'张家口'</span>: [<span class="string">'宣化区'</span>]&#125;), </span><br><span class="line"><span class="string">'河南'</span>: &#123;<span class="string">'郑州'</span>: [<span class="string">'新密市'</span>], <span class="string">'开封'</span>: [<span class="string">'龙亭区'</span>]&#125;), </span><br><span class="line"><span class="string">'浙江'</span>: &#123;<span class="string">'金华'</span>: [<span class="string">'义乌市'</span>]&#125;), </span><br><span class="line"><span class="string">'湖北'</span>: &#123;<span class="string">'武汉'</span>: [<span class="string">'江汉区'</span>]&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>就酱。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/20/flask-mail/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1510,261 +1774,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/13/flask-redirect/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/13/flask-redirect/" itemprop="url">flask redirect 端口问题</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-13T16:19:41+08:00">
-                2018-09-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="解决-flask-redirect-没有-port-问题"><a href="#解决-flask-redirect-没有-port-问题" class="headerlink" title="解决 flask redirect 没有 port 问题"></a>解决 flask redirect 没有 port 问题</h1><p>flask 使用 redirect() 配置访问路由：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.route('/login', methods=('GET', 'POST'))</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">login</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">'POST'</span>:</span><br><span class="line">        <span class="comment"># login 操作</span></span><br><span class="line">        <span class="keyword">return</span> redirect(<span class="string">'index'</span>)</span><br></pre></td></tr></table></figure>
-
-<p>redirect() 函数进行了重定向操作，返回302，其中 nginx 部分配置如下：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">location /operation &#123;</span><br><span class="line">        proxy_pass http://xxxx:<span class="number">2222</span>;  </span><br><span class="line">        proxy_set_header Host $host;</span><br><span class="line">        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<p>实际接口跳转时便没有了端口，一直报500错误，原因是因为上面配置了proxy_set_header用来获取IP，其中host是忽略端口的（不带端口），也就是只有nginx部署的主机ip，而$http_host是带端口的，所以解决方法就是加上端口：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proxy_set_header Host $host:<span class="number">2222</span>;</span><br></pre></td></tr></table></figure>
-
-<p>这样 redirect(‘index’) 就会重定向到 $host:2222/index 了。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/12/docker/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/12/docker/" itemprop="url">docker mac 安装使用</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-12T16:49:11+08:00">
-                2018-09-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="mac-版本安装-docker"><a href="#mac-版本安装-docker" class="headerlink" title="mac 版本安装 docker"></a>mac 版本安装 docker</h1><p>在 <a href="https://store.docker.com/editions/community/docker-ce-desktop-mac" target="_blank" rel="noopener">docker store</a> 里面下载 Docker.dmg ，双击安装即可。</p>
-<h2 id="修改配置"><a href="#修改配置" class="headerlink" title="修改配置"></a>修改配置</h2><p>通过 Docker 官方镜像加速，中国区用户能够快速访问最流行的 Docker 镜像。该镜像托管于中国大陆，本地用户现在将会享受到更快的下载速度和更强的稳定性，从而能够更敏捷地开发和交付 Docker 化应用。<br>Docker 中国官方镜像加速可通过 registry.docker-cn.com 访问。该镜像库只包含流行的公有镜像。私有镜像仍需要从美国镜像库中拉取。<br>配置 Docker 守护进程默认使用 Docker 官方镜像加速。这样就可以默认通过官方镜像加速拉取镜像，而无需在每次拉取时指定 registry.docker-cn.com。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">"debug"</span> : true,</span><br><span class="line">  <span class="string">"registry-mirrors"</span> : [</span><br><span class="line">    <span class="string">"https://registry.docker-cn.com"</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="string">"experimental"</span> : true</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>docker 使用</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">docker version			<span class="comment"># 获取 docker 版本号</span></span><br><span class="line">docker images			<span class="comment"># 获取所有的镜像</span></span><br><span class="line">docker ps -a			<span class="comment"># 获取所有容器</span></span><br><span class="line">docker ps -a -q		<span class="comment"># 获取所有 CONTAINER ID</span></span><br><span class="line">docker rm xxxx(CONTAINER ID)	<span class="comment"># 删除某个 CONTAINER</span></span><br><span class="line">docker stop $(docker ps -a -q)  <span class="comment"># stop停止所有容器</span></span><br><span class="line">docker  rm $(docker ps -a -q)   <span class="comment">#  remove删除所有容器</span></span><br><span class="line">docker pull xxxx:version		<span class="comment"># pull 一个镜像到本地 version 版本，默认最新版本</span></span><br><span class="line">docker stop/start/status/kill xxxx(CONTAINER ID) <span class="comment"># 停止/开启/查看 容器运行状态</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sudo docker <span class="keyword">exec</span> -i -t ubuntu /bin/bash</span><br><span class="line"></span><br><span class="line"><span class="comment"># -i 标志保证容器中的STDIN是开启的</span></span><br><span class="line"><span class="comment"># -t 标志告诉Docker为要创建的容器分配一个伪tty终端</span></span><br><span class="line"><span class="comment"># -d :分离模式: 在后台运行</span></span><br><span class="line"><span class="comment"># ubuntu 表示我们创建容器使用的镜像</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># /bin/bash 表示当容器创建完成之后，Docker就会执行容器中的/bin/bash命令</span></span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1817,7 +1826,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-count">73</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

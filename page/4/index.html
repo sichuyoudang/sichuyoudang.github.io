@@ -262,6 +262,299 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/29/python-attribute/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/29/python-attribute/" itemprop="url">python 私有属性/实例属性/覆盖类属性</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-29T13:39:48+08:00">
+                2019-09-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="名称改写—私有属性"><a href="#名称改写—私有属性" class="headerlink" title="名称改写—私有属性"></a>名称改写—私有属性</h1><p>Python 有个简单的机制能避免子类意外覆盖”私有”属性。</p>
+<p>举个例子，一个 Dog 类，这个类内部用到了mood 实例属性，但是没有将其开发，现在创建个 Dog 类的子类：Beagle。如果你在毫不知情的情况下又创建了名为mood的实力属性，那么在继承的方法中就会把Dog类的mood 属性覆盖掉。</p>
+<p>为了避免这种情况，如果以 <code>__mood</code> 的形式（两个前导下划线，尾部没有或最多一个下划线）命名实例属性，Python 会把属性名存入实例的 <code>__dict__</code> 属性中，而且会在前面加上一个下划线和类名。因此，对于Dog类来说，<code>__mood</code> 会变成 <code>_Dog__mood</code>; 对于Beagle来说，会变成 <code>_Beagle__mood</code>,这个语言特性叫<strong>名称改写</strong>。</p>
+<p>名称改写是一种安全措施，不能保证万无一失，它的目的是避免意外访问，不能阻止故意做错事。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dog</span>:</span></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, x)</span>:</span></span><br><span class="line">		self.__x = float(x)</span><br><span class="line"></span><br><span class="line"><span class="meta">	@property</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">x</span><span class="params">(self)</span>:</span></span><br><span class="line">		<span class="keyword">return</span> self._x</span><br><span class="line"></span><br><span class="line">In [<span class="number">43</span>]: d = Dog(<span class="number">3</span>)                                                                                                                                                                  </span><br><span class="line"></span><br><span class="line">In [<span class="number">45</span>]: d.__dict__                                                                                                                                                                  </span><br><span class="line">Out[<span class="number">45</span>]: &#123;<span class="string">'_Dog__x'</span>: <span class="number">3.0</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是不是所有人都喜欢 self.__x 这种不对称的名称，所以他们约定了使用一个下划线前缀编写”受保护”的属性。Python 解释器不会对使用单个下划线的属性名做特殊处理，但很多Python程序员严格遵守这个约定，他们不在类外部访问这种属性，因此有些人称其为”私有”属性。</p>
+<h1 id="使用-slots-类属性节省空间—实例属性"><a href="#使用-slots-类属性节省空间—实例属性" class="headerlink" title="使用 __slots__ 类属性节省空间—实例属性"></a>使用 <code>__slots__</code> 类属性节省空间—实例属性</h1><p>默认情况下，Python 在各个实例中名为 <code>__dict__</code> 的字典中存储实例属性，而为了使用底层的散列表提升访问速度，字典会消耗大量内存。如果要处理百万个属性多的实例，通过 <code>__slots__</code>类属性，能节省大量内存，方法是让解释器在元祖中存储实例属性，而不用字典。</p>
+<p>定义 <code>__slots__</code>的方式，创建一个类属性，使用 <code>__slots__</code>这个名字，并把它的值设为一个字符串构成的可迭代对象，其中各个元素表示各个实例属性。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Dog</span>:</span></span><br><span class="line">	__slots__ = (<span class="string">'x'</span>, <span class="string">'y'</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment"># 各个方法</span></span><br></pre></td></tr></table></figure>
+
+<p>在类中定义 <code>__slots__</code> 属性的目的是告诉解释器：这个类中的所有实例属性都在这儿了，这样，Python 会在各个实例中使用类似元祖的结构存储实例变量，从而避免使用消耗内存的 <code>__dict__</code>。不过有几点注意：</p>
+<ol>
+<li>每个子类都要定义 <code>__slots__</code> 属性，因为解释器会忽略继承的 <code>__slots__</code> 属性</li>
+<li>实例只能拥有 <code>__slots__</code> 中列出的属性，除非把<code>__dict__</code>加入到<code>__slots__</code> 中（这样就失去了节省内存的功效）</li>
+<li>如果不把<code>__weakref__</code> 加入到<code>__slots__</code>,实例就不能作为弱引用的目标</li>
+<li>如果你的程序不用处理数百万个实例，或许不值得费劲去创建不同寻常的类</li>
+</ol>
+<h1 id="覆盖类属性"><a href="#覆盖类属性" class="headerlink" title="覆盖类属性"></a>覆盖类属性</h1><p>Python 有个很独特的特性：类属性可用于为实例属性提供默认值。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Vector2d</span>:</span></span><br><span class="line">	typecode = <span class="string">'d'</span></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, x, y)</span>:</span></span><br><span class="line">		self .x = float(x)</span><br><span class="line">		self.y = float(y)</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__iter__</span><span class="params">(self)</span>:</span></span><br><span class="line">		<span class="keyword">return</span> (i <span class="keyword">for</span> i <span class="keyword">in</span> (self.x, self.y))</span><br><span class="line">		</span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__repr__</span><span class="params">(self)</span>:</span></span><br><span class="line">		class_name = type(self).__name__</span><br><span class="line">		<span class="keyword">return</span> <span class="string">'&#123;&#125;(&#123;!r&#125;, &#123;!r&#125;)'</span>.format(class_name, *self)</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__bytes__</span><span class="params">(self)</span>:</span></span><br><span class="line">		<span class="keyword">return</span> (bytes([ord(self.typecode)]) + bytes(array(self.typecode, self)))</span><br><span class="line">In [<span class="number">84</span>]: v1 = Vector2d(<span class="number">1.2</span>, <span class="number">2.3</span>)                                                                                                                                                     </span><br><span class="line">In [<span class="number">85</span>]: dumpd = bytes(v1)                                                                                                                                                           </span><br><span class="line">In [<span class="number">86</span>]: dumpd                                                                                                                                                                       </span><br><span class="line">Out[<span class="number">86</span>]: <span class="string">b'd333333\xf3?ffffff\x02@'</span></span><br><span class="line">In [<span class="number">87</span>]: len(dumpd)                                                                                                                                                                  </span><br><span class="line">Out[<span class="number">87</span>]: <span class="number">17</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">88</span>]: v1.typecode = <span class="string">'f'</span>                                                                                                                                                           </span><br><span class="line">In [<span class="number">89</span>]: dumpf = bytes(v1)                                                                                                                                                                                                                                                                                                                                     </span><br><span class="line">In [<span class="number">90</span>]: dumpf                                                                                                                                                                       </span><br><span class="line">Out[<span class="number">90</span>]: <span class="string">b'f\x9a\x99\x99?33\x13@'</span></span><br><span class="line">In [<span class="number">91</span>]: len(dumpf)                                                                                                                                                                  </span><br><span class="line">Out[<span class="number">91</span>]: <span class="number">9</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">92</span>]: Vector2d.typecode                                                                                                                                                           </span><br><span class="line">Out[<span class="number">92</span>]: <span class="string">'d'</span></span><br></pre></td></tr></table></figure>
+
+<p>如上，Vector2d 中有个 typecode 属性，<code>__bytes__</code>方法两次用到了它，而且都是使用 self.typecode 读取它的值。因为 Vector2d 实例本身没有 typecode 属性，使用 self.typecode 默认获取的是 Vector2d.typecode 类属性的值。</p>
+<p>但是，如果为不存在的实例属性赋值，会新建实例属性。假如我们为 typecode 实例属性赋值，那么同类属性不受影响。然而此后实例读取的 self.typecode 是实例属性 typecode，也就是把同名属性遮盖了。借助这一特性，可以为各个实例的 typecode 属性定制不同的值。</p>
+<p>因此想要修改类属性的值，必须在类上修改，不能通过实例修改。如果想修改所有实例的 typecode 属性的默认值，操作如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">In [<span class="number">93</span>]: Vector2d.typecode = <span class="string">'f'</span></span><br></pre></td></tr></table></figure>
+
+<p>然而有种修改方式更符合 Python 风格，而且效果持久，也更有针对性。类属性是公开的，因此会被子类继承，于是创建一个子类，只用于定制类的数据属性。（Django 基于类的视图就大量使用了这个技术）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">In [<span class="number">95</span>]: <span class="class"><span class="keyword">class</span> <span class="title">ShortVector2d</span><span class="params">(Vector2d)</span>:</span> </span><br><span class="line">    ...: 	  typecode = <span class="string">'f'</span> </span><br><span class="line">    ...:                                                                                                                                                                             </span><br><span class="line"></span><br><span class="line">In [<span class="number">96</span>]: sv = ShortVector2d(<span class="number">1</span>/<span class="number">11</span>, <span class="number">1</span>/<span class="number">27</span>)   </span><br><span class="line">In [<span class="number">97</span>]: sv                                                                                                                                                                         </span><br><span class="line">Out[<span class="number">97</span>]: ShortVector2d(<span class="number">0.09090909090909091</span>, <span class="number">0.037037037037037035</span>)</span><br><span class="line">In [<span class="number">101</span>]: len(bytes(sv))                                                                                                                                                             </span><br><span class="line">Out[<span class="number">101</span>]: <span class="number">9</span></span><br></pre></td></tr></table></figure>
+
+<p>把 ShortVector2d 定义为 Vector2d 的子类，只用于覆盖 typecode 属性。</p>
+<p>在前面的例子中，<code>Vector2d.__repr__</code> 方法中为什么没有硬编码 class_name 的值，而是使用 <code>type(self).__name__</code> 获取。因为如果硬编码 class_name 的值，Vector2d 的子类要覆盖 <code>__repr__</code> 方法，只是为了修改 class_name 的值。从实例方类型中读取类名，<code>__repr__</code> 方法就可以放心继承。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/20/python-params/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/20/python-params/" itemprop="url">python 参数</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-20T10:46:40+08:00">
+                2019-09-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Python 唯一支持的参数传递模式是共享传参。共享传参指函数的各个形式参数获得实参中各个引用的副本。也就是说，函数内部的形参是实参的别名。</p>
+<h1 id="函数可能会修改接收到的任何可变对象"><a href="#函数可能会修改接收到的任何可变对象" class="headerlink" title="函数可能会修改接收到的任何可变对象"></a>函数可能会修改接收到的任何可变对象</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">In [<span class="number">11</span>]: <span class="function"><span class="keyword">def</span> <span class="title">ff</span><span class="params">(a, b)</span>:</span> </span><br><span class="line">    ...:    print(a, id(a)) </span><br><span class="line">    ...:    a += b </span><br><span class="line">    ...:    print(a,id(a)) </span><br><span class="line">    ...:    <span class="keyword">return</span> a </span><br><span class="line">    ...:                                                                                                                                                                             </span><br><span class="line">In [<span class="number">12</span>]: t = (<span class="number">1</span>,<span class="number">2</span>)                                                                                                                                                                    </span><br><span class="line">In [<span class="number">13</span>]: u = (<span class="number">3</span>,<span class="number">4</span>)    </span><br><span class="line"></span><br><span class="line">In [<span class="number">14</span>]: ff(t,u)                                                                                                                                                                     </span><br><span class="line">(<span class="number">1</span>, <span class="number">2</span>) <span class="number">4430323784</span></span><br><span class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>) <span class="number">4428422344</span></span><br><span class="line">Out[<span class="number">14</span>]: (<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)</span><br><span class="line"></span><br><span class="line">In [<span class="number">15</span>]: a = [<span class="number">1</span>,<span class="number">4</span>]                                                                                                                                                                   </span><br><span class="line">In [<span class="number">16</span>]: b = [<span class="number">3</span>,<span class="number">5</span>]  </span><br><span class="line"></span><br><span class="line">In [<span class="number">17</span>]: ff(a,b)                                                                                                                                                                     </span><br><span class="line">[<span class="number">1</span>, <span class="number">4</span>] <span class="number">4430418184</span></span><br><span class="line">[<span class="number">1</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">5</span>] <span class="number">4430418184</span></span><br><span class="line">Out[<span class="number">17</span>]: [<span class="number">1</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">5</span>]</span><br></pre></td></tr></table></figure>
+
+<p>如上，列表a,b 变了，元祖t,u 没变。</p>
+<h1 id="不要使用可变类型作为参数的默认值"><a href="#不要使用可变类型作为参数的默认值" class="headerlink" title="不要使用可变类型作为参数的默认值"></a>不要使用可变类型作为参数的默认值</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Bus</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, passengers=[])</span>:</span></span><br><span class="line">        self.passengers = passengers</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pick</span><span class="params">(self, name)</span>:</span></span><br><span class="line">    	self.passengers.append(name)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">drop</span><span class="params">(self, name)</span>:</span></span><br><span class="line">    	self.passengers.remove(name)</span><br><span class="line">    	</span><br><span class="line">In [<span class="number">20</span>]: bus1 = Bus([<span class="string">"alice"</span>, <span class="string">"bill"</span>])                                                                                                                                               </span><br><span class="line">In [<span class="number">21</span>]: bus1.passengers                                                                                                                                                             </span><br><span class="line">Out[<span class="number">21</span>]: [<span class="string">'alice'</span>, <span class="string">'bill'</span>]</span><br><span class="line">In [<span class="number">23</span>]: bus1.pick(<span class="string">"charlie"</span>)                                                                                                                                                        </span><br><span class="line">In [<span class="number">24</span>]: bus1.drop(<span class="string">"alice"</span>)   </span><br><span class="line"></span><br><span class="line">In [<span class="number">25</span>]: bus2 = Bus()                                                                                                                                                                </span><br><span class="line">In [<span class="number">26</span>]: bus2.pick(<span class="string">"charlie"</span>)                                                                                                                                                        </span><br><span class="line">In [<span class="number">27</span>]: bus2.passengers                                                                                                                                                             </span><br><span class="line">Out[<span class="number">27</span>]: [<span class="string">'charlie'</span>]</span><br><span class="line"></span><br><span class="line">In [<span class="number">28</span>]: bus3 = Bus()    </span><br><span class="line">In [<span class="number">30</span>]: bus3.passengers                                                                                                                                                             </span><br><span class="line">Out[<span class="number">30</span>]: [<span class="string">'charlie'</span>]</span><br><span class="line">In [<span class="number">31</span>]: bus3.pick(<span class="string">"dave"</span>)                                                                                                                                                           </span><br><span class="line"></span><br><span class="line">In [<span class="number">32</span>]: bus2.passengers                                                                                                                                                             </span><br><span class="line">Out[<span class="number">32</span>]: [<span class="string">'charlie'</span>, <span class="string">'dave'</span>]</span><br><span class="line">In [<span class="number">33</span>]: bus2.passengers <span class="keyword">is</span> bus3.passengers                                                                                                                                          </span><br><span class="line">Out[<span class="number">33</span>]: <span class="keyword">True</span></span><br><span class="line">In [<span class="number">34</span>]: bus1.passengers                                                                                                                                                             </span><br><span class="line">Out[<span class="number">34</span>]: [<span class="string">'bill'</span>, <span class="string">'charlie'</span>]</span><br></pre></td></tr></table></figure>
+
+<p>bus1 表现正常<br>bus2 一开始是空的，因此把默认值的空列表赋值给self.passengers<br>bus3 一开始也是空的，因此还是默认赋值的列表，但是默认赋值的列表不是空的，此时 bus2.passengers 和 bus3.passengers 指代同一个列表，bus1.passengers 是不同的列表。</p>
+<p>结果显示没有指定初始值的 Bus 实例会共享列表，出现这个问题的根源是，默认值在定义函数时计算（通常在加载模块时），因此默认值变成了函数对象的属性。所以如果默认值时可变对象的话，修改了它的值，那么后续的函数调用都会收到影响。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">In [<span class="number">36</span>]: Bus.__init__.__defaults__                                                                                                                                                   </span><br><span class="line">Out[<span class="number">36</span>]: ([<span class="string">'charlie'</span>, <span class="string">'dave'</span>],)</span><br></pre></td></tr></table></figure>
+
+<p>而 bus2.passengers 是一个别名，它绑定到 Bus.<strong>init</strong>.<strong>defaults</strong> 属性的第一个元素上:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">In [<span class="number">37</span>]: Bus.__init__.__defaults__[<span class="number">0</span>] <span class="keyword">is</span> bus2.passengers                                                                                                                             </span><br><span class="line">Out[<span class="number">37</span>]: <span class="keyword">True</span></span><br></pre></td></tr></table></figure>
+
+<p>可变默认值导致的这个问题说明了为什么通常使用None作为接受可变值的参数的默认值。</p>
+<h1 id="防御可变参数"><a href="#防御可变参数" class="headerlink" title="防御可变参数"></a>防御可变参数</h1><p>如果定义的函数接受可变参数，应该谨慎考虑调用方是否期望修改传入的参数。</p>
+<p>例如，如果函数接受一个字典，而且在处理的过程中要修改它，那么这个这个副作用要不要体现到函数外部？这需要函数的编写者和调用方法达成共识。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">In [<span class="number">46</span>]: <span class="class"><span class="keyword">class</span> <span class="title">Bus</span>:</span> </span><br><span class="line">    ...:     <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, passengers=None)</span>:</span> </span><br><span class="line">    ...:         <span class="keyword">if</span> passengers <span class="keyword">is</span> <span class="keyword">None</span>: </span><br><span class="line">    ...:             self.passengers = [] </span><br><span class="line">    ...:         <span class="keyword">else</span>: </span><br><span class="line">    ...:             self.passengers = passengers </span><br><span class="line">    ...:  </span><br><span class="line">    ...:     <span class="function"><span class="keyword">def</span> <span class="title">pick</span><span class="params">(self, name)</span>:</span> </span><br><span class="line">    ...:     		self.passengers.append(name) </span><br><span class="line">    ...:  </span><br><span class="line">    ...:     <span class="function"><span class="keyword">def</span> <span class="title">drop</span><span class="params">(self, name)</span>:</span> </span><br><span class="line">    ...:     		self.passengers.remove(name) </span><br><span class="line">    ...:                                                                                                                                                                             </span><br><span class="line">In [<span class="number">47</span>]: bask_team                                                                                                                                                                   </span><br><span class="line">Out[<span class="number">47</span>]: [<span class="string">'a'</span>, <span class="string">'b'</span>, <span class="string">'c'</span>, <span class="string">'d'</span>, <span class="string">'e'</span>]</span><br><span class="line">In [<span class="number">48</span>]: bus = Bus(bask_team)                                                                                                                                                        </span><br><span class="line">In [<span class="number">49</span>]: bus.drop(<span class="string">'b'</span>)                                                                                                                                                               </span><br><span class="line">In [<span class="number">50</span>]: bus.drop(<span class="string">'c'</span>)                                                                                                                                                               </span><br><span class="line">In [<span class="number">51</span>]: bus.passengers                                                                                                                                                              </span><br><span class="line">Out[<span class="number">51</span>]: [<span class="string">'a'</span>, <span class="string">'d'</span>, <span class="string">'e'</span>]</span><br><span class="line">In [<span class="number">52</span>]: bask_team                                                                                                                                                                   </span><br><span class="line">Out[<span class="number">52</span>]: [<span class="string">'a'</span>, <span class="string">'d'</span>, <span class="string">'e'</span>]</span><br></pre></td></tr></table></figure>
+
+<p>如上，参数bask_team也被修改了，因为语句<code>self.passengers = passengers</code> 是把self.passengers 变成了 passengers的别名，而 passengers 是 <strong>init</strong> 方法的实参的别名。</p>
+<p>修正的方法是 Bus 维护自己的 passengers 列表，在<strong>init</strong>中，传人passengers参数时，应该把参数值的副本赋值给 self.passengers。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.passengers = list(passengers)</span><br></pre></td></tr></table></figure>
+
+<p>创建passengers列表的副本，如果不是列表，就把它转传成列表。<br>在内部这样处理，就不会影响初始化Bus时传入的参数了。此外这种方式还更灵活，现在，传给 passengers参数的值可以是元祖或者任何其他可迭代对象，如 set 对象，甚至数据库查询结果，因为list构造方法接受任何可迭代对象。</p>
+<p>除非这个方式确实是想修改通过参数传入方对象，否则在类中直接把参数赋值给实例变量之前一定要三思，因为这样会外参数对象创建别名。如果不确定，那就创建副本。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/18/innodb-buffer-pool/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1398,270 +1691,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/15/sqlalchemy-query/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/08/15/sqlalchemy-query/" itemprop="url">sqlalchemy 查询</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-15T17:14:02+08:00">
-                2019-08-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="子查询-subquery"><a href="#子查询-subquery" class="headerlink" title="子查询 subquery"></a>子查询 subquery</h1><p>在一个查询语句中想要对某个字段进行计算（统计/求和），可以用子查询实现。</p>
-<p>例如2张表，一张表<code>Book</code>里面是数据信息，另一个张表<code>BookTrading</code>里面记录每次书籍售出数据，现在要获取书籍信息以及统计每种书籍各卖了多少钱</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">trading_subquery = db.session.query(func.ifnull(func.sum(BookTrading.total_price),0)\</span><br><span class="line">		.filter(BookTrading.book_id == Book.id, BookTrading.status&gt;0)\</span><br><span class="line">		.correlate(Book).as_scalar()</span><br><span class="line">book_query = db.session.query(Book, trading_subquery).filter(Book.status&gt;0).all()</span><br></pre></td></tr></table></figure>
-
-<p><code>User</code> 一个用户的介绍人，及其介绍的数量</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">subquery = db.session.query(User.introducer_id, func.count(&apos;*&apos;).label(&apos;introduce_count&apos;)).group_by(User.introducer_id).subquery()</span><br><span class="line"></span><br><span class="line">db.session.query(User.name, subquery.c.introduce_count).outerjoin(subquery, User.id==subquery.c.introducer_id).all()</span><br></pre></td></tr></table></figure>
-
-<h1 id="合并查询-union"><a href="#合并查询-union" class="headerlink" title="合并查询 union"></a>合并查询 union</h1><p>例如2张表，<code>TMOrder</code> 和 <code>JDOrder</code> 2张表存储的字段部分相同，现在我需要取2个表的数据合并且根据创建时间进行排序</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">tm_query = db.session.query(TMOrder.id.label(&quot;order_id&quot;),</span><br><span class="line">			    TMOrder.price.label(&quot;order_price&quot;),</span><br><span class="line">			    TMOrder.create_time.label(&quot;create_time&quot;)),</span><br><span class="line">			    func.ifnull(None, 1).label(&quot;shop_type&quot;)\</span><br><span class="line">			    .filter(TMOrder.user_id=1)</span><br><span class="line">		</span><br><span class="line">jd_query = db.session.query(JDOrder.id.label(&quot;order_id&quot;),</span><br><span class="line">		       	JDOrder.price.label(&quot;order_price&quot;),</span><br><span class="line">		       	JDOrder.create_time.label(&quot;create_time&quot;)),</span><br><span class="line">		       	func.ifnull(None, 2).label(&quot;shop_type&quot;)\</span><br><span class="line">		       	.filter(TMOrder.user_id=1)</span><br><span class="line">									  </span><br><span class="line">total_order_query = union(course_query, training_query).alias(&apos;order&apos;)</span><br><span class="line"></span><br><span class="line">order_query = db.session.query(total_order_query).order_by(total_order_query.c.create_time())</span><br></pre></td></tr></table></figure>
-
-<h1 id="多条件查询对应常量-case"><a href="#多条件查询对应常量-case" class="headerlink" title="多条件查询对应常量 case"></a>多条件查询对应常量 case</h1><p>例如查询<code>Book</code> 是否有销量 <code>BookTrading</code></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">trading_subquery = db.session.query(func.count())\</span><br><span class="line">		.filter(BookTrading.book_id == Book.id, BookTrading.status&gt;0)\</span><br><span class="line">		.correlate(Book).as_scalar()</span><br><span class="line">book_query = db.session.query(Book, case(whens=((trading_subquery, 1),), else_=0).label(&quot;is_selled&quot;)).filter(Book.status&gt;0).all()</span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/08/python3-groupby/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/08/08/python3-groupby/" itemprop="url">python3 通过 itertools.groupby 进行分组</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-08T10:30:54+08:00">
-                2019-08-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>python3 通过 <code>itertools.groupby()</code> 函数将某个记录按照字段分组，详情见<a href="https://python3-cookbook.readthedocs.io/zh_CN/latest/c01/p15_group_records_based_on_field.html?highlight=groupby" target="_blank" rel="noopener">python3_coobook_groupby</a></p>
-<p>groupby 的使用形式</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">itertools.groupby(iterable[, keyfunc])</span><br></pre></td></tr></table></figure>
-
-<p>iterable 是一个可迭代对象，keyfunc 是分组函数，用于对 iterable 的连续项进行分组，如果不指定，则默认对 iterable 中的连续相同项进行分组，返回一个 (key, sub-iterator) 的迭代器。</p>
-<p>defaultdict 使用形式</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">collections.defaultdict([default_factory[, ...]])</span><br></pre></td></tr></table></figure>
-
-<p>default_factory 接收一个工厂函数作为参数, 例如int str list set等,这样当key不存在时，返回的是工厂函数的默认值，比如list对应[ ]，str对应的是空字符串，set对应set( )，int对应0。</p>
-<p>将不同记录按照省市区进行分组，因为分组是针对连续项的，所以需要先按照省份排序，按照省份进行分组后，通过 <code>defaultdict</code> 将同一市下面的区进行分组，操作如下：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> itertools <span class="keyword">import</span> groupby</span><br><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> defaultdict</span><br><span class="line"></span><br><span class="line">obj = [</span><br><span class="line">(<span class="string">'上海'</span>, <span class="string">'上海'</span>, <span class="string">'闸北区'</span>), (<span class="string">'河北'</span>, <span class="string">'张家口'</span>, <span class="string">'宣化区'</span>), (<span class="string">'上海'</span>, <span class="string">'上海'</span>, <span class="string">'长宁区'</span>), </span><br><span class="line">(<span class="string">'上海'</span>, <span class="string">'上海'</span>, <span class="string">'静安区'</span>), (<span class="string">'上海'</span>, <span class="string">'上海'</span>, <span class="string">'青浦区'</span>), (<span class="string">'河南'</span>, <span class="string">'郑州'</span>, <span class="string">'新密市'</span>),</span><br><span class="line">(<span class="string">'上海'</span>, <span class="string">'上海'</span>, <span class="string">'杨浦区'</span>), (<span class="string">'河南'</span>, <span class="string">'开封'</span>, <span class="string">'龙亭区'</span>), (<span class="string">'浙江'</span>, <span class="string">'金华'</span>, <span class="string">'义乌市'</span>), </span><br><span class="line">(<span class="string">'北京'</span>, <span class="string">'北京'</span>, <span class="string">'海淀区'</span>), (<span class="string">'广西'</span>, <span class="string">'北海'</span>, <span class="string">'海城区'</span>), (<span class="string">'吉林'</span>, <span class="string">'白城'</span>, <span class="string">'洮北区'</span>), </span><br><span class="line">(<span class="string">'北京'</span>, <span class="string">'北京'</span>, <span class="string">'朝阳区'</span>), (<span class="string">'河北'</span>, <span class="string">'保定'</span>, <span class="string">'北城区'</span>), (<span class="string">'湖北'</span>, <span class="string">'武汉'</span>, <span class="string">'江汉区'</span>)</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">obj_dict = dict()</span><br><span class="line">obj.sort(key=<span class="keyword">lambda</span> x: x[<span class="number">0</span>])</span><br><span class="line"><span class="keyword">for</span> g, v <span class="keyword">in</span> groupby(obj, key=<span class="keyword">lambda</span> x: x[<span class="number">0</span>]):</span><br><span class="line">    city_dict = defaultdict(list)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> v:</span><br><span class="line">        city_dict[i[<span class="number">1</span>]].append(i[<span class="number">2</span>])</span><br><span class="line">    obj_dict[g] = city_dict</span><br><span class="line">   </span><br><span class="line"><span class="comment"># obj_dict</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="string">'上海'</span>: &#123;<span class="string">'上海'</span>: [<span class="string">'闸北区'</span>, <span class="string">'长宁区'</span>, <span class="string">'静安区'</span>, <span class="string">'青浦区'</span>, <span class="string">'杨浦区'</span>]&#125;), </span><br><span class="line"><span class="string">'北京'</span>: &#123;<span class="string">'北京'</span>: [<span class="string">'海淀区'</span>, <span class="string">'朝阳区'</span>]&#125;), </span><br><span class="line"><span class="string">'吉林'</span>: &#123;<span class="string">'白城'</span>: [<span class="string">'洮北区'</span>]&#125;), </span><br><span class="line"><span class="string">'广西'</span>: &#123;<span class="string">'北海'</span>: [<span class="string">'海城区'</span>]&#125;), </span><br><span class="line"><span class="string">'河北'</span>: &#123;<span class="string">'保定'</span>: [<span class="string">'北城区'</span>], <span class="string">'张家口'</span>: [<span class="string">'宣化区'</span>]&#125;), </span><br><span class="line"><span class="string">'河南'</span>: &#123;<span class="string">'郑州'</span>: [<span class="string">'新密市'</span>], <span class="string">'开封'</span>: [<span class="string">'龙亭区'</span>]&#125;), </span><br><span class="line"><span class="string">'浙江'</span>: &#123;<span class="string">'金华'</span>: [<span class="string">'义乌市'</span>]&#125;), </span><br><span class="line"><span class="string">'湖北'</span>: &#123;<span class="string">'武汉'</span>: [<span class="string">'江汉区'</span>]&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>就酱。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1714,7 +1743,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-count">73</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
