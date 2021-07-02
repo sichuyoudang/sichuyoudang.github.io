@@ -262,6 +262,160 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/13/contextmanager/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/10/13/contextmanager/" itemprop="url">Python 上下文管理器</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-10-13T00:41:01+08:00">
+                2020-10-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="with-块"><a href="#with-块" class="headerlink" title="with 块"></a>with 块</h1><p>with 语句会设置一个临时的上下文，交给上下文管理器对象控制，并且负责清理上下文。这样既能避免错误又能减少样板代码。with 语句的目的是简化 try/finally 模式，这种模式用于保证一段代码运行完毕后执行某项操作，即便那段代码由于异常，return 语句或 sys.exit() 调用而终止，也会执行指定的操作。finally 字句中的代码通常用于释放重要资源，或者还原临时变更的状态。</p>
+<p>上下文管理器协议包括 <code>__enter__</code> 和 <code>__exit__</code> 两个方法。 with 语句开始运行时，会在上下文管理器对象上调用 <code>__enter__</code> 方法，返回除了上下文管理器之外，还可能返回其他对象，结束时调用  <code>__exit__</code> 。</p>
+<p>with 语句的 as 子句可选，对于 open 函数来说必须加上 as 子句，以便获取文件的引用。不过有些上下文管理器会返回 None，因为没什么有用的对象能提供给用户。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LookingGlass</span>:</span></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__enter__</span><span class="params">(self)</span>:</span>       <span class="comment"># 除self 之外，调用 __enter__ 方法时不传入其他参数</span></span><br><span class="line">		<span class="keyword">import</span> sys</span><br><span class="line">		self.original_write = sys.stdout.write    <span class="comment"># 把原来的 sys.stdout.write 方法保存在一个实例属性中，供后面使用</span></span><br><span class="line">		sys.stdout.write = self.reverse_write     <span class="comment"># 为 sys.stdout.write 打猴子补丁</span></span><br><span class="line">		<span class="keyword">return</span> <span class="string">"ABCDEFG"</span>          <span class="comment"># 返回字符串</span></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">reverse_write</span><span class="params">(self, text)</span>:</span>    <span class="comment"># 取代 sys.stdout.write 的方法，将 text 内容反转</span></span><br><span class="line">		self.original_write(text[::<span class="number">-1</span>])</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__exit__</span><span class="params">(self, exc_type, exc_value, traceback)</span>:</span>   <span class="comment"># 如果一切正常，__exit__ 方法传入的参数是 Node, Node, Node</span></span><br><span class="line">		<span class="keyword">import</span> sys   				      <span class="comment"># 重复导入不会消耗很多资源，因为 Python 会缓存导入的模块</span></span><br><span class="line">		sys.stdout.write = self.original_write        <span class="comment"># 还原成原来的 sys.stdout.write 方法</span></span><br><span class="line">		<span class="keyword">if</span> exc_type <span class="keyword">is</span> ZeroDivisionError:             <span class="comment"># 如果有异常，而且是 ZeroDivisionError 类型，打印消息</span></span><br><span class="line">			print(<span class="string">"please do not divide by zero"</span>)</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">True</span>             <span class="comment"># 。。。然后返回 True，告诉解释器，异常已经处理</span></span><br><span class="line">                             	 		<span class="comment"># 如果 __exit__ 方法返回 None，或者 True 之外的值，with 块中的任何异常都会向上冒泡</span></span><br><span class="line">			</span><br><span class="line">In [<span class="number">64</span>]: <span class="keyword">with</span> LookingGlass() <span class="keyword">as</span> wh:   <span class="comment"># 上下文管理器是 LookingGlass 类的实例，Python 在上下文管理器上调用 __enter__ 方法，把返回结果绑定在 wh 上</span></span><br><span class="line">    ...:     print(<span class="string">"hello, bob"</span>)      <span class="comment"># 打印一个字符串，然后打印 wh 变量的值</span></span><br><span class="line">    ...:     print(wh) </span><br><span class="line">    ...:                                                                                                                                                                     </span><br><span class="line">bob ,olleh                            <span class="comment"># 打印的内容是反向的</span></span><br><span class="line">GFEDCBA</span><br><span class="line">In [<span class="number">65</span>]: wh         		      <span class="comment"># 现在 with 块已经执行完毕，可见  __enter__  方法返回的值---即存储在 wh 变量中的值---是字符串  ABCDEFG                                                                                                                                                      </span></span><br><span class="line">Out[<span class="number">65</span>]: <span class="string">'ABCDEFG'</span></span><br><span class="line">In [<span class="number">66</span>]: print(<span class="string">"print normal"</span>)        <span class="comment"># 输出不再是反向的了                                                                                                                                      </span></span><br><span class="line"><span class="keyword">print</span> normal</span><br></pre></td></tr></table></figure>
+
+<p>参上，传给 <code>__exit__</code> 方法的三个参数列举如下：</p>
+<blockquote>
+<p><strong>exc_type</strong> 异常类<br><strong>exc_value</strong> 异常实例，有时会有参数传给异常构造方法，例如错误消息，这些参数可以使用 exc_value.args 获取<br><strong>traceback</strong> traceback 对象，在 try/finally 块中调用 sys.exc_info() 得到的就是 <code>__exit__</code> 接收的这三个参数</p>
+</blockquote>
+<h1 id="contextlib-模块"><a href="#contextlib-模块" class="headerlink" title="contextlib 模块"></a>contextlib 模块</h1><p>contextlib 模块中有一些类和函数也能实现上下文管理器：</p>
+<p><strong>closing</strong><br>如果对象提供了 close() 方法，但没有实现 <code>__enter__/__exit__</code> 协议，那么可以使用这个函数构建上下文管理器。</p>
+<p><strong>supress</strong><br>构建临时忽略指定异常的上下文管理器</p>
+<p><strong>@contextmanager</strong><br>这个装饰器把简单的生成器函数变成上下文管理器，这样就不用创建类去实现管理器协议了。</p>
+<p><strong>ContextDecorator</strong><br>基类，用于定义基于类的上下文管理器。这种上下文管理器也用于装饰函数，在受管理的上下文中运行整个函数。</p>
+<p><strong>ExitStack</strong><br>这个上下文管理器能进入多个上下文管理器。with 块结束时，ExitStack 按照后进先出的顺序调用栈中各个上下文管理器的 <code>__exit__</code>。如果事先不知道 with 块要进入多少个上下文管理器，可以使用这个类，例如同时打开任意一个文件列表中的所有文件。</p>
+<h1 id="使用-contextmanager"><a href="#使用-contextmanager" class="headerlink" title="使用 @contextmanager"></a>使用 @contextmanager</h1><p>@contextmanager 装饰器能减少创建上下文管理器的样板代码，因为不用编写一个完整的类，定义 <code>__enter__</code> 和 <code>__exit__</code> 方法，而只需实现一个 yield 语句的生成器，生成想让 <code>__enter__</code> 方法返回的值。</p>
+<p>在使用 @contextmanager 装饰的生成器中， yield 语句的作用是把函数的定义体分成两部分，yield 语句前面的所有代码在 with 块开始时（调用 <code>__enter__</code> 方法时）执行，yield 语句后面的代码在 with 块结束时（调用 <code>__exit__</code> 方法时）执行。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> contextlib</span><br><span class="line"></span><br><span class="line"><span class="meta">@contextlib.contextmanager     </span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">looking_glass</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="keyword">import</span> sys</span><br><span class="line">	original_write = sys.stdout.write  <span class="comment"># 应用原来的 sys.stdout.write 方法</span></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">reverse_write</span><span class="params">(text)</span>:</span>           <span class="comment"># 定义自定义的 reverse_write 函数，在闭包中访问 original_write</span></span><br><span class="line">		original_write(text[::<span class="number">-1</span>])</span><br><span class="line"></span><br><span class="line">	sys.stdout.write = reverse_write   <span class="comment"># 把 sys.stdout.write 替换成 reverse_write</span></span><br><span class="line">	<span class="keyword">yield</span> <span class="string">"ABCDEFG"</span>                    <span class="comment"># 产出一个值，这个值会绑定到 with 语句中的 as 子目标变量上。执行 with 块中的代码时，这个函数会在这一点暂停</span></span><br><span class="line">	sys.stdout.write = original_write  <span class="comment"># 控制权一旦跳出 with 块，继续执行 yield 语句之后的代码</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">68</span>]: <span class="keyword">with</span> looking_glass() <span class="keyword">as</span> wh: </span><br><span class="line">    ...:     print(<span class="string">"hello"</span>) </span><br><span class="line">    ...:     print(wh) </span><br><span class="line">    ...:                                                                                                                                                                     </span><br><span class="line">olleh</span><br><span class="line">GFEDCBA</span><br><span class="line">In [<span class="number">69</span>]: wh                                                                                                                                                                  </span><br><span class="line">Out[<span class="number">69</span>]: <span class="string">'ABCDEFG'</span></span><br></pre></td></tr></table></figure>
+
+<p>其实 @contextmanager 装饰器会把函数包装成 <code>__enter__</code> 和 <code>__exit__</code> 方法的类，这个类的 <code>__enter__</code> 方法有如下作用：</p>
+<blockquote>
+<p>调用生成器函数，保存生成器对象（此处称为 gen）<br>调用 next(gen) ，执行到 yield 关键字所在的位置<br>返回 next(gen) 产出的值，以便把产出的值绑定到 with/as 语句中的目标变更上</p>
+</blockquote>
+<p>with 块终止时，<code>__exit__</code> 方法会做以下几件事：</p>
+<blockquote>
+<p>检查有没有异常传给 exc_type，如果有，调用 gen.throw(exception)，在生成器函数定义体中包含 yield 关键字的哪一行抛出异常<br>否则，调用 next(gen) ，继续执行生成器函数定义体中的 yield 语句之后的代码</p>
+</blockquote>
+<p>所以上面代码示例中有一个严重错误，如果 with 块抛出了异常，没有处理错误的代码，则永远无法恢复成原来的 sys.stdout.write 方法，导致系统处于无效状态。</p>
+<p>所以修改如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> contextlib</span><br><span class="line"></span><br><span class="line"><span class="meta">@contextlib.contextmanager</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">looking_glass</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="keyword">import</span> sys</span><br><span class="line">	original_write = sys.stdout.write</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">reverse_write</span><span class="params">(text)</span>:</span></span><br><span class="line">		original_write(text[::<span class="number">-1</span>])</span><br><span class="line"></span><br><span class="line">	sys.stdout.write = reverse_write</span><br><span class="line">	msg = <span class="string">""</span>                               <span class="comment"># 设置一个变量，保存可能出现的错误消息</span></span><br><span class="line">	<span class="keyword">try</span>:</span><br><span class="line">		<span class="keyword">yield</span> <span class="string">"ABCDEFG"</span></span><br><span class="line">	<span class="keyword">except</span> ZeroDivisionError:              <span class="comment"># 处理 ZeroDivisionError 异常，设置一个错误消息</span></span><br><span class="line">		meg = <span class="string">"please do not divide by zero"</span></span><br><span class="line">	<span class="keyword">finally</span>:</span><br><span class="line">		sys.stdout.write = original_write   <span class="comment"># 撤销对 sys.stdout.write  方法所做的猴子补丁</span></span><br><span class="line">		<span class="keyword">if</span> msg:</span><br><span class="line">			print(msg)	    <span class="comment"># 如果设置了错误消息，打印出来</span></span><br></pre></td></tr></table></figure>
+
+<p>前文有讲，为了告诉解释器异常已经处理了，<code>__exit__</code> 方法会返回 True，此时解释器会压制异常，如果<code>__exit__</code> 方法没有显式返回一个值，那么解释器得到的是 None， 然后向上冒泡异常。使用 @contextmanager 装饰器时，默认的行为是相反的：装饰器提供的 <code>__exit__</code> 方法假定发给生成器的所有异常都得到处理了，因此应该压制异常，如果不想让 @contextmanager 压制异常，必须在被装饰的函数中显式重新抛出异常。</p>
+<h1 id="数据库事务的实现"><a href="#数据库事务的实现" class="headerlink" title="数据库事务的实现"></a>数据库事务的实现</h1><p>处理数据库事务，异常回滚:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> contextlib <span class="keyword">import</span> ContextDecorator</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">atomic</span><span class="params">(db)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    with transaction.atomic(db)</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="keyword">if</span> callable(db):</span><br><span class="line">        <span class="keyword">return</span> Atomic(db)(db)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> Atomic(db)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Atomic</span><span class="params">(ContextDecorator)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, db)</span>:</span></span><br><span class="line">        self.db = db</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__enter__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__exit__</span><span class="params">(self, exc_typ, exc_val, tb)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> exc_typ:</span><br><span class="line">            self.db.session.rollback()</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self.db.session.commit()</span><br></pre></td></tr></table></figure>
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/02/property/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1510,151 +1664,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/12/flask-thread/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/08/12/flask-thread/" itemprop="url">关于Flask线程安全这件事</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-08-12T20:31:05+08:00">
-                2020-08-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h1><p>在并发编程时，如果多个线程访问同一资源，我们需要保证访问的时候不会产生冲突，数据修改不会发生错误，这就是我们常说的 <strong>线程安全</strong> 。</p>
-<h1 id="Flask-线程安全"><a href="#Flask-线程安全" class="headerlink" title="Flask 线程安全"></a>Flask 线程安全</h1><p>一个 Flask 应用启动之后，请求发来的时候执行了app（Flask的实例化对象）的<code>__call__</code>方法，而<code>__call__</code>方法返回了app 的 wsgi_app(environ, start_response)方法的执行结果:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">wsgi_app</span><span class="params">(self, environ, start_response)</span>:</span></span><br><span class="line">   ctx = self.request_context(environ)</span><br><span class="line">   error = <span class="keyword">None</span></span><br><span class="line">   <span class="keyword">try</span>:</span><br><span class="line">       <span class="keyword">try</span>:</span><br><span class="line">           ctx.push()</span><br><span class="line">           response = self.full_dispatch_request()</span><br><span class="line">       <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">           error = e</span><br><span class="line">           response = self.handle_exception(e)</span><br><span class="line">       <span class="keyword">except</span>:  <span class="comment"># noqa: B001</span></span><br><span class="line">           error = sys.exc_info()[<span class="number">1</span>]</span><br><span class="line">           <span class="keyword">raise</span></span><br><span class="line">       <span class="keyword">return</span> response(environ, start_response)</span><br><span class="line">   <span class="keyword">finally</span>:</span><br><span class="line">       <span class="keyword">if</span> self.should_ignore_error(error):</span><br><span class="line">           error = <span class="keyword">None</span></span><br><span class="line">       ctx.auto_pop(error)</span><br></pre></td></tr></table></figure>
-
-<p>每一个请求到来之后，Flask 会为它新建一个 <code>request_context</code>，这个对象的上下文包含着 request 相关的信息：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">request_context</span><span class="params">(self, environ)</span>:</span></span><br><span class="line">   <span class="keyword">return</span> RequestContext(self, environ)</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RequestContext</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="string">"""The request context contains all request relevant information.  It is</span></span><br><span class="line"><span class="string">    created at the beginning of the request and pushed to the</span></span><br><span class="line"><span class="string">    `_request_ctx_stack` and removed at the end of it.  It will create the</span></span><br><span class="line"><span class="string">    URL adapter and request object for the WSGI environment provided.</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
-
-<p>Flask 创建<code>RequestContext</code> 对象后，将这个对象 push 进全局变量 <code>_request_ctx_stack</code>中，在 push 前还要检查<code>_app_ctx_stack</code>，如果<code>_app_ctx_stack的</code>栈顶元素不存在或是与当前的应用不一致，则首先push <code>appcontext</code> 到<code>_app_ctx_stack</code>中，再push <code>requestcontext</code>。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">push</span><span class="params">(self)</span>:</span></span><br><span class="line">   top = _request_ctx_stack.top</span><br><span class="line">   <span class="keyword">if</span> top <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span> <span class="keyword">and</span> top.preserved:</span><br><span class="line">       top.pop(top._preserved_exc)</span><br><span class="line"></span><br><span class="line">   app_ctx = _app_ctx_stack.top</span><br><span class="line">   <span class="keyword">if</span> app_ctx <span class="keyword">is</span> <span class="keyword">None</span> <span class="keyword">or</span> app_ctx.app != self.app:</span><br><span class="line">       app_ctx = self.app.app_context()</span><br><span class="line">       app_ctx.push()</span><br><span class="line">       self._implicit_app_ctx_stack.append(app_ctx)</span><br><span class="line">   <span class="keyword">else</span>:</span><br><span class="line">       self._implicit_app_ctx_stack.append(<span class="keyword">None</span>)</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> hasattr(sys, <span class="string">"exc_clear"</span>):</span><br><span class="line">       sys.exc_clear()</span><br><span class="line"></span><br><span class="line">   _request_ctx_stack.push(self)</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> self.session <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">       session_interface = self.app.session_interface</span><br><span class="line">       self.session = session_interface.open_session(self.app, self.request)</span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> self.session <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">           self.session = session_interface.make_null_session(self.app)</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> self.url_adapter <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">       self.match_request()</span><br></pre></td></tr></table></figure>
-
-<p>通过上面的两步，每一个请求的应用上下文和请求上下文就被 push 到了全局变量<code>_request_ctx_stack</code>和<code>_app_ctx_stack</code>中。</p>
-<p>现在知道了<code>_request_ctx_stack</code>和<code>_app_ctx_stack</code>是何时被push的，每一个请求到来都会导致新的 <code>RequestContext</code>和<code>AppContext</code>被建立并push，一旦请求处理完毕就被pop出去。而无论是<code>_app_ctx_stack</code>还是<code>_request_ctx_stack</code>都是<code>LocalStack</code>对象，这是 werkzeug 中的一个对象，这个对象的几乎所有重要属性在<code>_local</code>这一属性中，它是一个 Local对象:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Local</span><span class="params">(object)</span>:</span></span><br><span class="line">	__slots__ = (<span class="string">'__storage__'</span>, <span class="string">'__ident_func__'</span>)</span><br><span class="line">	</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">    object.__setattr__(self, <span class="string">'__storage__'</span>, &#123;&#125;)</span><br><span class="line">    object.__setattr__(self, <span class="string">'__ident_func__'</span>, get_ident)</span><br></pre></td></tr></table></figure>
-
-<p>get_ident 是 Local 类所在文件中导入的一个方法名，该方法执行后会得到线程或协程ID，用于区别同时存在的多个线程。</p>
-<p>Flask 中每个请求如何创建一个线程，看flask.app的run方法：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self, host=None, port=None, debug=None, **options)</span>:</span></span><br><span class="line">        </span><br><span class="line">   <span class="keyword">from</span> werkzeug.serving <span class="keyword">import</span> run_simple</span><br><span class="line">   <span class="keyword">if</span> host <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">       host = <span class="string">'127.0.0.1'</span></span><br><span class="line">   <span class="keyword">if</span> port <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">       server_name = self.config[<span class="string">'SERVER_NAME'</span>]</span><br><span class="line">       <span class="keyword">if</span> server_name <span class="keyword">and</span> <span class="string">':'</span> <span class="keyword">in</span> server_name:</span><br><span class="line">           port = int(server_name.rsplit(<span class="string">':'</span>, <span class="number">1</span>)[<span class="number">1</span>])</span><br><span class="line">       <span class="keyword">else</span>:</span><br><span class="line">           port = <span class="number">5000</span></span><br><span class="line">   <span class="keyword">if</span> debug <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">       self.debug = bool(debug)</span><br><span class="line">   options.setdefault(<span class="string">'use_reloader'</span>, self.debug)</span><br><span class="line">   options.setdefault(<span class="string">'use_debugger'</span>, self.debug)</span><br><span class="line">   <span class="keyword">try</span>:</span><br><span class="line">       run_simple(host, port, self, **options)</span><br><span class="line">   <span class="keyword">finally</span>:</span><br><span class="line">       self._got_first_request = <span class="keyword">False</span></span><br></pre></td></tr></table></figure>
-
-<p>这个方法实际上是对 werkzeug 的 run_simple 方法的简单包装，而 run_simple 默认情况下会执行inner方法，inner方法创建了一个server并启动，这样一个flask应用算是真正的启动了。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run_simple</span><span class="params">(hostname, port, application, use_reloader=False,</span></span></span><br><span class="line"><span class="function"><span class="params">               use_debugger=False, use_evalex=True,</span></span></span><br><span class="line"><span class="function"><span class="params">               extra_files=None, reloader_interval=<span class="number">1</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">               reloader_type=<span class="string">'auto'</span>, threaded=False,</span></span></span><br><span class="line"><span class="function"><span class="params">               processes=<span class="number">1</span>, request_handler=None, static_files=None,</span></span></span><br><span class="line"><span class="function"><span class="params">               passthrough_errors=False, ssl_context=None)</span>:</span></span><br><span class="line">   ...</span><br><span class="line">   ...</span><br><span class="line">   <span class="function"><span class="keyword">def</span> <span class="title">inner</span><span class="params">()</span>:</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            fd = int(os.environ[<span class="string">'WERKZEUG_SERVER_FD'</span>])</span><br><span class="line">        <span class="keyword">except</span> (LookupError, ValueError):</span><br><span class="line">            fd = <span class="keyword">None</span></span><br><span class="line">        srv = make_server(hostname, port, application, threaded,</span><br><span class="line">                          processes, request_handler,</span><br><span class="line">                          passthrough_errors, ssl_context,</span><br><span class="line">                          fd=fd)</span><br><span class="line">        <span class="keyword">if</span> fd <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            log_startup(srv.socket)</span><br><span class="line">        srv.serve_forever()</span><br><span class="line">        <span class="keyword">from</span> ._reloader <span class="keyword">import</span> run_with_reloader</span><br><span class="line">        run_with_reloader(inner, extra_files, reloader_interval,</span><br><span class="line">                          reloader_type)</span><br><span class="line">   ...</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">make_server</span><span class="params">(host=None, port=None, app=None, threaded=False, processes=<span class="number">1</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">                request_handler=None, passthrough_errors=False,</span></span></span><br><span class="line"><span class="function"><span class="params">                ssl_context=None, fd=None)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> threaded <span class="keyword">and</span> processes &gt; <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">raise</span> ValueError(<span class="string">"cannot have a multithreaded and "</span></span><br><span class="line">                         <span class="string">"multi process server."</span>)</span><br><span class="line">    <span class="keyword">elif</span> threaded:</span><br><span class="line">        <span class="keyword">return</span> ThreadedWSGIServer(host, port, app, request_handler,</span><br><span class="line">                                  passthrough_errors, ssl_context, fd=fd)</span><br><span class="line">    <span class="keyword">elif</span> processes &gt; <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">return</span> ForkingWSGIServer(host, port, app, processes, request_handler,</span><br><span class="line">                                 passthrough_errors, ssl_context, fd=fd)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> BaseWSGIServer(host, port, app, request_handler,</span><br><span class="line">                              passthrough_errors, ssl_context, fd=fd)</span><br></pre></td></tr></table></figure>
-
-<p>可见 Flask 应用的 server 类型是可以设定的，默认情况下创建的是一个 <code>BaseWSGIServer</code>，如果指定了threaded 参数就启动一个 <code>ThreadedWSGIServer</code>，如果设定的 processes&gt;1 则启动一个<code>ForkingWSGIServer</code>。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1707,7 +1716,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">73</span>
+                  <span class="site-state-item-count">74</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1719,8 +1728,8 @@
               
               
               <div class="site-state-item site-state-tags">
-                <a href="/categories/index.html">
-                  <span class="site-state-item-count">27</span>
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

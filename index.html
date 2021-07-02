@@ -262,6 +262,224 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/07/02/pandas-ray/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/07/02/pandas-ray/" itemprop="url">Pandas Ray集群计算对比</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-07-02T17:56:05+08:00">
+                2021-07-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>python 版本：3.6.5</p>
+<p>服务器配置：</p>
+<p>172.1.0.2 ray head  8c 16G RAM:15G disk:54G<br>172.1.0.3 ray node    8c 16G RAM:15G disk:54G<br>172.1.0.4 ray node    8c 16G RAM:15G disk:54G<br>172.1.0.5 ray node    8c 16G RAM:15G disk:54G</p>
+<p>172.1.0.6 pandas         8c 16G RAM:15G disk:54G</p>
+<h2 id="ray-集群部署"><a href="#ray-集群部署" class="headerlink" title="ray 集群部署"></a>ray 集群部署</h2><p>在所有服务器上安装需要的包 numpy, pandas, gmpy2， ray 集群服务器上安装 ray<br>在 head 节点上启动：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; ray start --head --dashboard-host=0.0.0.0 --port=6379 --redis-shard-ports=6380, 6381</span><br></pre></td></tr></table></figure>
+
+<p>在其他 node 节点上运行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; ray start --address=172.1.0.2:6379</span><br></pre></td></tr></table></figure>
+
+<p>好了，集群已经起来了，1个 head ，3个 node</p>
+<h2 id="计算"><a href="#计算" class="headerlink" title="计算"></a>计算</h2><p>在 pandas 上执行的代码如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> gmpy2</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> gmpy2 <span class="keyword">import</span> mpz</span><br><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> partial</span><br><span class="line"><span class="keyword">from</span> joblib <span class="keyword">import</span> Parallel, delayed</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lamdfun</span><span class="params">(n, df)</span>:</span></span><br><span class="line">	df_div = df.apply(<span class="keyword">lambda</span> x: x[<span class="number">1</span>] * x[<span class="number">2</span>] + n, axis=<span class="number">1</span>) </span><br><span class="line">	<span class="keyword">return</span> df_div</span><br><span class="line"></span><br><span class="line">		</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">()</span>:</span></span><br><span class="line">	t0 = time.time()</span><br><span class="line">	n_rows = <span class="number">200000</span></span><br><span class="line">	n_cols = <span class="number">10</span></span><br><span class="line">	df = pd.DataFrame(np.random.randint(<span class="number">0</span>, <span class="number">100</span>, size=(n_rows, n_cols)), columns=[<span class="string">'col%d'</span> %i <span class="keyword">for</span> i <span class="keyword">in</span> range(n_cols)])</span><br><span class="line">	t1 = time.time()</span><br><span class="line"></span><br><span class="line">	slice_size = int(df.shape[<span class="number">0</span>] // <span class="number">20</span>)</span><br><span class="line">	iter_num = int(math.ceil(df.shape[<span class="number">0</span>] / slice_size))</span><br><span class="line"></span><br><span class="line">	lamdfun_p = partial(lamdfun, <span class="number">2222</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">with</span> Parallel(n_jobs=iter_num) <span class="keyword">as</span> p:</span><br><span class="line"></span><br><span class="line">		p_temp = p(delayed(lamdfun_p)(df.iloc[i * slice_size:(i + <span class="number">1</span>) * slice_size, :]) <span class="keyword">for</span> i <span class="keyword">in</span> range(iter_num))</span><br><span class="line">		h = pd.concat(p_temp, axis=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">	t2 = time.time()</span><br><span class="line">	print(<span class="string">"run time"</span>, t2-t1)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">	run()</span><br></pre></td></tr></table></figure>
+
+<p>其中 ray 运行如下代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> ray</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> gmpy2</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> gmpy2 <span class="keyword">import</span> mpz</span><br><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> partial</span><br><span class="line"><span class="keyword">from</span> joblib <span class="keyword">import</span> Parallel, delayed</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">ray.client(<span class="string">"192.168.50.170:10001"</span>).connet()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@ray.remote</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lamdfun_ray</span><span class="params">(n, df)</span>:</span></span><br><span class="line">	df_div = df.apply(<span class="keyword">lambda</span> x: x[<span class="number">1</span>] * x[<span class="number">2</span>] + n, axis=<span class="number">1</span>) </span><br><span class="line">	<span class="keyword">return</span> df_div</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@ray.remote</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run_ray</span><span class="params">()</span>:</span></span><br><span class="line">	t0 = time.time()</span><br><span class="line">	n_rows = <span class="number">200000</span></span><br><span class="line">	n_cols = <span class="number">10</span></span><br><span class="line">	df = pd.DataFrame(np.random.randint(<span class="number">0</span>, <span class="number">100</span>, size=(n_rows, n_cols)), columns=[<span class="string">'col%d'</span> %i <span class="keyword">for</span> i <span class="keyword">in</span> range(n_cols)])</span><br><span class="line">	t1 = time.time()</span><br><span class="line"></span><br><span class="line">	slice_size = int(df.shape[<span class="number">0</span>] // <span class="number">20</span>)</span><br><span class="line">	iter_num = int(math.ceil(df.shape[<span class="number">0</span>] / slice_size))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	h = [lamdfun_ray.remote(<span class="number">222</span>, df.iloc[i * slice_size:(i + <span class="number">1</span>) * slice_size, :]) <span class="keyword">for</span> i <span class="keyword">in</span> range(iter_num)]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	t2 = time.time()</span><br><span class="line">	print(<span class="string">"run time"</span>, t2-t1)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">	run_ray.remote()</span><br></pre></td></tr></table></figure>
+
+<p>运行效果如下:</p>
+<table>
+<thead>
+<tr>
+<th>数据量 （shape）</th>
+<th>pandas 运行时间 （分片数）</th>
+<th>pandas cpu 使用情况</th>
+<th>ray 集群运行时间（分片数）</th>
+<th>ray cpu 使用情况</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>(20w, 10)</td>
+<td>2.8775s(8)</td>
+<td>8c 100%</td>
+<td>2.3431s(8)</td>
+<td>3个 40%</td>
+</tr>
+<tr>
+<td>(20w, 200)</td>
+<td>3.1883s(8)</td>
+<td>8c 100%</td>
+<td>2.6627s(8)</td>
+<td>1个50%， 1个 30%</td>
+</tr>
+<tr>
+<td>(200w, 10)</td>
+<td>22.6386s(5)</td>
+<td>8c 100%</td>
+<td>13.4029s(5)</td>
+<td>1个40%～50%</td>
+</tr>
+<tr>
+<td>(200w, 10)</td>
+<td>20.9717s(8)</td>
+<td>8c 100%</td>
+<td>10.1345s(8)</td>
+<td>2个60% ～70%</td>
+</tr>
+<tr>
+<td>(200w, 10)</td>
+<td>22.1540s(20)</td>
+<td>8c 100%</td>
+<td>8.5388s(20)</td>
+<td>3个 60%～70%</td>
+</tr>
+<tr>
+<td>(200w, 10)</td>
+<td>-</td>
+<td>8c 100%</td>
+<td>7.1944s(32)</td>
+<td>4个 80%～90%</td>
+</tr>
+<tr>
+<td>(2000w, 10)</td>
+<td>199.804s(8)</td>
+<td>8c 100%</td>
+<td>89.99s(8)</td>
+<td>2个60%</td>
+</tr>
+<tr>
+<td>(2000w, 10)</td>
+<td>194.846s(20)</td>
+<td>8c 100%</td>
+<td>58.204s(20)</td>
+<td>4个 70%～80%</td>
+</tr>
+<tr>
+<td>(2000w, 10)</td>
+<td>-</td>
+<td>8c 100%</td>
+<td>55.393s(32)</td>
+<td>4个90%～98%</td>
+</tr>
+<tr>
+<td>(2000w, 10)</td>
+<td>-</td>
+<td>8c 100%</td>
+<td>58.189s(40)</td>
+<td>4个96%</td>
+</tr>
+</tbody></table>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/06/21/gmpy2-install/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1504,160 +1722,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/13/contextmanager/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/10/13/contextmanager/" itemprop="url">Python 上下文管理器</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-10-13T00:41:01+08:00">
-                2020-10-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="with-块"><a href="#with-块" class="headerlink" title="with 块"></a>with 块</h1><p>with 语句会设置一个临时的上下文，交给上下文管理器对象控制，并且负责清理上下文。这样既能避免错误又能减少样板代码。with 语句的目的是简化 try/finally 模式，这种模式用于保证一段代码运行完毕后执行某项操作，即便那段代码由于异常，return 语句或 sys.exit() 调用而终止，也会执行指定的操作。finally 字句中的代码通常用于释放重要资源，或者还原临时变更的状态。</p>
-<p>上下文管理器协议包括 <code>__enter__</code> 和 <code>__exit__</code> 两个方法。 with 语句开始运行时，会在上下文管理器对象上调用 <code>__enter__</code> 方法，返回除了上下文管理器之外，还可能返回其他对象，结束时调用  <code>__exit__</code> 。</p>
-<p>with 语句的 as 子句可选，对于 open 函数来说必须加上 as 子句，以便获取文件的引用。不过有些上下文管理器会返回 None，因为没什么有用的对象能提供给用户。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LookingGlass</span>:</span></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__enter__</span><span class="params">(self)</span>:</span>       <span class="comment"># 除self 之外，调用 __enter__ 方法时不传入其他参数</span></span><br><span class="line">		<span class="keyword">import</span> sys</span><br><span class="line">		self.original_write = sys.stdout.write    <span class="comment"># 把原来的 sys.stdout.write 方法保存在一个实例属性中，供后面使用</span></span><br><span class="line">		sys.stdout.write = self.reverse_write     <span class="comment"># 为 sys.stdout.write 打猴子补丁</span></span><br><span class="line">		<span class="keyword">return</span> <span class="string">"ABCDEFG"</span>          <span class="comment"># 返回字符串</span></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">reverse_write</span><span class="params">(self, text)</span>:</span>    <span class="comment"># 取代 sys.stdout.write 的方法，将 text 内容反转</span></span><br><span class="line">		self.original_write(text[::<span class="number">-1</span>])</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__exit__</span><span class="params">(self, exc_type, exc_value, traceback)</span>:</span>   <span class="comment"># 如果一切正常，__exit__ 方法传入的参数是 Node, Node, Node</span></span><br><span class="line">		<span class="keyword">import</span> sys   				      <span class="comment"># 重复导入不会消耗很多资源，因为 Python 会缓存导入的模块</span></span><br><span class="line">		sys.stdout.write = self.original_write        <span class="comment"># 还原成原来的 sys.stdout.write 方法</span></span><br><span class="line">		<span class="keyword">if</span> exc_type <span class="keyword">is</span> ZeroDivisionError:             <span class="comment"># 如果有异常，而且是 ZeroDivisionError 类型，打印消息</span></span><br><span class="line">			print(<span class="string">"please do not divide by zero"</span>)</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">True</span>             <span class="comment"># 。。。然后返回 True，告诉解释器，异常已经处理</span></span><br><span class="line">                             	 		<span class="comment"># 如果 __exit__ 方法返回 None，或者 True 之外的值，with 块中的任何异常都会向上冒泡</span></span><br><span class="line">			</span><br><span class="line">In [<span class="number">64</span>]: <span class="keyword">with</span> LookingGlass() <span class="keyword">as</span> wh:   <span class="comment"># 上下文管理器是 LookingGlass 类的实例，Python 在上下文管理器上调用 __enter__ 方法，把返回结果绑定在 wh 上</span></span><br><span class="line">    ...:     print(<span class="string">"hello, bob"</span>)      <span class="comment"># 打印一个字符串，然后打印 wh 变量的值</span></span><br><span class="line">    ...:     print(wh) </span><br><span class="line">    ...:                                                                                                                                                                     </span><br><span class="line">bob ,olleh                            <span class="comment"># 打印的内容是反向的</span></span><br><span class="line">GFEDCBA</span><br><span class="line">In [<span class="number">65</span>]: wh         		      <span class="comment"># 现在 with 块已经执行完毕，可见  __enter__  方法返回的值---即存储在 wh 变量中的值---是字符串  ABCDEFG                                                                                                                                                      </span></span><br><span class="line">Out[<span class="number">65</span>]: <span class="string">'ABCDEFG'</span></span><br><span class="line">In [<span class="number">66</span>]: print(<span class="string">"print normal"</span>)        <span class="comment"># 输出不再是反向的了                                                                                                                                      </span></span><br><span class="line"><span class="keyword">print</span> normal</span><br></pre></td></tr></table></figure>
-
-<p>参上，传给 <code>__exit__</code> 方法的三个参数列举如下：</p>
-<blockquote>
-<p><strong>exc_type</strong> 异常类<br><strong>exc_value</strong> 异常实例，有时会有参数传给异常构造方法，例如错误消息，这些参数可以使用 exc_value.args 获取<br><strong>traceback</strong> traceback 对象，在 try/finally 块中调用 sys.exc_info() 得到的就是 <code>__exit__</code> 接收的这三个参数</p>
-</blockquote>
-<h1 id="contextlib-模块"><a href="#contextlib-模块" class="headerlink" title="contextlib 模块"></a>contextlib 模块</h1><p>contextlib 模块中有一些类和函数也能实现上下文管理器：</p>
-<p><strong>closing</strong><br>如果对象提供了 close() 方法，但没有实现 <code>__enter__/__exit__</code> 协议，那么可以使用这个函数构建上下文管理器。</p>
-<p><strong>supress</strong><br>构建临时忽略指定异常的上下文管理器</p>
-<p><strong>@contextmanager</strong><br>这个装饰器把简单的生成器函数变成上下文管理器，这样就不用创建类去实现管理器协议了。</p>
-<p><strong>ContextDecorator</strong><br>基类，用于定义基于类的上下文管理器。这种上下文管理器也用于装饰函数，在受管理的上下文中运行整个函数。</p>
-<p><strong>ExitStack</strong><br>这个上下文管理器能进入多个上下文管理器。with 块结束时，ExitStack 按照后进先出的顺序调用栈中各个上下文管理器的 <code>__exit__</code>。如果事先不知道 with 块要进入多少个上下文管理器，可以使用这个类，例如同时打开任意一个文件列表中的所有文件。</p>
-<h1 id="使用-contextmanager"><a href="#使用-contextmanager" class="headerlink" title="使用 @contextmanager"></a>使用 @contextmanager</h1><p>@contextmanager 装饰器能减少创建上下文管理器的样板代码，因为不用编写一个完整的类，定义 <code>__enter__</code> 和 <code>__exit__</code> 方法，而只需实现一个 yield 语句的生成器，生成想让 <code>__enter__</code> 方法返回的值。</p>
-<p>在使用 @contextmanager 装饰的生成器中， yield 语句的作用是把函数的定义体分成两部分，yield 语句前面的所有代码在 with 块开始时（调用 <code>__enter__</code> 方法时）执行，yield 语句后面的代码在 with 块结束时（调用 <code>__exit__</code> 方法时）执行。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> contextlib</span><br><span class="line"></span><br><span class="line"><span class="meta">@contextlib.contextmanager     </span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">looking_glass</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="keyword">import</span> sys</span><br><span class="line">	original_write = sys.stdout.write  <span class="comment"># 应用原来的 sys.stdout.write 方法</span></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">reverse_write</span><span class="params">(text)</span>:</span>           <span class="comment"># 定义自定义的 reverse_write 函数，在闭包中访问 original_write</span></span><br><span class="line">		original_write(text[::<span class="number">-1</span>])</span><br><span class="line"></span><br><span class="line">	sys.stdout.write = reverse_write   <span class="comment"># 把 sys.stdout.write 替换成 reverse_write</span></span><br><span class="line">	<span class="keyword">yield</span> <span class="string">"ABCDEFG"</span>                    <span class="comment"># 产出一个值，这个值会绑定到 with 语句中的 as 子目标变量上。执行 with 块中的代码时，这个函数会在这一点暂停</span></span><br><span class="line">	sys.stdout.write = original_write  <span class="comment"># 控制权一旦跳出 with 块，继续执行 yield 语句之后的代码</span></span><br><span class="line"></span><br><span class="line">In [<span class="number">68</span>]: <span class="keyword">with</span> looking_glass() <span class="keyword">as</span> wh: </span><br><span class="line">    ...:     print(<span class="string">"hello"</span>) </span><br><span class="line">    ...:     print(wh) </span><br><span class="line">    ...:                                                                                                                                                                     </span><br><span class="line">olleh</span><br><span class="line">GFEDCBA</span><br><span class="line">In [<span class="number">69</span>]: wh                                                                                                                                                                  </span><br><span class="line">Out[<span class="number">69</span>]: <span class="string">'ABCDEFG'</span></span><br></pre></td></tr></table></figure>
-
-<p>其实 @contextmanager 装饰器会把函数包装成 <code>__enter__</code> 和 <code>__exit__</code> 方法的类，这个类的 <code>__enter__</code> 方法有如下作用：</p>
-<blockquote>
-<p>调用生成器函数，保存生成器对象（此处称为 gen）<br>调用 next(gen) ，执行到 yield 关键字所在的位置<br>返回 next(gen) 产出的值，以便把产出的值绑定到 with/as 语句中的目标变更上</p>
-</blockquote>
-<p>with 块终止时，<code>__exit__</code> 方法会做以下几件事：</p>
-<blockquote>
-<p>检查有没有异常传给 exc_type，如果有，调用 gen.throw(exception)，在生成器函数定义体中包含 yield 关键字的哪一行抛出异常<br>否则，调用 next(gen) ，继续执行生成器函数定义体中的 yield 语句之后的代码</p>
-</blockquote>
-<p>所以上面代码示例中有一个严重错误，如果 with 块抛出了异常，没有处理错误的代码，则永远无法恢复成原来的 sys.stdout.write 方法，导致系统处于无效状态。</p>
-<p>所以修改如下：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> contextlib</span><br><span class="line"></span><br><span class="line"><span class="meta">@contextlib.contextmanager</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">looking_glass</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="keyword">import</span> sys</span><br><span class="line">	original_write = sys.stdout.write</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">reverse_write</span><span class="params">(text)</span>:</span></span><br><span class="line">		original_write(text[::<span class="number">-1</span>])</span><br><span class="line"></span><br><span class="line">	sys.stdout.write = reverse_write</span><br><span class="line">	msg = <span class="string">""</span>                               <span class="comment"># 设置一个变量，保存可能出现的错误消息</span></span><br><span class="line">	<span class="keyword">try</span>:</span><br><span class="line">		<span class="keyword">yield</span> <span class="string">"ABCDEFG"</span></span><br><span class="line">	<span class="keyword">except</span> ZeroDivisionError:              <span class="comment"># 处理 ZeroDivisionError 异常，设置一个错误消息</span></span><br><span class="line">		meg = <span class="string">"please do not divide by zero"</span></span><br><span class="line">	<span class="keyword">finally</span>:</span><br><span class="line">		sys.stdout.write = original_write   <span class="comment"># 撤销对 sys.stdout.write  方法所做的猴子补丁</span></span><br><span class="line">		<span class="keyword">if</span> msg:</span><br><span class="line">			print(msg)	    <span class="comment"># 如果设置了错误消息，打印出来</span></span><br></pre></td></tr></table></figure>
-
-<p>前文有讲，为了告诉解释器异常已经处理了，<code>__exit__</code> 方法会返回 True，此时解释器会压制异常，如果<code>__exit__</code> 方法没有显式返回一个值，那么解释器得到的是 None， 然后向上冒泡异常。使用 @contextmanager 装饰器时，默认的行为是相反的：装饰器提供的 <code>__exit__</code> 方法假定发给生成器的所有异常都得到处理了，因此应该压制异常，如果不想让 @contextmanager 压制异常，必须在被装饰的函数中显式重新抛出异常。</p>
-<h1 id="数据库事务的实现"><a href="#数据库事务的实现" class="headerlink" title="数据库事务的实现"></a>数据库事务的实现</h1><p>处理数据库事务，异常回滚:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> contextlib <span class="keyword">import</span> ContextDecorator</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">atomic</span><span class="params">(db)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    with transaction.atomic(db)</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="keyword">if</span> callable(db):</span><br><span class="line">        <span class="keyword">return</span> Atomic(db)(db)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> Atomic(db)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Atomic</span><span class="params">(ContextDecorator)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, db)</span>:</span></span><br><span class="line">        self.db = db</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__enter__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__exit__</span><span class="params">(self, exc_typ, exc_val, tb)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> exc_typ:</span><br><span class="line">            self.db.session.rollback()</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self.db.session.commit()</span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1710,7 +1774,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">73</span>
+                  <span class="site-state-item-count">74</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1722,8 +1786,8 @@
               
               
               <div class="site-state-item site-state-tags">
-                <a href="/categories/index.html">
-                  <span class="site-state-item-count">27</span>
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="pandas,ray,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="python 版本：3.6.5 服务器配置： 172.1.0.2 ray head  8c 16G RAM:15G disk:54G172.1.0.3 ray node    8c 16G RAM:15G disk:54G172.1.0.4 ray node    8c 16G RAM:15G disk:54G172.1.0.5 ray node    8c 16G RAM:15G disk:54">
+<meta name="keywords" content="pandas,ray">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Pandas Ray集群计算对比">
+<meta property="og:url" content="http://yoursite.com/2021/07/02/pandas-ray/index.html">
+<meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
+<meta property="og:description" content="python 版本：3.6.5 服务器配置： 172.1.0.2 ray head  8c 16G RAM:15G disk:54G172.1.0.3 ray node    8c 16G RAM:15G disk:54G172.1.0.4 ray node    8c 16G RAM:15G disk:54G172.1.0.5 ray node    8c 16G RAM:15G disk:54">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2021-07-02T10:53:37.004Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Pandas Ray集群计算对比">
+<meta name="twitter:description" content="python 版本：3.6.5 服务器配置： 172.1.0.2 ray head  8c 16G RAM:15G disk:54G172.1.0.3 ray node    8c 16G RAM:15G disk:54G172.1.0.4 ray node    8c 16G RAM:15G disk:54G172.1.0.5 ray node    8c 16G RAM:15G disk:54">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/07/02/pandas-ray/">
+
+
+
+
+
+  <title>Pandas Ray集群计算对比 | 我想，吃饭睡觉，走走停停</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">我想，吃饭睡觉，走走停停</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">清绝，影也别。唯有知心月。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/07/02/pandas-ray/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Pandas Ray集群计算对比</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-07-02T17:56:05+08:00">
+                2021-07-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>python 版本：3.6.5</p>
+<p>服务器配置：</p>
+<p>172.1.0.2 ray head  8c 16G RAM:15G disk:54G<br>172.1.0.3 ray node    8c 16G RAM:15G disk:54G<br>172.1.0.4 ray node    8c 16G RAM:15G disk:54G<br>172.1.0.5 ray node    8c 16G RAM:15G disk:54G</p>
+<p>172.1.0.6 pandas         8c 16G RAM:15G disk:54G</p>
+<h2 id="ray-集群部署"><a href="#ray-集群部署" class="headerlink" title="ray 集群部署"></a>ray 集群部署</h2><p>在所有服务器上安装需要的包 numpy, pandas, gmpy2， ray 集群服务器上安装 ray<br>在 head 节点上启动：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; ray start --head --dashboard-host=0.0.0.0 --port=6379 --redis-shard-ports=6380, 6381</span><br></pre></td></tr></table></figure>
+
+<p>在其他 node 节点上运行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; ray start --address=172.1.0.2:6379</span><br></pre></td></tr></table></figure>
+
+<p>好了，集群已经起来了，1个 head ，3个 node</p>
+<h2 id="计算"><a href="#计算" class="headerlink" title="计算"></a>计算</h2><p>在 pandas 上执行的代码如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> gmpy2</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> gmpy2 <span class="keyword">import</span> mpz</span><br><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> partial</span><br><span class="line"><span class="keyword">from</span> joblib <span class="keyword">import</span> Parallel, delayed</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lamdfun</span><span class="params">(n, df)</span>:</span></span><br><span class="line">	df_div = df.apply(<span class="keyword">lambda</span> x: x[<span class="number">1</span>] * x[<span class="number">2</span>] + n, axis=<span class="number">1</span>) </span><br><span class="line">	<span class="keyword">return</span> df_div</span><br><span class="line"></span><br><span class="line">		</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">()</span>:</span></span><br><span class="line">	t0 = time.time()</span><br><span class="line">	n_rows = <span class="number">200000</span></span><br><span class="line">	n_cols = <span class="number">10</span></span><br><span class="line">	df = pd.DataFrame(np.random.randint(<span class="number">0</span>, <span class="number">100</span>, size=(n_rows, n_cols)), columns=[<span class="string">'col%d'</span> %i <span class="keyword">for</span> i <span class="keyword">in</span> range(n_cols)])</span><br><span class="line">	t1 = time.time()</span><br><span class="line"></span><br><span class="line">	slice_size = int(df.shape[<span class="number">0</span>] // <span class="number">20</span>)</span><br><span class="line">	iter_num = int(math.ceil(df.shape[<span class="number">0</span>] / slice_size))</span><br><span class="line"></span><br><span class="line">	lamdfun_p = partial(lamdfun, <span class="number">2222</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">with</span> Parallel(n_jobs=iter_num) <span class="keyword">as</span> p:</span><br><span class="line"></span><br><span class="line">		p_temp = p(delayed(lamdfun_p)(df.iloc[i * slice_size:(i + <span class="number">1</span>) * slice_size, :]) <span class="keyword">for</span> i <span class="keyword">in</span> range(iter_num))</span><br><span class="line">		h = pd.concat(p_temp, axis=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">	t2 = time.time()</span><br><span class="line">	print(<span class="string">"run time"</span>, t2-t1)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">	run()</span><br></pre></td></tr></table></figure>
+
+<p>其中 ray 运行如下代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> ray</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> gmpy2</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> gmpy2 <span class="keyword">import</span> mpz</span><br><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> partial</span><br><span class="line"><span class="keyword">from</span> joblib <span class="keyword">import</span> Parallel, delayed</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">ray.client(<span class="string">"192.168.50.170:10001"</span>).connet()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@ray.remote</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lamdfun_ray</span><span class="params">(n, df)</span>:</span></span><br><span class="line">	df_div = df.apply(<span class="keyword">lambda</span> x: x[<span class="number">1</span>] * x[<span class="number">2</span>] + n, axis=<span class="number">1</span>) </span><br><span class="line">	<span class="keyword">return</span> df_div</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@ray.remote</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run_ray</span><span class="params">()</span>:</span></span><br><span class="line">	t0 = time.time()</span><br><span class="line">	n_rows = <span class="number">200000</span></span><br><span class="line">	n_cols = <span class="number">10</span></span><br><span class="line">	df = pd.DataFrame(np.random.randint(<span class="number">0</span>, <span class="number">100</span>, size=(n_rows, n_cols)), columns=[<span class="string">'col%d'</span> %i <span class="keyword">for</span> i <span class="keyword">in</span> range(n_cols)])</span><br><span class="line">	t1 = time.time()</span><br><span class="line"></span><br><span class="line">	slice_size = int(df.shape[<span class="number">0</span>] // <span class="number">20</span>)</span><br><span class="line">	iter_num = int(math.ceil(df.shape[<span class="number">0</span>] / slice_size))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	h = [lamdfun_ray.remote(<span class="number">222</span>, df.iloc[i * slice_size:(i + <span class="number">1</span>) * slice_size, :]) <span class="keyword">for</span> i <span class="keyword">in</span> range(iter_num)]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	t2 = time.time()</span><br><span class="line">	print(<span class="string">"run time"</span>, t2-t1)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">	run_ray.remote()</span><br></pre></td></tr></table></figure>
+
+<p>运行效果如下:</p>
+<table>
+<thead>
+<tr>
+<th>数据量 （shape）</th>
+<th>pandas 运行时间 （分片数）</th>
+<th>pandas cpu 使用情况</th>
+<th>ray 集群运行时间（分片数）</th>
+<th>ray cpu 使用情况</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>(20w, 10)</td>
+<td>2.8775s(8)</td>
+<td>8c 100%</td>
+<td>2.3431s(8)</td>
+<td>3个 40%</td>
+</tr>
+<tr>
+<td>(20w, 200)</td>
+<td>3.1883s(8)</td>
+<td>8c 100%</td>
+<td>2.6627s(8)</td>
+<td>1个50%， 1个 30%</td>
+</tr>
+<tr>
+<td>(200w, 10)</td>
+<td>22.6386s(5)</td>
+<td>8c 100%</td>
+<td>13.4029s(5)</td>
+<td>1个40%～50%</td>
+</tr>
+<tr>
+<td>(200w, 10)</td>
+<td>20.9717s(8)</td>
+<td>8c 100%</td>
+<td>10.1345s(8)</td>
+<td>2个60% ～70%</td>
+</tr>
+<tr>
+<td>(200w, 10)</td>
+<td>22.1540s(20)</td>
+<td>8c 100%</td>
+<td>8.5388s(20)</td>
+<td>3个 60%～70%</td>
+</tr>
+<tr>
+<td>(200w, 10)</td>
+<td>-</td>
+<td>8c 100%</td>
+<td>7.1944s(32)</td>
+<td>4个 80%～90%</td>
+</tr>
+<tr>
+<td>(2000w, 10)</td>
+<td>199.804s(8)</td>
+<td>8c 100%</td>
+<td>89.99s(8)</td>
+<td>2个60%</td>
+</tr>
+<tr>
+<td>(2000w, 10)</td>
+<td>194.846s(20)</td>
+<td>8c 100%</td>
+<td>58.204s(20)</td>
+<td>4个 70%～80%</td>
+</tr>
+<tr>
+<td>(2000w, 10)</td>
+<td>-</td>
+<td>8c 100%</td>
+<td>55.393s(32)</td>
+<td>4个90%～98%</td>
+</tr>
+<tr>
+<td>(2000w, 10)</td>
+<td>-</td>
+<td>8c 100%</td>
+<td>58.189s(40)</td>
+<td>4个96%</td>
+</tr>
+</tbody></table>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pandas/" rel="tag"># pandas</a>
+          
+            <a href="/tags/ray/" rel="tag"># ray</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/06/21/gmpy2-install/" rel="next" title="gmpy2 安装">
+                <i class="fa fa-chevron-left"></i> gmpy2 安装
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="sichuyoudang">
+            
+              <p class="site-author-name" itemprop="name">sichuyoudang</p>
+              <p class="site-description motion-element" itemprop="description">记录学习经验，力求分享技术</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">74</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#ray-集群部署"><span class="nav-number">1.</span> <span class="nav-text">ray 集群部署</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#计算"><span class="nav-number">2.</span> <span class="nav-text">计算</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sichuyoudang</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

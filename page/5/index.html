@@ -262,6 +262,132 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/23/tuple/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/23/tuple/" itemprop="url">元组</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-23T14:14:12+08:00">
+                2019-08-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="元组"><a href="#元组" class="headerlink" title="元组"></a>元组</h1><p>元组不仅仅是”不可变列表”, 还是用于没有字段名的记录，把它作为一些字段的集合，可以利用它的数量和位置是固定的特征。</p>
+<p><strong>元组拆包</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; a = (&quot;peter&quot;, 12, &quot;江苏&quot;, &quot;南京&quot;)</span><br><span class="line">&gt;&gt;&gt; name, age, *city = a</span><br><span class="line">&gt;&gt;&gt; city</span><br><span class="line">[&apos;江苏&apos;, &apos;南京&apos;]</span><br></pre></td></tr></table></figure>
+
+<p><strong>具名元组</strong><br>collection.nametuple 是一个工厂函数，它可以构建一个带字段名的元组和一个有名字的类。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; from collections import namedtuple</span><br><span class="line">&gt;&gt;&gt; User = namedtuple(&quot;User&quot;,&quot;name age city&quot;)</span><br><span class="line">&gt;&gt;&gt; user = User(&quot;peter&quot;, 18, (&quot;江苏&quot;, &quot;南京&quot;))</span><br><span class="line">&gt;&gt;&gt; user.city</span><br><span class="line">(&apos;江苏&apos;, &apos;南京&apos;)</span><br></pre></td></tr></table></figure>
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/15/sqlalchemy-query/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1633,147 +1759,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/18/supervisor/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/18/supervisor/" itemprop="url">supervisor 配置</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-18T18:22:07+08:00">
-                2018-09-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="supervisor-配置"><a href="#supervisor-配置" class="headerlink" title="supervisor 配置"></a>supervisor 配置</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">[inet_http_server]         ; inet (TCP) server disabled by default</span><br><span class="line">port=<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">9001</span>        ; (ip_address:port specifier, *:port <span class="keyword">for</span> all iface)</span><br><span class="line">username=user              ; (default <span class="keyword">is</span> no username (open server))</span><br><span class="line">password=<span class="number">123</span></span><br><span class="line"></span><br><span class="line">[supervisord]</span><br><span class="line"></span><br><span class="line">[rpcinterface:supervisor]</span><br><span class="line">supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface </span><br><span class="line"> </span><br><span class="line">[supervisorctl]</span><br><span class="line">serverurl=http://<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">9001</span> ; use an http:// url to specify an inet socket</span><br><span class="line">username=user              ; should be same <span class="keyword">as</span> http_username <span class="keyword">if</span> set</span><br><span class="line">password=<span class="number">123</span>                ; should be same <span class="keyword">as</span> http_password <span class="keyword">if</span> set</span><br><span class="line"></span><br><span class="line">[program:Even]</span><br><span class="line">;command=/Users/www/py34/bin/gunicorn -w <span class="number">4</span>  -b <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">8080</span> manage:app</span><br><span class="line">command=/Users/www/py34/bin/python  /Users/www/even_web/app.py</span><br><span class="line">process_name=%(program_name)s</span><br><span class="line">numprocs=<span class="number">1</span></span><br><span class="line">directory=/Users/www/even_web</span><br><span class="line">autostart=true</span><br><span class="line">user=app </span><br><span class="line">stdout_logfile=/var/log/supervisor/%(program_name)s-out.log</span><br><span class="line">stdout_logfile_maxbytes=<span class="number">10</span>MB</span><br><span class="line">stdout_logfile_backups=<span class="number">10</span></span><br><span class="line">stderr_logfile=/var/log/supervisor/%(program_name)s-err.log</span><br><span class="line">stderr_logfile_maxbytes=<span class="number">10</span>MB</span><br><span class="line">stderr_logfile_backups=<span class="number">10</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="supervisor-启动命令"><a href="#supervisor-启动命令" class="headerlink" title="supervisor 启动命令"></a>supervisor 启动命令</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">supervisord -c supervisord.conf</span><br><span class="line">supervisorctl  status/start/restart/reload</span><br></pre></td></tr></table></figure>
-
-<h2 id="supervisor-报错"><a href="#supervisor-报错" class="headerlink" title="supervisor 报错"></a>supervisor 报错</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Error: .ini file does not include supervisord section</span><br></pre></td></tr></table></figure>
-
-<p>配置文件中缺少 <code>[supervisord]</code>, 同样 <code>supervisorctl</code> 缺少时报错一致，加上即可</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Error: could not find config file supervisor.conf</span><br></pre></td></tr></table></figure>
-
-<p>找不到配置文件，指定绝对路径，默认回去不加任何参数回去 <code>/etc/supervisord.conf</code>找配置文件，所以要指定文件加上参数 -c。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Sorry, supervisord responded but did not recognize the supervisor namespace commands that supervisorctl uses to control it.  Please check that the [rpcinterface:supervisor] section is enabled in the configuration file (see sample.conf).</span><br></pre></td></tr></table></figure>
-
-<p>加上配置<code>[rpcinterface:supervisor] supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface</code><br>即可</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Error: Cannot open an HTTP server: socket.error reported errno.EACCES (13)</span><br></pre></td></tr></table></figure>
-
-<p>配置文件中 <code>/var/run</code> 文件夹，没有授予启动 <code>supervisord</code> 的相应用户的写权限。<code>/var/run</code> 文件夹实际上是链接到 <code>/run</code>，因此我们修改 <code>/run</code> 的权限。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Error: Invalid user name app in section &apos;program:Even&apos; (file: &apos;supervisord.conf&apos;)</span><br></pre></td></tr></table></figure>
-
-<p>无效用户 app， 在系统里面添加这个用户，或者换成系统已经存在的用户</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IOError: [Errno 13] Permission denied: &apos;/var/log/supervisor/xxx.log&apos;</span><br></pre></td></tr></table></figure>
-
-<p><code>/var/log/supervisor/xxx.log</code> 没有写入的权限，配置上权限即可，<code>chmod -R 777 /var/log/supervisor/xxx.log</code></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1826,7 +1811,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">73</span>
+                  <span class="site-state-item-count">74</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1838,8 +1823,8 @@
               
               
               <div class="site-state-item site-state-tags">
-                <a href="/categories/index.html">
-                  <span class="site-state-item-count">27</span>
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

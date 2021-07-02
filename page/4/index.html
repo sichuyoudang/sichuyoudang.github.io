@@ -262,6 +262,184 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/26/innodb-insert-buffer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/26/innodb-insert-buffer/" itemprop="url">InnoDB Insert Buffer</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-11-26T14:37:02+08:00">
+                2019-11-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Insert-Buffer"><a href="#Insert-Buffer" class="headerlink" title="Insert Buffer"></a>Insert Buffer</h1><p>在 Innodb 存储引擎中，主键是行唯一的标识符。通常应用程序中行记录的插入顺序是按照主键递增的顺序进行插入的，因此，插入聚集索引（Primary key）一般是顺序的，不需要磁盘的随机读取。</p>
+<blockquote>
+<p>mysql的innodb表，其聚集索引相当于整张表，而整张表也是聚集索引。默认通过主键聚集数据，如果没有定义主键，则选择第一个非空的唯一索引，如果没有非空唯一索引，则选择rowid来作为聚集索引。</p>
+<p>辅助索引：辅助索引中索引的逻辑顺序与磁盘上行的物理存储顺序不同，一个表中可以拥有多个非聚集索引。叶子节点并不包含行记录的全部数据。叶子节点除了包含键值以外，还存储了一个指向改行数据的聚集索引建的书签。</p>
+<p>所以非聚集索引有二次查询的问题，非聚集索引叶节点仍然是索引节点，只是有一个指针指向对应的数据块，因此如果使用非聚集索引查询，而查询列中包含了其他该索引没有覆盖的列，那么他还要进行第二次的查询，查询节点上对应的数据行的数据。</p>
+</blockquote>
+<p>不是所有的主键插入都是顺序的，如果主键类是uuid这样的类，那么插入和辅助索引一样，是随机的。即使主键是自增类型，但是插入的是指定的值，而不是NULL值，那么同样可能导致插入并非连续的情况。</p>
+<p>不是张表上只有一个聚集索引，更多情况下，一张表上有多个非聚集的辅助索引（Secondary index）,例如用户需要按照b这个字段进行查找，并且b这个字段不是唯一的:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE t (a INT AUTO_INCREMENT, b VARCHAR(30), PRIMARY KEY(a), key(b) );</span><br></pre></td></tr></table></figure>
+
+<p>在这样的情况下产生了一个非聚聚的且不是唯一的索引。在进行插入操作时，数据页的存放还是按主键a进行顺序存放的，但是对于非聚集索引叶子结点的插入不再是顺序的了，这时就需要离散地访问非聚集索引页，由于随机读取芳存在而导致了插入操作性能下降。当然这不是b这个字段索引的错误，而是因为B+ 树的特性决定了非聚聚索引插入的离散型。</p>
+<blockquote>
+<p>B树：二叉树，每个结点只存储一个关键字，等于则命中，小于走左结点，大于走右结点；<br>B-树：多路搜索树，每个结点存储M/2到M个关键字，非叶子结点存储指向关键字范围的子结点；所有关键字在整颗树中出现，且只出现一次，非叶子结点可以命中；<br>B+树：在B-树基础上，为叶子结点增加链表指针，所有关键字都在叶子结点中出现，非叶子结点作为叶子结点的索引；B+树总是到叶子结点才命中；</p>
+</blockquote>
+<p>在某些情况下，辅助索引的插入也是比较顺序的，比如用户购买表中的时间字段，通常情况下，用户购买时间时一个辅助索引，用来根据时间条件进行查询，但是在插入时却是根据时间的递增而插入的，因此插入也是比较顺序的。</p>
+<p>InnoDB 存储引擎开创性设计了 Insert Buffer，对于非聚集索引的插入或者更新操作，不是每一个直接插入到索引页中，而是先判断插入到非聚集索引页是否在缓冲池中，若在，则直接插入，若不在，则先放入到一个<br>Insert Buffer 对象中，好似欺骗。数据库这个非聚集到索引已经抽到叶子结点，而实际上并没有，只是存放在另一个位置。然后再以一定的频率和情况进行 Insert Buffer 和辅助索引子节点的 merge(合并)操作，这时通常能将多个插入合并到一个操作中（因为在一个索引页中），这就大大提高了对于非聚集索引插入到性能。</p>
+<p>然而 Insert Buffer 的使用需要同时满足以下两个条件：</p>
+<ol>
+<li>索引时辅助索引</li>
+<li>索引不是唯一的</li>
+</ol>
+<p>当满足了以上两个条件时， InnoDB 存储引擎会使用 Insert Buffer，这样就能提供插入操作的性能了，不过考虑这样一种情况：应用程序进行大量的插入操作，这些都涉及了不唯一的非聚集索引，也就是使用了 Insert Buffer。若此时 Mysql 数据库发生宕机，这是必有大量的 Insert Buffer 并没有合并到实际的非聚集索引中去。因此这时恢复可能需要很长时间，在极端情况下甚至需要几个小时。</p>
+<p>辅助索引不能是唯一的，因为在插入缓存时，数据库并不去查找索引页来判断插入的记录的唯一性。如果去查找肯定又会有离散读取的情况发生，从而导致 Insert Buffer 失去了意义。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; show engine innodb status;</span><br><span class="line">-------------------------------------</span><br><span class="line">INSERT BUFFER AND ADAPTIVE HASH INDEX</span><br><span class="line">-------------------------------------</span><br><span class="line">Ibuf: size 7545, free list len 3790, seg size 11336,</span><br><span class="line">8075308 inserts, 7540969 merged recs, 2246304 merges</span><br></pre></td></tr></table></figure>
+
+<p>seg size 显示了当前 Insert Buffer 的大小为 11336*16KB，free list len 代表了空闲列表的长度，size 代表了已经合并记录页的数量。inserts 代表了插入的记录数，merged recs 代表了合并的插入记录数量；merges 代表了合并的次数，也就是实际读取页的次数，merges: merged recs 大约为1:3，代表了插入缓存将对于非聚集索引页的离散 IO 逻辑请求大约降低了2/3。</p>
+<p>目前 Insert Buffer 存在一个问题，在写密集的情况下，插入缓冲会占用过多的缓冲内存，默认最大可以占用到1/2 的缓冲池内存。因此可以修改 IBUF_POOL_SIZE_PER_MAX_SIZE 就可以对插入缓冲的大小进行控制。比如将 IBUF_POOL_SIZE_PER_MAX_SIZE 改为3，则最大只能使用1/3 的缓冲池内存。</p>
+<h1 id="Change-Buffer"><a href="#Change-Buffer" class="headerlink" title="Change Buffer"></a>Change Buffer</h1><p>从 1.0.x 版本开始引入 Change Buffer，可看作 Insert Buffer 的升级。从该版本起，InnoDB 存储引擎可以对DML操作—INSERT, DELETE,UPDATE 的进行缓冲，他们分别是Insert Buffer,Delete Buffer, Purge Buffer。</p>
+<p>Change Buffer 适用的对象依然是唯一的辅助索引，对一条记录 UPDATE 操作可分为两个过程:</p>
+<ol>
+<li>将记录标记为已删除</li>
+<li>真正将记录删除</li>
+</ol>
+<p>Delete Buffer 对应的 UPDATE 操作的第一个过程，即将记录标记为删除。Purge Buffer 对应UPDATE 操作的第二个过程，即将记录真正删除。同时InnoDB 存储引擎提供了参数 innodb_change_buffering，用来开启各种 Buffer 的选项。该参数可选值为 inserts, deletes, purges, changes, all, none。inserts, deletes, purges 就是前面讨论的三种情况。change 表示启用 inserts 和 deletes，all 表示所有，none 表示都不启用，默认为all。</p>
+<p>从InnoDB 1.2.x 开始，可以通过参数 innodb_change_buffer_max_size 来控制 Change Buffer 最大使用内存的数量。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like &quot;innodb_change_buffer_max_size&quot;;</span><br><span class="line">+-------------------------------+-------+</span><br><span class="line">| Variable_name                 | Value |</span><br><span class="line">+-------------------------------+-------+</span><br><span class="line">| innodb_change_buffer_max_size | 25    |</span><br><span class="line">+-------------------------------+-------+</span><br><span class="line">1 row in set (0.01 sec)</span><br></pre></td></tr></table></figure>
+
+<p>innodb_change_buffer_max_size 默认值是 25，表示最多使用1/4的缓冲池内存空间，需要注意，该参数的最大有效值为50。</p>
+<h1 id="Insert-Buffer-的内部实现"><a href="#Insert-Buffer-的内部实现" class="headerlink" title="Insert Buffer 的内部实现"></a>Insert Buffer 的内部实现</h1><p>Insert Buffer 的数据结构是一棵 B+ 树，现在版本中，全局只有一棵 Insert Buffer B+ 树，负责对所有的表的辅助索引进行  Insert Buffer，而这棵 B+ 树存放在共享表空间中，默认ibdata1中。因此试图通过独立表空间 ibd文件恢复表中数据时，往往会导致 CHECK TABLE 失败，因为这些表的辅助索引中的数据可能还在 Insert Buffer中，也就是共享表空间中，索引通过 ibd 文件进行恢复后，还需要进行 REPAIR TABLE 操作来重建表上所有的辅助索引。</p>
+<p>Insert Buffer 是一棵 B+ 树，因此其也由叶节点和非叶节点组成。非叶节点存放的是查询的 search key，其构造如下：</p>
+<img src="/2019/11/26/innodb-insert-buffer/buffer_1.png">
+
+<p>search key 一共占9个字节，space 表示待插入记录表所在的表空间id，在 InnoDB 存储引擎中，每个表有一个唯一的 space id，可以通过 space id 查询得知是哪张表，space 占用4字节，market 栈1字节，它用来兼容老版本的 Insert Buffer，offset 表示页所在的偏移量，战4字节。</p>
+<p>当一个辅助索引要插入到页时（space, offset），如果这个页不再缓冲池，那么 InnoDB 存储引擎首先根据上述规则构建一个 search key，接下来查询 Insert Buffer 这棵 B+ 树，然后再将这条记录插入到 Insert Buffer B+ 树的叶子节点中。</p>
+<p>对于插入到 Insert Buffer B+ 树的叶子节的记录，并不是直接将待插入到记录插入，而是需要根据如下规则进行构造：</p>
+<img src="/2019/11/26/innodb-insert-buffer/buffer_2.png">
+
+<p>前3个字段占用9字节，第4个字段 metadata 占用4个字节，其储存内容是 <code>ibuf_rec_offset_count</code> 2字节，<code>ibuf_rec_offset_type</code> 1字节，<code>ibuf_rec_offset_flags</code> 1字节。<code>ibuf_rec_offset_count</code>用来排序每个记录进入 Insert Buffer 的顺序。从 Insert Buffer 第5列开始，就是实际插入记录的各个字段了。因此较之前插入记录，Insert Buffer B+ 树的叶子节点记录多了13字节的开销。</p>
+<p>因为启用 Insert Buffer 索引后，辅助索引页中的记录可能被插入到 Insert Buffer B+ 树中，所以为了保证每次 Merge Insert Buffer 页必须成功，还需要有一个特殊的页用来标记每个辅助索引页的可用空间，这个页的类型为 Insert Buffer Bitmap。</p>
+<p>每个  Insert Buffer Bitmap 页用来追踪 16384 个辅助索引页，也就是256个区（Extent）。每个  Insert Buffer Bitmap 页都在16384 个页的第二个页中。</p>
+<h1 id="Merge-Insert-Buffer"><a href="#Merge-Insert-Buffer" class="headerlink" title="Merge Insert Buffer"></a>Merge Insert Buffer</h1><p>前面知道 Insert Buffer 是一棵 B+ 树，若需要实现插入记录的辅助索引页不在缓冲池中，那么需要将辅助索引记录首先插入到这棵 B+ 树中。但是 Insert Buffer 中的记录何时合并到真正的辅助索引中，概括来说，Merge Insert Buffer 的操作可能发生在一下几种情况下：</p>
+<blockquote>
+<p>辅助索引页被读取到缓冲池中<br>Merge Insert Bitmap 页追踪到该辅助索引页已无可用空间<br>Master Thread</p>
+</blockquote>
+<p>第一种情况为当辅助索引页被读取到缓冲池中时，例如在执行正常的 select 查询操作，这时需要检查 Insert Buffer Bitmap 页，然后确认该辅助索引页是否已有记录存放于 Insert Buffer B+ 树中，若有，则将 Insert Buffer B+ 树中该页的记录插入到该辅助索引页中。可以看到对该页多次的记录操作通过一次操作合并到了原有的辅助索引页中，因此性能会有大幅提升。</p>
+<p>Insert Buffer Bitmap 页用来追踪每个辅助索引页的可用空间，并至少有1/32页的空间，若插入辅助索引时检测到插入记录后可用空间小于1/32，则会强制进行一个合并操作，即强制读取辅助索引页，将 Insert Buffer B+ 树中该页的记录及待插入的记录插入到辅助索引页中，这就是上述的第二种情况。</p>
+<p>还有一种情况，在 Mater Thread 线程中每秒或10秒会进行一次 Marge Insert Buffer 操作，不同之处在于每次进行 merge 操作的页数量不同。</p>
+<p>在 Mater Thread 中，执行 merge 操作的不止一个页，而是根据 srv_innodb_io_capacity 的百分比来决定真正要合并多少个辅助索引页，但 InnoDB 存储引擎又是根据怎样的算法来得知需要合并的辅助索引呢？</p>
+<p>在 Insert Buffer B+ 树中，辅助索引页根据（space， offset）都已排序好，故可以根据（space， offset）但排序顺序顺序进行页的选择，然而对于 Insert Buffer 页的选择，InnoDB 存储引擎并非采用这个方式，它随机地选择 Insert Buffer B+ 树的一个页，读取该页中的space 及之后所需要数量的页。该算法在复杂情况下应有更好的公平性，同时，若进行 merge 时，要进行 merge 的表已经被删除，此时可以直接丢弃已经被 Insert/Change Buffer 的数据记录。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/29/python-attribute/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1565,132 +1743,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/23/tuple/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/08/23/tuple/" itemprop="url">元组</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-23T14:14:12+08:00">
-                2019-08-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="元组"><a href="#元组" class="headerlink" title="元组"></a>元组</h1><p>元组不仅仅是”不可变列表”, 还是用于没有字段名的记录，把它作为一些字段的集合，可以利用它的数量和位置是固定的特征。</p>
-<p><strong>元组拆包</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; a = (&quot;peter&quot;, 12, &quot;江苏&quot;, &quot;南京&quot;)</span><br><span class="line">&gt;&gt;&gt; name, age, *city = a</span><br><span class="line">&gt;&gt;&gt; city</span><br><span class="line">[&apos;江苏&apos;, &apos;南京&apos;]</span><br></pre></td></tr></table></figure>
-
-<p><strong>具名元组</strong><br>collection.nametuple 是一个工厂函数，它可以构建一个带字段名的元组和一个有名字的类。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; from collections import namedtuple</span><br><span class="line">&gt;&gt;&gt; User = namedtuple(&quot;User&quot;,&quot;name age city&quot;)</span><br><span class="line">&gt;&gt;&gt; user = User(&quot;peter&quot;, 18, (&quot;江苏&quot;, &quot;南京&quot;))</span><br><span class="line">&gt;&gt;&gt; user.city</span><br><span class="line">(&apos;江苏&apos;, &apos;南京&apos;)</span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1743,7 +1795,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">73</span>
+                  <span class="site-state-item-count">74</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1755,8 +1807,8 @@
               
               
               <div class="site-state-item site-state-tags">
-                <a href="/categories/index.html">
-                  <span class="site-state-item-count">27</span>
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
