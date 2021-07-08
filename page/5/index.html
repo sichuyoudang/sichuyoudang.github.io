@@ -262,6 +262,155 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/26/mapping/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/26/mapping/" itemprop="url">映射</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-26T16:43:04+08:00">
+                2019-08-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Python 标准库里的所有映射关系都是利用dict 实现的，因此他们有个共同的限制，即只有可散列的数据类型才能用这座这些映射里的键（值不做此要求）。</p>
+<p><strong>可散列的数据类型</strong></p>
+<p>如果一个对象是可散列的，那么在这个对象的生命周期中，他的散列值是不变的，而且这个对象需要实现<code>__hasn__()</code> 方法，另外可散列对象还要有 <code>__eq__()</code>方法，这样才能和其他键做比较。如果两个可散列对象是相等的，那么他们的散列值一定是一样的。</p>
+<p>原子不可变数据类型（str， bytes和数值类型）都是可散列类型，frozenset 也是可散列的，因为根据其定义，frozenset 里只能容纳可散列类型。元组的话，只有当一个元组包含的所有元素都是可散列类型的情况下，他才是可散列的。</p>
+<p><strong>散列表</strong></p>
+<p>散列表其实是一个稀疏数组（总是有空白元素的数组称为稀疏数组），在一般的数据结构教材中，散列表里的单元通常叫做表元。在dict的散列表中，每个键值对都占用一个表元，每个表元分2部分，一个是对键的引用，另一个是对值的引用，因为所有表元的大小一致，所以可以通过偏移量来读取某个表元。</p>
+<p>因为 Python 会设法保证大概还有三分之一的表元是空的，所以在快要达到这个阈值的时候，原有的散列列表会被复制到一个更大的空间里面。</p>
+<p><strong>散列值和相等性</strong></p>
+<p>如果两个对象在比较时候是相等的那么他们的散列值也必须相等，否则散列表就不能正常运行了。为了让散列值能够胜任散列表索引这一角色，它们必须在索引空间中尽量分散开来。这意味着在最理想状况下，越是想似但不相等的对象，它们散列值差别越大。</p>
+<p><strong>散列算法</strong></p>
+<p>为了获取 my_dict[search_key] 背后的值，Python 首先会调用 hash(search_key) 来计算search_key 的散列值，把这个值最低的几位数字当作偏移量，在散列表里查找表元（具体取几位，得看当前散列表的大小）。若找到的表元是空的，则抛出 Keyerror 异常。若不是空的，则表元里会有一对 found_key: found_value。这时候 Python 会检验 search_key==found_key 是否为真，如果它们相等的话，会返回 found_value。</p>
+<p>如果 search_key 和 found_key 不匹配的话，这种情况称为<code>散列冲突</code>，发生这种情况是因为，散列表所做的其实是把随机的元素映射到只有几位的数字上，而散列表本身的索引又只依赖于这个数字的一部分。为了解决散列冲突，算法会在散列值中另外再取几位，然后用特殊的方式处理一下，把新得到的数字在当作索引来寻找表元。若这次找到的表元是空的，则同样抛出 Keyerror, 若非空，或者键匹配，则返回这个值，或者又发现了散列冲突，则重复以上的步骤。</p>
+<p>添加新元素和更新现有键值的操作几乎跟上面一样。只不过对于前者，在发现空表元的时候会放入一个新元素；对于后者，在找到相对应的表元后，原表里的值对象会被替换成新值。</p>
+<p>另外在插入新值时，Python 可能会按照散列表的拥挤程度来决定是否要重新分配内存为它扩容。如果新增了散列表的大小，那散列表所占的位数和用作索引的位数都会随之增加，这样做的目的是为了减少发生散列冲突的概率。</p>
+<p>表面上看，这个算法似乎很费事，但实际就算 dict 里面有数百位元素，多数的搜索中并不会有冲突发生，平均下来每次搜索可能会有一到两次冲突。在正常情况下，就算是最不走运的键所遇到的冲突次数用一只手也能数过来。</p>
+<p><strong>字典内存开销巨大</strong></p>
+<p>由于字典使用散列表，而散列表又必须是稀疏的，这导致他在空间上发效率低下。例如如果你需要存放数量巨大的记录，那么放在元组或是具名元组构成的列表中会是比较好的选择，最好不要根据JSON的风格，用由字典组成的列表来存放这些记录。用元组取代字典就能节省空间的原因有两个，一是为了避免散列表所耗费的空间，二是无需把记录中字段的名字在每个元素里都存一遍。</p>
+<p>dict 的实现是典型否空间换时间。字典类型有着巨大的内存开销，但他们提供了无视数据量大小的快速访问–只要字典能被装在内存里。</p>
+<p><strong>往字典里面添新值可能改变已有键顺序</strong></p>
+<p>无论何时往字典里面添加新键，Python 解释器都可能做出为字典扩容的决定。扩容导致的结果就是要新建一个更大的散列表，并把字典里已有的元素添加到新表里。这个过程中可能会发生散列冲突，导致新散列表中键的次序变化。要注意的是，上面提到的这些变化是否会发生以及如何发生，都依赖于字典背后的具体实现，因此你不能很自信地说出自己知道背后发生了什么。如果你在迭代一个字典的所有键的过程中同时对字典进行修改，那么这个循环很有可能会跳过一些键–甚至是跳过那些字典中已经有的键。</p>
+<p>由此可知，不要对字典同时进行迭代和修改。如果你想扫描并修改一个字典，最好分成两步来进行，首先对字典迭代，以得出需要添加的内容，把这些内容放在一个新字典里，迭代结束之后再对原有字典进行更新。</p>
+<p><strong>set实现以及导致的结果</strong></p>
+<p>set 和 frozenset 的实现也依赖散列表，但在它们散列表里存放的只有元素的引用（就像在字典里只存放键而没有相应的值）。在 set 加入到 Python 之前，我们都是把字典加上无意义的值当作集合来用。集合的特点:</p>
+<ol>
+<li>集合的元素必须是可散列的</li>
+<li>集合很消耗内存</li>
+<li>可以很高效的判断元素被添加到集合里的次序</li>
+<li>元素的次序取决于被添加到集合里的次序</li>
+<li>往集合里面添加元素，可能会改变集合里已有元素的次序</li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/23/tuple/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1423,342 +1572,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/19/logging/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/19/logging/" itemprop="url">logging 配置</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-19T18:25:33+08:00">
-                2018-09-19
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>日志记录软件运行中发生的的事件，其中包括（产生时间，产生位置，日志等级，内容）。<br>其中日志等级如下：</p>
-<table>
-<thead>
-<tr>
-<th>日志等级</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>CRITICAL</td>
-<td>当发生严重错误，导致应用程序不能继续运行时记录的信息</td>
-</tr>
-<tr>
-<td>ERROR</td>
-<td>由于一个更严重的问题导致某些功能不能正常运行时记录的信息</td>
-</tr>
-<tr>
-<td>WARNING</td>
-<td>当某些不期望的事情发生时记录的信息（如，磁盘可用空间较低），但是此时应用程序还是正常运行的</td>
-</tr>
-<tr>
-<td>INFO</td>
-<td>信息详细程度仅次于DEBUG，通常只记录关键节点信息，用于确认一切都是按照我们预期的那样进行工作</td>
-</tr>
-<tr>
-<td>DEBUG</td>
-<td>最详细的日志信息，典型应用场景是 问题诊断</td>
-</tr>
-</tbody></table>
-<p>默认的日志级别设置为WARNING（日志级别等级CRITICAL &gt; ERROR &gt; WARNING &gt; INFO &gt; DEBUG &gt; NOTSET)</p>
-<p>简单输出</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span><br><span class="line">logging.debug(<span class="string">'This is debug message'</span>)</span><br></pre></td></tr></table></figure>
-
-<p>输出日志到文件</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span><br><span class="line">logging.basicConfig(level=logging.DEBUG, </span><br><span class="line">							format=<span class="string">'%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s'</span>,</span><br><span class="line">							filename=<span class="string">'app.log'</span>,</span><br><span class="line">							filemode=<span class="string">'a'</span>)</span><br><span class="line">logging.debug(<span class="string">'This is debug message'</span>)</span><br></pre></td></tr></table></figure>
-
-<p>其中logging.basicConfig(**kwargs)函数用于指定”要记录的日志级别”、”日志格式”、”日志输出位置”、”日志文件的打开模式”等信息，其他几个都是用于记录各个级别日志的函数。</p>
-<table>
-<thead>
-<tr>
-<th>参数名称</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>filename</td>
-<td>指定日志输出目标文件的文件名，指定该设置项后日志信心就不会被输出到控制台了</td>
-</tr>
-<tr>
-<td>filemode</td>
-<td>指定日志文件的打开模式，默认为’a’。需要注意的是，该选项要在filename指定时才有效</td>
-</tr>
-<tr>
-<td>format</td>
-<td>指定日志格式字符串，即指定日志输出时所包含的字段信息以及它们的顺序。logging模块定义的格式字段下面会列出。</td>
-</tr>
-<tr>
-<td>datefmt</td>
-<td>指定日期/时间格式。需要注意的是，该选项要在format中包含时间字段%(asctime)s时才有效</td>
-</tr>
-<tr>
-<td>level</td>
-<td>指定日志器的日志级别</td>
-</tr>
-<tr>
-<td>stream</td>
-<td>指定日志输出目标stream，如sys.stdout、sys.stderr以及网络stream。需要说明的是，stream和filename不能同时提供，否则会引发 ValueError异常</td>
-</tr>
-<tr>
-<td>style</td>
-<td>Python 3.2中新添加的配置项。指定format格式字符串的风格，可取值为’%’、’{‘和’$’，默认为’%’</td>
-</tr>
-<tr>
-<td>handlers</td>
-<td>Python 3.3中新添加的配置项。该选项如果被指定，它应该是一个创建了多个Handler的可迭代对象，这些handler将会被添加到root logger。需要说明的是：filename、stream和handlers这三个配置项只能有一个存在，不能同时出现2个或3个，否则会引发ValueError异常。</td>
-</tr>
-</tbody></table>
-<p>format 格式字符串中字段如下：</p>
-<table>
-<thead>
-<tr>
-<th>字段</th>
-<th>使用格式</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>asctime</td>
-<td>%(asctime)s</td>
-<td>日志事件发生的时间–人类可读时间，如：2003-07-08 16:49:45,896</td>
-</tr>
-<tr>
-<td>created</td>
-<td>%(created)f</td>
-<td>日志事件发生的时间–时间戳，就是当时调用time.time()函数返回的值</td>
-</tr>
-<tr>
-<td>relativeCreated</td>
-<td>%(relativeCreated)d</td>
-<td>日志事件发生的时间相对于logging模块加载时间的相对毫秒数（目前还不知道干嘛用的）</td>
-</tr>
-<tr>
-<td>msecs</td>
-<td>%(msecs)d</td>
-<td>日志事件发生事件的毫秒部分</td>
-</tr>
-<tr>
-<td>levelname</td>
-<td>%(levelname)s</td>
-<td>该日志记录的文字形式的日志级别（’DEBUG’, ‘INFO’, ‘WARNING’, ‘ERROR’, ‘CRITICAL’）</td>
-</tr>
-<tr>
-<td>levelno</td>
-<td>%(levelno)s</td>
-<td>该日志记录的数字形式的日志级别（10, 20, 30, 40, 50）</td>
-</tr>
-<tr>
-<td>name</td>
-<td>%(name)s</td>
-<td>所使用的日志器名称，默认是’root’，因为默认使用的是 rootLogger</td>
-</tr>
-<tr>
-<td>message</td>
-<td>%(message)s</td>
-<td>日志记录的文本内容，通过 msg % args计算得到的</td>
-</tr>
-<tr>
-<td>pathname</td>
-<td>%(pathname)s</td>
-<td>调用日志记录函数的源码文件的全路径</td>
-</tr>
-<tr>
-<td>filename</td>
-<td>%(filename)s</td>
-<td>pathname的文件名部分，包含文件后缀</td>
-</tr>
-<tr>
-<td>module</td>
-<td>%(module)s</td>
-<td>filename的名称部分，不包含后缀</td>
-</tr>
-<tr>
-<td>lineno</td>
-<td>%(lineno)d</td>
-<td>调用日志记录函数的源代码所在的行号</td>
-</tr>
-<tr>
-<td>funcName</td>
-<td>%(funcName)s</td>
-<td>调用日志记录函数的函数名</td>
-</tr>
-<tr>
-<td>process</td>
-<td>%(process)d</td>
-<td>进程ID</td>
-</tr>
-<tr>
-<td>processName</td>
-<td>%(processName)s</td>
-<td>进程名称，Python 3.1新增</td>
-</tr>
-<tr>
-<td>thread</td>
-<td>%(thread)d</td>
-<td>线程ID</td>
-</tr>
-<tr>
-<td>threadName</td>
-<td>%(thread)s</td>
-<td>线程名称</td>
-</tr>
-</tbody></table>
-<p>定义FileHandler，输出到指定格式的日志文件</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span><br><span class="line">errmsg = <span class="string">'xx'</span></span><br><span class="line"><span class="comment"># 创建一个日志器logger并设置其日志级别为DEBUG</span></span><br><span class="line">logger = logging.getLogger()</span><br><span class="line">logger.setLevel(logging.DEBUG)</span><br><span class="line"><span class="comment"># 创建一个处理器将日志消息发送到磁盘文件,并设置其日志级别为DEBUG</span></span><br><span class="line">fh = logging.FileHandler(<span class="string">'/var/log/supervisor/Even_login_err.log'</span>)</span><br><span class="line">formatter = logging.Formatter(<span class="string">'%(asctime)s - %(name)s - %(levelname)s - %(message)s'</span>)</span><br><span class="line">fh.setFormatter(formatter)</span><br><span class="line">logger.addHandler(fh)</span><br><span class="line">logger.debug(errmsg)</span><br></pre></td></tr></table></figure>
-
-<p>定义一个<code>StreamHandler</code>, 输出到指定格式的文件,默认生成的root logger的handler的stream是stderr,不是stdout,需要的话，再配置 <code>logging.StreamHandler(sys.__stdout__)</code></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span><br><span class="line">errmsg = <span class="string">'xx'</span></span><br><span class="line"><span class="comment"># 创建一个日志器logger并设置其日志级别为DEBUG</span></span><br><span class="line">logger = logging.getLogger(<span class="string">'login_err'</span>)</span><br><span class="line">logger.setLevel(logging.DEBUG) </span><br><span class="line"><span class="comment"># 创建一个流处理器handler并设置其日志级别为DEBUG</span></span><br><span class="line">handler = logging.StreamHandler(sys.stderr)</span><br><span class="line">handler.setLevel(logging.DEBUG) </span><br><span class="line"><span class="comment"># 创建一个格式器formatter并将其添加到处理器handler</span></span><br><span class="line">formatter = logging.Formatter(<span class="string">"%(asctime)s - %(filename)s - %(name)s - %(levelname)s - %(message)s"</span>)</span><br><span class="line">handler.setFormatter(formatter) </span><br><span class="line"> <span class="comment"># 先清空以前所有的处理器</span></span><br><span class="line"><span class="keyword">del</span> logger.handlers[:]</span><br><span class="line"> <span class="comment"># 为日志器logger添加上面创建的处理器handler</span></span><br><span class="line">logger.addHandler(handler)</span><br><span class="line">logger.debug(errmsg)</span><br></pre></td></tr></table></figure>
-
-<p>一些常用的 handler 处理器:</p>
-<table>
-<thead>
-<tr>
-<th>handler</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>logging.StreamHandler</td>
-<td>将日志消息发送到输出到Stream，如std.out, std.err或任何file-like对象。</td>
-</tr>
-<tr>
-<td>logging.FileHandler</td>
-<td>将日志消息发送到磁盘文件，默认情况下文件大小会无限增长</td>
-</tr>
-<tr>
-<td>logging.handlers.RotatingFileHandler</td>
-<td>将日志消息发送到磁盘文件，并支持日志文件按大小切割</td>
-</tr>
-<tr>
-<td>logging.hanlders.TimedRotatingFileHandler</td>
-<td>将日志消息发送到磁盘文件，并支持日志文件按时间切割</td>
-</tr>
-<tr>
-<td>logging.handlers.HTTPHandler</td>
-<td>将日志消息以GET或POST的方式发送给一个HTTP服务器</td>
-</tr>
-<tr>
-<td>logging.handlers.SMTPHandler</td>
-<td>将日志消息发送给一个指定的email地址</td>
-</tr>
-<tr>
-<td>logging.NullHandler</td>
-<td>该Handler实例会忽略error messages，通常被想使用logging的library开发者使用来避免’No handlers could be found for logger XXX’信息的出现。</td>
-</tr>
-</tbody></table>
-<p>logging 是线程安全的, handler 内部使用了 <code>threading.RLock()</code> 来保证同一时间只有一个线程能够输出。但在使用 <code>logging.FileHandler</code> 时，多进程同时写一个日志文件是不支持的。</p>
-<p>单个日志文件太大可以使用 <code>logging.handlers.RotatingFileHandler</code> 和 <code>logging.handlers.TimedRotatingFileHandler</code> 来进行分卷。前者按文件大小来分割，后者按时间来分割。它们会在达到分割条件时（文件达到指定大小或达到指定时间），把当前的日志重命名为备份文件，然后再打开新文件来记录。值得一提的是，如果备份文件名已存在，就会被删除。所以在多进程时不建议使用。可以将日志输出到 stdout 和 stderr，再用 <code>supervisor</code> 来分割日志。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1811,7 +1624,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">74</span>
+                  <span class="site-state-item-count">75</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1824,7 +1637,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-count">29</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

@@ -262,6 +262,153 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/30/spark-use/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/10/30/spark-use/" itemprop="url">Spark 入门使用经验总结</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-10-30T15:15:26+08:00">
+                2020-10-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>环境： spark 2.4.0</p>
+<h1 id="SparkSession-和-SparkContext"><a href="#SparkSession-和-SparkContext" class="headerlink" title="SparkSession 和 SparkContext"></a>SparkSession 和 SparkContext</h1><p>每个 Spark 应用程序都需要一个 Spark 环境，这是 Spark RDD API 的主要入口点，在 Spark 的早期版本中，SparkContext 是 Spark 的主要切入点，因为 RDD 是主要的 API，我们通过 Sparkcontext 来创建和操作 RDD。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkConf, SparkContext</span><br><span class="line"> </span><br><span class="line">conf = SparkConf().setAppName(<span class="string">"test"</span>).setMaster(<span class="string">"local"</span>)</span><br><span class="line">sc = SparkContext(conf=conf)</span><br><span class="line">rdd = sc.textFile(<span class="string">"lesson.txt"</span>)   <span class="comment"># SparkContext 不管读什么文件，输出格式都是 RDD</span></span><br></pre></td></tr></table></figure>
+
+<p>对于每个其他的 API，我们需要使用不同的 context。例如，对于 Streming，我们需要使用StreamingContext；对于 sql，使用 sqlContext；对于 Hive，使用 hiveContext。SparkSession 本质上是对这些环境的组合。</p>
+<p>SparkSession 现在是读取数据，处理元数据，配置会话和管理集群资源的入口。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark.sql <span class="keyword">import</span> SparkSession</span><br><span class="line"></span><br><span class="line">sc = SparkSession.Builder().appName(<span class="string">"test"</span>).master(<span class="string">"local[*]"</span>).getOrCreate()</span><br><span class="line">df = sc.read.format(<span class="string">"csv"</span>).option(<span class="string">"header"</span>,<span class="string">"true"</span>).csv(<span class="string">"file:///lession.csv"</span>)  <span class="comment"># 不管文件是什么类型，输出格式都是 dataframe</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="执行任务方式，spark-submit-和-spark-shell"><a href="#执行任务方式，spark-submit-和-spark-shell" class="headerlink" title="执行任务方式，spark-submit 和 spark-shell"></a>执行任务方式，spark-submit 和 spark-shell</h1><p>Spark Shell 提供了一个名为 <code>sc</code> 的预配置 Spark 环境(SparkContext)和一个名为 <code>spark</code> 的预配置 Spark 会话(SparkSession)。 如果启动 spark shell 不写任何参数，则默认启动 local 模式。</p>
+<p>在 spark shell 中 scala 语言编写 spark 程序:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">./bin/spark-submit \</span><br><span class="line">  --class &lt;main-class&gt;</span><br><span class="line">  --master &lt;master-url&gt; \</span><br><span class="line">  --deploy-mode &lt;deploy-mode&gt; \</span><br><span class="line">  --conf &lt;key&gt;=&lt;value&gt; \</span><br></pre></td></tr></table></figure>
+
+<p>spark submit脚本将编写好的spark应用（比如java和scala编写并打包好的jar包）提交给spark集群进行处理</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">spark-submit \      </span><br><span class="line">--master yarn \       </span><br><span class="line">--deploy-mode client \       </span><br><span class="line">--driver-memory 3g \       </span><br><span class="line">--executor-memory 2g \       </span><br><span class="line">--total-executor-cores 12 \ </span><br><span class="line">--conf spark.default.parallelism=16 \  </span><br><span class="line">file_path  \   # py文件路径    </span><br><span class="line">para1 \      </span><br><span class="line">&quot;args&quot;</span><br></pre></td></tr></table></figure>
+
+<h1 id="rdd-和-dataframe"><a href="#rdd-和-dataframe" class="headerlink" title="rdd 和 dataframe"></a>rdd 和 dataframe</h1><p>DataFrame 出现在Spark版本1.3中。可以将 DataFrame 称为数据集，将其组织为命名列。DataFrame 类似于 R/Python 中的关系数据库或数据框架中的表。它可以说是一个具有良好优化技术的关系表。DataFrame背后的想法是允许处理大量结构化数据。DataFrame 包含具有 Schema 模型的行。<br>DataFrame 优于 RDD，但也包含 RDD 的功能(不包含 map 功能)。RDD 和 DataFrame 的共同特性是不可变性，在内存中，弹性，分布式计算能力。它允许用户将结构强加到分布式数据集合上，从而提供更高级别的抽象。</p>
+<p>引入 dataframe 之前，python 的查询速度普遍比使用 rdd 的 scala 查询慢，通常情况下，这种查询性能的降低是因为 Python 和 JVM 的通讯开销。dataframe 使用了 Catalyst 优化器（以及 Tungsten 项目），python 性能会有明显的改进。</p>
+<h1 id="pyspark-生成-dataframe"><a href="#pyspark-生成-dataframe" class="headerlink" title="pyspark 生成 dataframe"></a>pyspark 生成 dataframe</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> pyspark.sql <span class="keyword">import</span> SparkSession</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> pyspark.sql.types <span class="keyword">import</span> LongType, StructField, StructType, StringType</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>sc = SparkSession.builder.appName(<span class="string">"test"</span>).master(<span class="string">"local[*]"</span>).getOrCreate()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取文件</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df = sc.read.format(<span class="string">"csv"</span>).option(<span class="string">"header"</span>,<span class="string">"true"</span>).csv(<span class="string">"file:///train.csv"</span>, inferSchema=<span class="keyword">True</span>)   <span class="comment"># header 第一行不作为数据内容，作为标题，inferSchema 自动推测字段类型</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 自己创建</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>schema = StructType([StructField(<span class="string">"id"</span>, LongType(), <span class="keyword">True</span>),StructField(<span class="string">"name"</span>, StringType(), <span class="keyword">True</span>)])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df1 = spark.createDataFrame([(<span class="number">3333</span>, <span class="string">'F'</span>)], schema)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df2 = spark.createDataFrame([(<span class="number">4444</span>, <span class="string">'D'</span>)], schema)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ka = df1.union(df2)     <span class="comment"># 并集</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ka.show()</span><br><span class="line">+----+----+</span><br><span class="line">|  id|name|</span><br><span class="line">+----+----+</span><br><span class="line">|<span class="number">3333</span>|   F|</span><br><span class="line">|<span class="number">4444</span>|   D|</span><br><span class="line">+----+----+</span><br></pre></td></tr></table></figure>
+
+<h1 id="添加一列自定义函数"><a href="#添加一列自定义函数" class="headerlink" title="添加一列自定义函数"></a>添加一列自定义函数</h1><p>相比 RDD，使用 DataFrame，Pyspark 往往明显快一些，但也有例外，最典型的就是 UDF 的使用，导致在 python 和 java 虚拟机之间的往返通信。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> pyspark.sql.functions <span class="keyword">import</span> udf, lit</span><br><span class="line"><span class="comment"># 代码接上文</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="function"><span class="keyword">def</span> <span class="title">uu</span><span class="params">(x, y)</span>:</span></span><br><span class="line"><span class="meta">... </span>    res = str(x) + str(y)</span><br><span class="line"><span class="meta">... </span>    <span class="keyword">return</span> res</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>udf_uu = udf(uu, StringType())</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ka = ka.withColumn(<span class="string">'bb'</span>, udf_uu(ka[<span class="string">'id'</span>], lit(<span class="string">'b'</span>)))   </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ka.show()</span><br><span class="line">+----+----+-----+</span><br><span class="line">|  id|name|   bb|</span><br><span class="line">+----+----+-----+</span><br><span class="line">|<span class="number">3333</span>|   F|<span class="number">3333</span>b|</span><br><span class="line">|<span class="number">4444</span>|   D|<span class="number">4444</span>b|</span><br><span class="line">+----+----+-----+</span><br></pre></td></tr></table></figure>
+
+<h1 id="json-转-dataframe"><a href="#json-转-dataframe" class="headerlink" title="json 转 dataframe"></a>json 转 dataframe</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pyspark 环境</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>sc</span><br><span class="line">&lt;SparkContext master=local[*] appName=PySparkShell&gt;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>spark</span><br><span class="line">&lt;pyspark.sql.session.SparkSession object at <span class="number">0x119010d10</span>&gt;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>s_json = &#123;<span class="string">"a"</span>: <span class="number">23</span>, <span class="string">"b"</span>: [<span class="number">4</span>,<span class="number">5</span>], <span class="string">"c"</span>: [<span class="number">11</span>, <span class="number">2</span>]&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>b = spark.read.json(sc.parallelize([s_json]))</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>b</span><br><span class="line">DataFrame[a: bigint, b: array&lt;bigint&gt;, c: array&lt;bigint&gt;]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>b.show()</span><br><span class="line">+---+------+-------+</span><br><span class="line">|  a|     b|      c|</span><br><span class="line">+---+------+-------+</span><br><span class="line">| <span class="number">23</span>|[<span class="number">4</span>, <span class="number">5</span>]|[<span class="number">11</span>, <span class="number">2</span>]|</span><br><span class="line">+---+------+-------+</span><br></pre></td></tr></table></figure>
+
+<h1 id="数据过滤与查询"><a href="#数据过滤与查询" class="headerlink" title="数据过滤与查询"></a>数据过滤与查询</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>ka.show()</span><br><span class="line">+----+----+-----+</span><br><span class="line">|  id|name|   bb|</span><br><span class="line">+----+----+-----+</span><br><span class="line">|<span class="number">3333</span>|   F|<span class="number">3333</span>b|</span><br><span class="line">|<span class="number">5555</span>|   E|<span class="number">5555</span>b|</span><br><span class="line">|<span class="number">4444</span>|   D|<span class="number">4444</span>b|</span><br><span class="line">|<span class="number">3434</span>|   A|<span class="number">3434</span>b|</span><br><span class="line">|<span class="number">1212</span>|   B|<span class="number">1212</span>b|</span><br><span class="line">+----+----+-----+</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ka.printSchema()  <span class="comment"># 查看列的数据类型</span></span><br><span class="line">root</span><br><span class="line"> |-- id: long (nullable = true)</span><br><span class="line"> |-- name: string (nullable = true)</span><br><span class="line"> |-- bb: string (nullable = true)</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>k = ka.filter(ka.id &gt;<span class="number">4000</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>k.show()</span><br><span class="line">+----+----+-----+</span><br><span class="line">|  id|name|   bb|</span><br><span class="line">+----+----+-----+</span><br><span class="line">|<span class="number">5555</span>|   E|<span class="number">5555</span>b|</span><br><span class="line">|<span class="number">4444</span>|   D|<span class="number">4444</span>b|</span><br><span class="line">+----+----+-----+</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查询 bb 列以3开头的数据</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ka.select(<span class="string">"id"</span>, <span class="string">"name"</span>, <span class="string">"bb"</span>).filter(<span class="string">"bb like '3%'"</span>).show()</span><br><span class="line">+----+----+-----+</span><br><span class="line">|  id|name|   bb|</span><br><span class="line">+----+----+-----+</span><br><span class="line">|<span class="number">3333</span>|   F|<span class="number">3333</span>b|</span><br><span class="line">|<span class="number">3434</span>|   A|<span class="number">3434</span>b|</span><br><span class="line">+----+----+-----+</span><br></pre></td></tr></table></figure>
+
+<h1 id="处理缺失值"><a href="#处理缺失值" class="headerlink" title="处理缺失值"></a>处理缺失值</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> pyspark.sql.functions <span class="keyword">as</span> fn</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> pyspark.sql.types <span class="keyword">import</span> LongType, StructField, StructType, StringType</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>schema = StructType([StructField(<span class="string">"id"</span>, LongType(), <span class="keyword">True</span>),StructField(<span class="string">"weight"</span>, FloatType(), <span class="keyword">True</span>), StructField(<span class="string">"height"</span>, FloatType(), <span class="keyword">True</span>), StructField(<span class="string">"age"</span>,LongType(), <span class="keyword">True</span>), StructField(<span class="string">"gender"</span>, StringType()), StructField(<span class="string">"income"</span>, LongType(), <span class="keyword">True</span>)])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df_miss = spark.createDataFrame([(<span class="number">1</span>,<span class="number">143.5</span>, <span class="number">5.6</span>, <span class="number">23</span>, <span class="string">'M'</span>, <span class="number">1888</span>), (<span class="number">2</span>,<span class="number">176.1</span>,<span class="number">5.4</span>,<span class="number">45</span>, <span class="string">'F'</span>, <span class="number">200</span>), (<span class="number">3</span>, <span class="keyword">None</span>, <span class="number">6.7</span>, <span class="keyword">None</span>, <span class="keyword">None</span>, <span class="keyword">None</span>), (<span class="number">4</span>,<span class="number">167.0</span>,<span class="number">6.3</span>,<span class="number">33</span>,<span class="string">'M'</span>, <span class="keyword">None</span>),(<span class="number">5</span>, <span class="number">178.6</span>, <span class="number">5.1</span>, <span class="number">43</span>,<span class="string">'M'</span>, <span class="number">3423</span>), (<span class="number">6</span>,<span class="keyword">None</span>, <span class="number">6.5</span>, <span class="number">26</span>, <span class="string">'F'</span>, <span class="keyword">None</span>), (<span class="number">7</span>,<span class="number">153.5</span>, <span class="number">5.3</span>, <span class="number">44</span>, <span class="string">'M'</span>, <span class="number">7700</span>)], schema)</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df_miss.show()</span><br><span class="line">+---+------+------+----+------+------+</span><br><span class="line">| id|weight|height| age|gender|income|</span><br><span class="line">+---+------+------+----+------+------+</span><br><span class="line">|  <span class="number">1</span>| <span class="number">143.5</span>|   <span class="number">5.6</span>|  <span class="number">23</span>|     M|  <span class="number">1888</span>|</span><br><span class="line">|  <span class="number">2</span>| <span class="number">176.1</span>|   <span class="number">5.4</span>|  <span class="number">45</span>|     F|   <span class="number">200</span>|</span><br><span class="line">|  <span class="number">3</span>|  null|   <span class="number">6.7</span>|null|  null|  null|</span><br><span class="line">|  <span class="number">4</span>| <span class="number">167.0</span>|   <span class="number">6.3</span>|  <span class="number">33</span>|     M|  null|</span><br><span class="line">|  <span class="number">5</span>| <span class="number">178.6</span>|   <span class="number">5.1</span>|  <span class="number">43</span>|     M|  <span class="number">3423</span>|</span><br><span class="line">|  <span class="number">6</span>|  null|   <span class="number">6.5</span>|  <span class="number">26</span>|     F|  null|</span><br><span class="line">|  <span class="number">7</span>| <span class="number">153.5</span>|   <span class="number">5.3</span>|  <span class="number">44</span>|     M|  <span class="number">7700</span>|</span><br><span class="line">+---+------+------+----+------+------+</span><br><span class="line"><span class="comment"># 查看每行缺少的数据</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df_miss.rdd.map(<span class="keyword">lambda</span> row: (row[<span class="string">'id'</span>], sum([c == <span class="keyword">None</span> <span class="keyword">for</span> c <span class="keyword">in</span> row]))).collect()</span><br><span class="line">[(<span class="number">1</span>, <span class="number">0</span>), (<span class="number">2</span>, <span class="number">0</span>), (<span class="number">3</span>, <span class="number">4</span>), (<span class="number">4</span>, <span class="number">1</span>), (<span class="number">5</span>, <span class="number">0</span>), (<span class="number">6</span>, <span class="number">2</span>), (<span class="number">7</span>, <span class="number">0</span>)]</span><br><span class="line">&gt;&gt;&gt;</span><br><span class="line"><span class="comment"># 查看数据缺失比</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df_miss.agg(*[(<span class="number">1</span> - (fn.count(c) / fn.count(<span class="string">'*'</span>))).alias(c + <span class="string">'_missing'</span>) <span class="keyword">for</span> c <span class="keyword">in</span> df_miss.columns]).show()</span><br><span class="line">+----------+------------------+--------------+------------------+------------------+------------------+</span><br><span class="line">|id_missing|    weight_missing|height_missing|       age_missing|    gender_missing|    income_missing|</span><br><span class="line">+----------+------------------+--------------+------------------+------------------+------------------+</span><br><span class="line">|       <span class="number">0.0</span>|<span class="number">0.2857142857142857</span>|           <span class="number">0.0</span>|<span class="number">0.1428571428571429</span>|<span class="number">0.1428571428571429</span>|<span class="number">0.4285714285714286</span>|</span><br><span class="line">+----------+------------------+--------------+------------------+------------------+------------------+</span><br><span class="line"></span><br><span class="line"><span class="comment"># income 缺失过多，所以决定移除这个特征</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df_miss_no_income = df_miss.select([c <span class="keyword">for</span> c <span class="keyword">in</span> df_miss.columns <span class="keyword">if</span> c != <span class="string">'income'</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df_miss_no_income.show()</span><br><span class="line">+---+------+------+----+------+</span><br><span class="line">| id|weight|height| age|gender|</span><br><span class="line">+---+------+------+----+------+</span><br><span class="line">|  <span class="number">1</span>| <span class="number">143.5</span>|   <span class="number">5.6</span>|  <span class="number">23</span>|     M|</span><br><span class="line">|  <span class="number">2</span>| <span class="number">176.1</span>|   <span class="number">5.4</span>|  <span class="number">45</span>|     F|</span><br><span class="line">|  <span class="number">3</span>|  null|   <span class="number">6.7</span>|null|  null|</span><br><span class="line">|  <span class="number">4</span>| <span class="number">167.0</span>|   <span class="number">6.3</span>|  <span class="number">33</span>|     M|</span><br><span class="line">|  <span class="number">5</span>| <span class="number">178.6</span>|   <span class="number">5.1</span>|  <span class="number">43</span>|     M|</span><br><span class="line">|  <span class="number">6</span>|  null|   <span class="number">6.5</span>|  <span class="number">26</span>|     F|</span><br><span class="line">|  <span class="number">7</span>| <span class="number">153.5</span>|   <span class="number">5.3</span>|  <span class="number">44</span>|     M|</span><br><span class="line">+---+------+------+----+------+</span><br><span class="line"></span><br><span class="line"><span class="comment"># 填充平均值</span></span><br><span class="line"><span class="comment"># 计算各列的均值</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>means = df_miss_no_income.agg(*(fn.mean(c).alias(c) <span class="keyword">for</span> c <span class="keyword">in</span> df_miss_no_income.columns))</span><br><span class="line"><span class="comment"># 字典数据持久化</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>mean_dict = means.first().asDict()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>mean_dict</span><br><span class="line">&#123;<span class="string">'id'</span>: <span class="number">4.0</span>, <span class="string">'weight'</span>: <span class="number">163.74000244140626</span>, <span class="string">'height'</span>: <span class="number">5.842857156481061</span>, <span class="string">'age'</span>: <span class="number">35.666666666666664</span>, <span class="string">'gender'</span>: <span class="keyword">None</span>&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df_miss_no_income.fillna(mean_dict[<span class="string">'age'</span>]).show()</span><br><span class="line">+---+---------+------+---+------+</span><br><span class="line">| id|   weight|height|age|gender|</span><br><span class="line">+---+---------+------+---+------+</span><br><span class="line">|  <span class="number">1</span>|    <span class="number">143.5</span>|   <span class="number">5.6</span>| <span class="number">23</span>|     M|</span><br><span class="line">|  <span class="number">2</span>|    <span class="number">176.1</span>|   <span class="number">5.4</span>| <span class="number">45</span>|     F|</span><br><span class="line">|  <span class="number">3</span>|<span class="number">35.666668</span>|   <span class="number">6.7</span>| <span class="number">35</span>|  null|</span><br><span class="line">|  <span class="number">4</span>|    <span class="number">167.0</span>|   <span class="number">6.3</span>| <span class="number">33</span>|     M|</span><br><span class="line">|  <span class="number">5</span>|    <span class="number">178.6</span>|   <span class="number">5.1</span>| <span class="number">43</span>|     M|</span><br><span class="line">|  <span class="number">6</span>|<span class="number">35.666668</span>|   <span class="number">6.5</span>| <span class="number">26</span>|     F|</span><br><span class="line">|  <span class="number">7</span>|    <span class="number">153.5</span>|   <span class="number">5.3</span>| <span class="number">44</span>|     M|</span><br><span class="line">+---+---------+------+---+------+</span><br></pre></td></tr></table></figure>
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/10/13/contextmanager/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1520,150 +1667,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/27/mysql-query/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/08/27/mysql-query/" itemprop="url">Mysql 结构体系</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-08-27T15:23:38+08:00">
-                2020-08-27
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="MySQL-Server-体系结构"><a href="#MySQL-Server-体系结构" class="headerlink" title="MySQL Server 体系结构"></a>MySQL Server 体系结构</h1><img src="/2020/08/27/mysql-query/mysql_1.PNG">
-
-<p>  <strong>Connectors(连接者)</strong>：指的是不同语言和SQL 的交互，如上图可知目前流行的语言都支持 MySQL 客户端连接</p>
-<p><strong>Connection Pool(连接池)</strong>：管理缓冲用户连接，线程处理等需要缓存的需求，在这里也会进行用户账号密码和库表权限验证</p>
-<p><strong>SQL Interface(SQL接口)</strong>：接受用户执行的SQL 语句，并返回查询的结果</p>
-<p><strong>Parser(查询解析器)</strong>：SQL命令传递到解析器的时候会被解析器验证和解析(权限、语法结构)</p>
-<p><strong>Optimizer(查询优化器)</strong>：SQL语句在查询之前会使用查询优化器对查询进行优化</p>
-<p><strong>Cache $ Buffer (缓存&amp;缓冲)</strong>：主要包含 QC（查询缓存）以及表缓存，权限缓存等，QC 以往主要用于 MyISAM 存储引擎，目前在 MySQL8.0 中已放弃，对于现在非常流行的 InnoDB 存储引擎来说没有意义，因为InnoDB 存储引擎 有自己非常完善的缓存功能。</p>
-<p><strong>Pluggable Storage Engines(插件式存储引擎)</strong>: 存储引擎是 MySQL 中具体和文件打交道的子系统，</p>
-<p><strong>Files &amp; Logs (磁盘物理文件)</strong> ： 包含 MySQL 各个引擎的数据，索引的文件，以及各种日志文件。</p>
-<p><strong>File System (文件系统)</strong>：对存储设备的空间进行组织和分配，负责文件存储并对存入的文件进行保护和检索的系统，他负责为用户建立文件，存入，读出，修改，转储文件，控制文件的存取。</p>
-<h1 id="MySQL-中一个查询会话请求流程"><a href="#MySQL-中一个查询会话请求流程" class="headerlink" title="MySQL 中一个查询会话请求流程"></a>MySQL 中一个查询会话请求流程</h1><ol>
-<li>MySQL 客户端对 MySQL server 的监听端口发起请求</li>
-<li>在连接者组建层创建连接，分配线程，并验证用户名，密码和库表权限</li>
-<li>如果打开了 <code>query_cache</code>，则检查之，有数据直接返回，没有继续往下执行</li>
-<li>SQL 接口组建接受 SQL 语句，将 SQL 语句分解成数据结构，并将这个结构传递到后续步骤中（将 SQL 语句解析成 MySQL 认识的语法）</li>
-<li>查询优化器组建生成查询路径树，并选举一条最优的查询路径</li>
-<li>调用存储引擎接口，打开表，执行查询，检查存储引擎缓存中是否有对应的缓存记录，如果没有就继续往下执行</li>
-<li>到磁盘物理文件中寻找数据</li>
-<li>到查询到所需要的数据之后，先卸乳存储引擎缓存中，如果打开了<code>query_cache</code>，也会同时写进去</li>
-<li>返回数据给客户端</li>
-<li>关闭表</li>
-<li>关闭线程</li>
-<li>关闭连接</li>
-</ol>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1716,7 +1719,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">74</span>
+                  <span class="site-state-item-count">75</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1729,7 +1732,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-count">29</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="vaex,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="vaex 定义Pandas 把数据读取到内存中，然后进行处理和计算。而 Vaex 只会对数据进行内存映射，而不是真的读取数据到内存中，这个和 Spark 的懒加载是一样的，在使用的时候 才会去加载，声明的时候不加载。 所以说不管加载多大的数据，10GB、100GB…对 Vaex 来说都是瞬间搞定。不过，Vaex 的懒加载只支持 HDF5, Apache Arrow,Parquet, FITS 等文">
+<meta name="keywords" content="vaex">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vaex 使用">
+<meta property="og:url" content="http://yoursite.com/2021/07/08/vaex-use/index.html">
+<meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
+<meta property="og:description" content="vaex 定义Pandas 把数据读取到内存中，然后进行处理和计算。而 Vaex 只会对数据进行内存映射，而不是真的读取数据到内存中，这个和 Spark 的懒加载是一样的，在使用的时候 才会去加载，声明的时候不加载。 所以说不管加载多大的数据，10GB、100GB…对 Vaex 来说都是瞬间搞定。不过，Vaex 的懒加载只支持 HDF5, Apache Arrow,Parquet, FITS 等文">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2021-07-08T09:56:04.535Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Vaex 使用">
+<meta name="twitter:description" content="vaex 定义Pandas 把数据读取到内存中，然后进行处理和计算。而 Vaex 只会对数据进行内存映射，而不是真的读取数据到内存中，这个和 Spark 的懒加载是一样的，在使用的时候 才会去加载，声明的时候不加载。 所以说不管加载多大的数据，10GB、100GB…对 Vaex 来说都是瞬间搞定。不过，Vaex 的懒加载只支持 HDF5, Apache Arrow,Parquet, FITS 等文">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/07/08/vaex-use/">
+
+
+
+
+
+  <title>Vaex 使用 | 我想，吃饭睡觉，走走停停</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">我想，吃饭睡觉，走走停停</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">清绝，影也别。唯有知心月。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/07/08/vaex-use/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Vaex 使用</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-07-08T16:48:49+08:00">
+                2021-07-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="vaex-定义"><a href="#vaex-定义" class="headerlink" title="vaex 定义"></a>vaex 定义</h2><p>Pandas 把数据读取到内存中，然后进行处理和计算。而 Vaex 只会对数据进行内存映射，而不是真的读取数据到内存中，这个和 Spark 的懒加载是一样的，在使用的时候 才会去加载，声明的时候不加载。</p>
+<p>所以说不管加载多大的数据，10GB、100GB…对 Vaex 来说都是瞬间搞定。不过，Vaex 的懒加载只支持 HDF5, Apache Arrow,Parquet, FITS 等文件，不支持 csv 等文本文件，因为文本文件没办法进行内存映射。</p>
+<p>Vaex 全过程都是零内存，它的处理过程仅仅产生 expression（表达式），表达式是逻辑表示，不会执行，只有到最后的生成结果阶段才会执行，整个过程数据是流式传输，不产生内存积压。</p>
+<h2 id="vaex-使用"><a href="#vaex-使用" class="headerlink" title="vaex 使用"></a>vaex 使用</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> vaex</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> time</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>%%time</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df_p = pd.read_csv(<span class="string">"host_train.csv"</span>)  <span class="comment"># 515.7M</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(type(df_p))</span><br><span class="line">&lt;<span class="class"><span class="keyword">class</span> '<span class="title">pandas</span>.<span class="title">core</span>.<span class="title">frame</span>.<span class="title">DataFrame</span>'&gt;</span></span><br><span class="line"><span class="class"><span class="title">CPU</span> <span class="title">times</span>:</span> user <span class="number">9.7</span> s, sys: <span class="number">1.04</span> s, total: <span class="number">10.7</span> s</span><br><span class="line">Wall time: <span class="number">11.5</span> s</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df_p.shape</span><br><span class="line">(<span class="number">220000</span>, <span class="number">200</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>%%time</span><br><span class="line"><span class="comment"># from_csv() 返回的是 vaex.dataframe.DataFrameArrays</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>pandas_df = pd.read_csv(<span class="string">"host_train.csv"</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>vaex_df = vaex.from_pandas(pandas_df, copy_index=<span class="keyword">False</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>vaex_df.shape</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(type(vaex_df))</span><br><span class="line">&lt;<span class="class"><span class="keyword">class</span> '<span class="title">vaex</span>.<span class="title">dataframe</span>.<span class="title">DataFrameArrays</span>'&gt;</span></span><br><span class="line"><span class="class"><span class="title">CPU</span> <span class="title">times</span>:</span> user <span class="number">10.5</span> s, sys: <span class="number">1.05</span> s, total: <span class="number">11.5</span> s</span><br><span class="line">Wall time: <span class="number">12.7</span> s</span><br><span class="line"></span><br><span class="line"><span class="comment"># vaex 读取 csv 文件读到内存中，时间并没有有明显优化效果，而 hdf5 文件可以惰性读取，所以时间有明显优化效果</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>%%time</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># open() + hdf5 返回的是 vaex.hdf5.dataset.Hdf5MemoryMapped。</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># df_v = vaex.from_csv("host_train.csv", convert=True)</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># data_v = vaex.open("host_train.csv.hdf5")</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data_v = vaex.open(<span class="string">"host_train.csv"</span>, convert=<span class="string">"host_train.hdf5"</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data_pd = data_v.to_pandas_df()        <span class="comment"># 转换成 pandas dataframe</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data_vx = vaex.from_pandas(data_pd, copy_index=<span class="keyword">False</span>)      <span class="comment"># 转换成 vaex DataFrameArrays</span></span><br><span class="line">CPU times: user <span class="number">577</span> ms, sys: <span class="number">370</span> ms, total: <span class="number">947</span> ms</span><br><span class="line">Wall time: <span class="number">1.02</span> s</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>%%time</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data_vx.export(<span class="string">"export_vaex.hdf5"</span>)   <span class="comment"># 350M</span></span><br><span class="line">CPU times: user <span class="number">586</span> ms, sys: <span class="number">486</span> ms, total: <span class="number">1.07</span> s</span><br><span class="line">Wall time: <span class="number">1.98</span> s</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>%%time</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>h5_file = vaex.open(<span class="string">"export_vaex.hdf5"</span>)</span><br><span class="line">CPU times: user <span class="number">160</span> ms, sys: <span class="number">8.27</span> ms, total: <span class="number">168</span> ms</span><br><span class="line">Wall time: <span class="number">188</span> ms</span><br><span class="line"></span><br><span class="line"><span class="comment"># vaex 直接读取/存储 hdf5 文件时间都很短</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="python-处理-hdf5-文件"><a href="#python-处理-hdf5-文件" class="headerlink" title="python 处理 hdf5 文件"></a>python 处理 hdf5 文件</h2><p>HDF5 文件是一种存储 dataset 和 group 两类数据对象的容器，其操作类似 python 标准的文件操作；File 实例对象本身就是一个组，以 / 为名，是遍历文件的入口。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>%%time</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> h5py </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="comment"># print(data.columns.keys())</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(type(data_vx))</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>h5_save_path = <span class="string">"save_vaex_file.hdf5"</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>h5_f = h5py.File(h5_save_path, <span class="string">'w'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>h5_f[<span class="string">'data'</span>] = data_vx</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>h5_f.close()       <span class="comment"># 342M</span></span><br><span class="line">&lt;<span class="class"><span class="keyword">class</span> '<span class="title">vaex</span>.<span class="title">dataframe</span>.<span class="title">DataFrameArrays</span>'&gt;</span></span><br><span class="line"><span class="class"><span class="title">CPU</span> <span class="title">times</span>:</span> user <span class="number">548</span> ms, sys: <span class="number">698</span> ms, total: <span class="number">1.25</span> s</span><br><span class="line">Wall time: <span class="number">2.09</span> s</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>%%time</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> h5py</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>h5_fr = h5py.File(<span class="string">"save_vaex_file.hdf5"</span>, <span class="string">'r'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data_r = h5_fr[<span class="string">'data'</span>][()]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>h5_fr.close()</span><br><span class="line">CPU times: user <span class="number">258</span> ms, sys: <span class="number">442</span> ms, total: <span class="number">700</span> ms</span><br><span class="line">Wall time: <span class="number">840</span> ms</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>%%time</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>columns = df_p.columns</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df_p[<span class="string">'x2233'</span>] = df_p[<span class="string">'x2'</span>] + df_p[<span class="string">'x3'</span>]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>df_p.head(<span class="number">3</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(type(df_p))</span><br><span class="line">&lt;<span class="class"><span class="keyword">class</span> '<span class="title">pandas</span>.<span class="title">core</span>.<span class="title">frame</span>.<span class="title">DataFrame</span>'&gt;</span></span><br><span class="line"><span class="class"><span class="title">CPU</span> <span class="title">times</span>:</span> user <span class="number">23.3</span> ms, sys: <span class="number">6.73</span> ms, total: <span class="number">30</span> ms</span><br><span class="line">Wall time: <span class="number">32.9</span> ms</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/vaex/" rel="tag"># vaex</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/07/02/pandas-ray/" rel="next" title="Pandas Ray集群计算对比">
+                <i class="fa fa-chevron-left"></i> Pandas Ray集群计算对比
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="sichuyoudang">
+            
+              <p class="site-author-name" itemprop="name">sichuyoudang</p>
+              <p class="site-description motion-element" itemprop="description">记录学习经验，力求分享技术</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">75</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#vaex-定义"><span class="nav-number">1.</span> <span class="nav-text">vaex 定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#vaex-使用"><span class="nav-number">2.</span> <span class="nav-text">vaex 使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#python-处理-hdf5-文件"><span class="nav-number">3.</span> <span class="nav-text">python 处理 hdf5 文件</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sichuyoudang</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
