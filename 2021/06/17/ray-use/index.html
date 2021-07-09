@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="linux,">
+  <meta name="keywords" content="ray,">
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="dfdf 用于显示 Linux 系统中各文件系统的硬盘使用情况，包括文件系统所在硬盘分区的总容量、已使用的容量、剩余容量等。 12345678[]# df [选项] 目录或文件-a：显示所有文件系统信息，包括系统特有的/proc、/sysfs等文件系统。-k：以KB为单位显示容量，默认。-m：以MB为单位显示容量。-h：使用人们习惯的KB、MB或GB等单位自行显示容量。-H：以M=1000K取代M">
-<meta name="keywords" content="linux">
+<meta name="description" content="定义Ray 是一个分布式执行引擎，多 worker 进程执行多个任务并将结果存储在对象存储中，每个 worker 都是一个独立的进程。 每个节点上的对象存储都将不可变的对象存储存储在共享内存中，允许 worker 以少量的复制和并行化有效的共享同一节点上的存储对象。远程对象不可变，它们的值在创建之后不能更改，这样只需在多个对象存储中复制远程对象，而不需要同步副本。 ray.get 和 ray.pu">
+<meta name="keywords" content="ray">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Linux 查看磁盘使用情况">
-<meta property="og:url" content="http://yoursite.com/2019/12/18/linux-disk/index.html">
+<meta property="og:title" content="Ray 使用经验">
+<meta property="og:url" content="http://yoursite.com/2021/06/17/ray-use/index.html">
 <meta property="og:site_name" content="我想，吃饭睡觉，走走停停">
-<meta property="og:description" content="dfdf 用于显示 Linux 系统中各文件系统的硬盘使用情况，包括文件系统所在硬盘分区的总容量、已使用的容量、剩余容量等。 12345678[]# df [选项] 目录或文件-a：显示所有文件系统信息，包括系统特有的/proc、/sysfs等文件系统。-k：以KB为单位显示容量，默认。-m：以MB为单位显示容量。-h：使用人们习惯的KB、MB或GB等单位自行显示容量。-H：以M=1000K取代M">
+<meta property="og:description" content="定义Ray 是一个分布式执行引擎，多 worker 进程执行多个任务并将结果存储在对象存储中，每个 worker 都是一个独立的进程。 每个节点上的对象存储都将不可变的对象存储存储在共享内存中，允许 worker 以少量的复制和并行化有效的共享同一节点上的存储对象。远程对象不可变，它们的值在创建之后不能更改，这样只需在多个对象存储中复制远程对象，而不需要同步副本。 ray.get 和 ray.pu">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2020-10-01T22:03:55.905Z">
+<meta property="og:updated_time" content="2021-07-09T10:11:08.903Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Linux 查看磁盘使用情况">
-<meta name="twitter:description" content="dfdf 用于显示 Linux 系统中各文件系统的硬盘使用情况，包括文件系统所在硬盘分区的总容量、已使用的容量、剩余容量等。 12345678[]# df [选项] 目录或文件-a：显示所有文件系统信息，包括系统特有的/proc、/sysfs等文件系统。-k：以KB为单位显示容量，默认。-m：以MB为单位显示容量。-h：使用人们习惯的KB、MB或GB等单位自行显示容量。-H：以M=1000K取代M">
+<meta name="twitter:title" content="Ray 使用经验">
+<meta name="twitter:description" content="定义Ray 是一个分布式执行引擎，多 worker 进程执行多个任务并将结果存储在对象存储中，每个 worker 都是一个独立的进程。 每个节点上的对象存储都将不可变的对象存储存储在共享内存中，允许 worker 以少量的复制和并行化有效的共享同一节点上的存储对象。远程对象不可变，它们的值在创建之后不能更改，这样只需在多个对象存储中复制远程对象，而不需要同步副本。 ray.get 和 ray.pu">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/12/18/linux-disk/">
+  <link rel="canonical" href="http://yoursite.com/2021/06/17/ray-use/">
 
 
 
 
 
-  <title>Linux 查看磁盘使用情况 | 我想，吃饭睡觉，走走停停</title>
+  <title>Ray 使用经验 | 我想，吃饭睡觉，走走停停</title>
   
 
 
@@ -263,7 +263,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/18/linux-disk/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/06/17/ray-use/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="sichuyoudang">
@@ -280,7 +280,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Linux 查看磁盘使用情况</h1>
+          <h1 class="post-title" itemprop="name headline">Ray 使用经验</h1>
         
 
         <div class="post-meta">
@@ -292,8 +292,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-18T10:42:50+08:00">
-                2019-12-18
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-17T11:45:38+08:00">
+                2021-06-17
               </time>
             
 
@@ -330,15 +330,46 @@
       
 
       
-        <h1 id="df"><a href="#df" class="headerlink" title="df"></a>df</h1><p>df 用于显示 Linux 系统中各文件系统的硬盘使用情况，包括文件系统所在硬盘分区的总容量、已使用的容量、剩余容量等。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[]# df [选项] 目录或文件</span><br><span class="line">-a：显示所有文件系统信息，包括系统特有的/proc、/sysfs等文件系统。</span><br><span class="line">-k：以KB为单位显示容量，默认。</span><br><span class="line">-m：以MB为单位显示容量。</span><br><span class="line">-h：使用人们习惯的KB、MB或GB等单位自行显示容量。</span><br><span class="line">-H：以M=1000K取代M=1024K的进位方式显示容量。</span><br><span class="line">-T：显示该分区的文件系统名称（例如xfs）。</span><br><span class="line">-i：不用硬盘容量显示，而是以含有inode的数量来显示。</span><br></pre></td></tr></table></figure>
+        <h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>Ray 是一个分布式执行引擎，多 worker 进程执行多个任务并将结果存储在对象存储中，每个 worker 都是一个独立的进程。</p>
+<p>每个节点上的对象存储都将不可变的对象存储存储在共享内存中，允许 worker 以少量的复制和并行化有效的共享同一节点上的存储对象。远程对象不可变，它们的值在创建之后不能更改，这样只需在多个对象存储中复制远程对象，而不需要同步副本。</p>
+<p>ray.get 和 ray.put 是用作 python 对象和对象 ID 之间的转换。</p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> ray</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="meta">@ray.remote(memory=500 * 1024 * 1024)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(df)</span>:</span></span><br><span class="line">	df[<span class="number">2</span>] = df[<span class="number">0</span>] + df[<span class="number">1</span>]</span><br><span class="line">	<span class="keyword">return</span> df</span><br><span class="line">	</span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">		df = pd.DataFrame(np.random.randint(<span class="number">0</span>, <span class="number">100</span>, size=(<span class="number">100</span>, <span class="number">2</span>)), columns=[<span class="string">'cols%d'</span> %i <span class="keyword">for</span> i <span class="keyword">in</span> range(n_cols)])</span><br><span class="line">		df_add = [add.remote(df) <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">5</span>)]</span><br></pre></td></tr></table></figure>
 
-<h1 id="du"><a href="#du" class="headerlink" title="du"></a>du</h1><p>du 查看单独目录点的使用情况，它使用递归方式总结磁盘使用情况，以获取目录及其子目录的大小。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[]# du [选项] 目录或文件</span><br><span class="line">	-h – 以易读的格式显示大小 (例如 1K 234M 2G)</span><br><span class="line">	-s – 仅显示每个参数的总数</span><br><span class="line">	--max-depth=N – 目录的打印深度</span><br><span class="line">	</span><br><span class="line">[]# du -h /xxx/ | sort -rh | head -20</span><br><span class="line">xxG	/data/</span><br><span class="line">xxG	/data/x</span><br><span class="line">xxG	/data/xx</span><br><span class="line">xxG	/data/xxx/x</span><br><span class="line">xxG	/data/xxxx</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-
-
-
+<h3 id="进程存储和共享存储"><a href="#进程存储和共享存储" class="headerlink" title="进程存储和共享存储"></a>进程存储和共享存储</h3><h4 id="生成"><a href="#生成" class="headerlink" title="生成"></a>生成</h4><ol>
+<li>由 worker 进程通过 ray.get 或 ray.wait 请求的。一旦 worker 完成 ray.get 请求，并且Python 对对象值的引用超出范围，就可以释放这些对象</li>
+<li>由在该节点上执行的任务返回，一旦不再有对对象的引用或者对象被溢出，就可以释放这些引用</li>
+<li>由该节点上的 worker 进程通过 ray.put 创建的。一旦不再引用对象，就可以释放这些对象</li>
+<li>该节点上排队的任务的参数，一旦任务完成或不再排队，就可以释放它们</li>
+<li>以前这个节点上需要的</li>
+</ol>
+<h4 id="内存分配"><a href="#内存分配" class="headerlink" title="内存分配"></a>内存分配</h4><p>内存分配从低到高，内存释放从 6 开始，直至有足够计算的内存：</p>
+<ol>
+<li>worker 中使用的对象（ ray.get 请求或运行 task 的参数）（任务完成之前不能释放参数。默认上限是对象存储内存的70%）</li>
+<li>创建对象的主副本 （ray.put 生成或 task 返回）</li>
+<li>ray.get 或 ray.wait 请求参数</li>
+<li>队列任务的参数</li>
+<li>以前使用的对象</li>
+<li>未分配内存</li>
+</ol>
+<h4 id="主拷贝和可回收拷贝"><a href="#主拷贝和可回收拷贝" class="headerlink" title="主拷贝和可回收拷贝"></a>主拷贝和可回收拷贝</h4><ol>
+<li>主副本是唯一的，因为只要所有者对对象的引用计数大于0，它就不会被释放。对象的其他副本可能在本地内存压力下被 LRU 逐出。</li>
+<li>在大多数情况下，主副本是要创建的对象的第一个副本。如果初始副本因故障而丢失，所有者将尝试根据对象的可用位置指定新的主副本。</li>
+<li>一旦对象引用计数变为0，对象的所有副本最终都会被自动垃圾收集。所有者会立即从进程内存储中删除小对象。raylet 从分布式对象存储中异步擦除大型对象。</li>
+<li>raylet 还管理分布式对象传输，它根据当前需要对象的位置创建对象的附加副本，例如，如果依赖对象的任务被调度到远程节点。</li>
+</ol>
+<h4 id="对象溢出和持久性"><a href="#对象溢出和持久性" class="headerlink" title="对象溢出和持久性"></a>对象溢出和持久性</h4><p>Ray 1.3.0+默认支持在对象存储的容量用完后将对象溢出到外部存储。这使得核心外数据处理和内存密集型分布式应用程序成为可能。</p>
+<p>两种类型的外部存储：</p>
+<ol>
+<li>本地存储。默认情况下选择”本地磁盘”，以便 Ray 用户可以使用对象溢出功能，而无需任何其他配置。</li>
+<li>分布式存储（S3）。访问速度可能较慢，但这可以提供更好的容错性，因为数据将在 worker 节点故障后继续存在。</li>
+</ol>
+<h3 id="调度"><a href="#调度" class="headerlink" title="调度"></a>调度</h3><p>Ray使用了混合任务调度的思路。在集群部署模式下，Ray 启动了以下关键组件：</p>
+<p><strong>GlobalScheduler</strong>：Master 上启动了一个全局调度器，用于接收本地调度器提交的任务，并将任务分发给合适的本地任务调度器执行</p>
+<p><strong>RedisServer</strong>：Master 上启动了一到多个 RedisServer 用于保存分布式任务的状态信息（ControlState），包括对象机器的映射、任务描述、任务 debug 信息等。</p>
+<p><strong>LocalScheduler</strong>：每个 Slave 上启动了一个本地调度器，用于提交任务到全局调度器，以及分配任务给当前机器的 Worker 进程</p>
+<p><strong>Worker</strong>：每个 Slave 上可以启动多个 Worker 进程执行分布式任务，并将计算结果存储到ObjectStore</p>
+<p><strong>ObjectStore</strong>：每个 Slave 上启动了一个 ObjectStore 存储只读数据对象，Worker 可以通过共享内存的方式访问这些对象数据，这样可以有效地减少内存拷贝和对象序列化成本。ObjectStore 底层由Apache Arrow 实现</p>
+<p><strong>Plasma</strong>：每个 Slave 上的 ObjectStore 都由一个名为 Plasma 的对象管理器进行管理，它可以在 Worker 访问本地 ObjectStore 上不存在的远程数据对象时，主动拉取其它 Slave 上的对象数据到当前机器</p>
 
       
     </div>
@@ -356,7 +387,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/linux/" rel="tag"># linux</a>
+            <a href="/tags/ray/" rel="tag"># ray</a>
           
         </div>
       
@@ -369,8 +400,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/12/04/anaconda/" rel="next" title="Anaconda">
-                <i class="fa fa-chevron-left"></i> Anaconda
+              <a href="/2021/06/02/pandas-use/" rel="next" title="Pandas 更多功能">
+                <i class="fa fa-chevron-left"></i> Pandas 更多功能
               </a>
             
           </div>
@@ -379,8 +410,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/12/19/bt-dht/" rel="prev" title="BT 种子的实现">
-                BT 种子的实现 <i class="fa fa-chevron-right"></i>
+              <a href="/2021/06/21/gmpy2-install/" rel="prev" title="gmpy2 安装">
+                gmpy2 安装 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -506,7 +537,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#df"><span class="nav-number">1.</span> <span class="nav-text">df</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#du"><span class="nav-number">2.</span> <span class="nav-text">du</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义"><span class="nav-number">1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#示例"><span class="nav-number">2.</span> <span class="nav-text">示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#进程存储和共享存储"><span class="nav-number">3.</span> <span class="nav-text">进程存储和共享存储</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#生成"><span class="nav-number">3.1.</span> <span class="nav-text">生成</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#内存分配"><span class="nav-number">3.2.</span> <span class="nav-text">内存分配</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#主拷贝和可回收拷贝"><span class="nav-number">3.3.</span> <span class="nav-text">主拷贝和可回收拷贝</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#对象溢出和持久性"><span class="nav-number">3.4.</span> <span class="nav-text">对象溢出和持久性</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#调度"><span class="nav-number">4.</span> <span class="nav-text">调度</span></a></li></ol></div>
             
 
           </div>

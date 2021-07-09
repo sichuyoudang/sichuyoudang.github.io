@@ -262,6 +262,137 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/02/numpy/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/09/02/numpy/" itemprop="url">Numpy 基础操作</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-09-02T22:42:38+08:00">
+                2020-09-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> numpy <span class="keyword">as</span> np			<span class="comment"># 将numpy用别名np表示</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="多维数组对象-ndarray"><a href="#多维数组对象-ndarray" class="headerlink" title="多维数组对象 ndarray"></a>多维数组对象 ndarray</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>data = [[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>],[<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>,<span class="number">1</span>]]        <span class="comment"># 创建一个列表，一个嵌套列表</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr = np.array(data)                <span class="comment"># 创建一个数组</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr</span><br><span class="line">array([[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>],</span><br><span class="line">       [<span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">1</span>]])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr.ndim                            <span class="comment"># 数组arr的维度</span></span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr.shape                           <span class="comment"># 数组的形状</span></span><br><span class="line">(<span class="number">2</span>, <span class="number">4</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr.dtype                           <span class="comment"># 数组的数据类型</span></span><br><span class="line">dtype(<span class="string">'int64'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr = np.array([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>], dtype=np.int32)   <span class="comment"># 创建制定类型的数组</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>float_arr = arr.astype(np.float64)        <span class="comment"># 转换数组的数据类型</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>np.zeros((<span class="number">3</span>,<span class="number">6</span>))   <span class="comment"># 创建元素全0的二维数组，其他类型有ones，empty，eye，arange</span></span><br><span class="line">array([[<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>],</span><br><span class="line">       [<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>],</span><br><span class="line">       [<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>]])</span><br></pre></td></tr></table></figure>
+
+<h1 id="数组标量运算"><a href="#数组标量运算" class="headerlink" title="数组标量运算"></a>数组标量运算</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr = np.arange(<span class="number">10</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr</span><br><span class="line">array([<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr[<span class="number">5</span>:<span class="number">8</span>]       <span class="comment"># 切片</span></span><br><span class="line">array([<span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr[<span class="number">5</span>:<span class="number">8</span>] = <span class="number">10</span>  <span class="comment"># 使用广播方式修改原数组赋值</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr</span><br><span class="line">array([ <span class="number">0</span>,  <span class="number">1</span>,  <span class="number">2</span>,  <span class="number">3</span>,  <span class="number">4</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">10</span>,  <span class="number">8</span>,  <span class="number">9</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr_slice = arr[<span class="number">5</span>:<span class="number">8</span>]      <span class="comment"># numpy 的数组切片不是复制，修改时会影响原数组</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr_slice[<span class="number">1</span>] = <span class="number">111</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr</span><br><span class="line">array([  <span class="number">0</span>,   <span class="number">1</span>,   <span class="number">2</span>,   <span class="number">3</span>,   <span class="number">4</span>,  <span class="number">10</span>, <span class="number">111</span>,  <span class="number">10</span>,   <span class="number">8</span>,   <span class="number">9</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr2d = np.array([[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>],[<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>],[<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>]])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr2d</span><br><span class="line">array([[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>],</span><br><span class="line">       [<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>],</span><br><span class="line">       [<span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>]])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr2d[<span class="number">0</span>][<span class="number">2</span>]   <span class="comment"># 取索引为0的行，索引为2的列（也可写作 arr2d[0,2]）</span></span><br><span class="line"><span class="number">3</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr2d[:<span class="number">2</span>,<span class="number">1</span>:]  <span class="comment"># 2个轴切片</span></span><br><span class="line">array([[<span class="number">2</span>, <span class="number">3</span>],</span><br><span class="line">       [<span class="number">5</span>, <span class="number">6</span>]])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>names = np.array([<span class="string">"bob"</span>, <span class="string">"joe"</span>, <span class="string">"aoa"</span>, <span class="string">"chili"</span>, <span class="string">"joe"</span>, <span class="string">"bob"</span>, <span class="string">"joe"</span>]) <span class="comment"># 创建数组</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> numpy <span class="keyword">import</span> random</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data = random.randn(<span class="number">7</span>,<span class="number">4</span>)    <span class="comment"># 产生一个7*4标准正态分布</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>names</span><br><span class="line">array([<span class="string">'bob'</span>, <span class="string">'joe'</span>, <span class="string">'aoa'</span>, <span class="string">'chili'</span>, <span class="string">'joe'</span>, <span class="string">'bob'</span>, <span class="string">'joe'</span>], dtype=<span class="string">'&lt;U5'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data</span><br><span class="line">array([[ <span class="number">0.18620491</span>,  <span class="number">0.07895193</span>, <span class="number">-1.26202823</span>,  <span class="number">1.34698364</span>],</span><br><span class="line">       [ <span class="number">0.73268155</span>, <span class="number">-0.60464905</span>, <span class="number">-0.89183804</span>,  <span class="number">0.09918431</span>],</span><br><span class="line">       [ <span class="number">0.6958621</span> , <span class="number">-1.01385113</span>,  <span class="number">0.41423175</span>,  <span class="number">0.40813152</span>],</span><br><span class="line">       [<span class="number">-0.3237639</span> ,  <span class="number">1.05677072</span>, <span class="number">-0.68709156</span>,  <span class="number">1.13098055</span>],</span><br><span class="line">       [ <span class="number">0.95124821</span>,  <span class="number">0.05654996</span>,  <span class="number">0.49410272</span>, <span class="number">-0.0741809</span> ],</span><br><span class="line">       [<span class="number">-0.65054095</span>, <span class="number">-0.45587712</span>,  <span class="number">1.98354333</span>,  <span class="number">0.56386386</span>],</span><br><span class="line">       [ <span class="number">0.07438269</span>,  <span class="number">0.7754467</span> , <span class="number">-1.73382679</span>, <span class="number">-0.53962452</span>]])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>names == <span class="string">"bob"</span>                  <span class="comment"># 选出名字为Bob的所有行，返回布尔型数组</span></span><br><span class="line">array([ <span class="keyword">True</span>, <span class="keyword">False</span>, <span class="keyword">False</span>, <span class="keyword">False</span>, <span class="keyword">False</span>,  <span class="keyword">True</span>, <span class="keyword">False</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data[names == <span class="string">"bob"</span>]            <span class="comment"># 将产生的布尔型数组作为索引</span></span><br><span class="line">array([[ <span class="number">0.18620491</span>,  <span class="number">0.07895193</span>, <span class="number">-1.26202823</span>,  <span class="number">1.34698364</span>],</span><br><span class="line">       [<span class="number">-0.65054095</span>, <span class="number">-0.45587712</span>,  <span class="number">1.98354333</span>,  <span class="number">0.56386386</span>]])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data[names == <span class="string">"bob"</span>, <span class="number">2</span>:]        <span class="comment"># 布尔型数组和切片混合使用</span></span><br><span class="line">array([[<span class="number">-1.26202823</span>,  <span class="number">1.34698364</span>],</span><br><span class="line">       [ <span class="number">1.98354333</span>,  <span class="number">0.56386386</span>]])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>mask = (names == <span class="string">"bob"</span>)|(names == <span class="string">"chili"</span>)<span class="comment"># 组合应用多个布尔条件，这里是或者的关系  并且的关系表示为&amp;</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>mask</span><br><span class="line">array([ <span class="keyword">True</span>, <span class="keyword">False</span>, <span class="keyword">False</span>,  <span class="keyword">True</span>, <span class="keyword">False</span>,  <span class="keyword">True</span>, <span class="keyword">False</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data[data&lt;<span class="number">0</span>] = <span class="number">0</span>                <span class="comment"># 将data中所有负数改为0</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>data      </span><br><span class="line">array([[<span class="number">0.18620491</span>, <span class="number">0.07895193</span>, <span class="number">0.</span>        , <span class="number">1.34698364</span>],</span><br><span class="line">       [<span class="number">0.73268155</span>, <span class="number">0.</span>        , <span class="number">0.</span>        , <span class="number">0.09918431</span>],</span><br><span class="line">       [<span class="number">0.6958621</span> , <span class="number">0.</span>        , <span class="number">0.41423175</span>, <span class="number">0.40813152</span>],</span><br><span class="line">       [<span class="number">0.</span>        , <span class="number">1.05677072</span>, <span class="number">0.</span>        , <span class="number">1.13098055</span>],</span><br><span class="line">       [<span class="number">0.95124821</span>, <span class="number">0.05654996</span>, <span class="number">0.49410272</span>, <span class="number">0.</span>        ],</span><br><span class="line">       [<span class="number">0.</span>        , <span class="number">0.</span>        , <span class="number">1.98354333</span>, <span class="number">0.56386386</span>],</span><br><span class="line">       [<span class="number">0.07438269</span>, <span class="number">0.7754467</span> , <span class="number">0.</span>        , <span class="number">0.</span>        ]])</span><br></pre></td></tr></table></figure>
+
+<h1 id="数学和统计方法"><a href="#数学和统计方法" class="headerlink" title="数学和统计方法"></a>数学和统计方法</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr = np.random.randn(<span class="number">5</span>, <span class="number">4</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr</span><br><span class="line">array([[<span class="number">-0.55101005</span>, <span class="number">-0.86505629</span>,  <span class="number">0.80111059</span>,  <span class="number">0.97396727</span>],</span><br><span class="line">       [<span class="number">-0.57049321</span>, <span class="number">-0.71987369</span>,  <span class="number">0.86724919</span>, <span class="number">-0.19331395</span>],</span><br><span class="line">       [ <span class="number">0.37349489</span>, <span class="number">-0.27002242</span>,  <span class="number">1.29464897</span>, <span class="number">-1.9998276</span> ],</span><br><span class="line">       [<span class="number">-0.13871633</span>, <span class="number">-1.34928585</span>, <span class="number">-1.15993284</span>, <span class="number">-1.92917048</span>],</span><br><span class="line">       [<span class="number">-1.02357711</span>,  <span class="number">0.79132435</span>, <span class="number">-0.35240344</span>, <span class="number">-0.42335344</span>]])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr.mean()            <span class="comment"># 取平均值，同样方法 np.mean(arr)</span></span><br><span class="line"><span class="number">-0.32221207242482613</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr.sum()             <span class="comment"># 求和</span></span><br><span class="line"><span class="number">-6.4442414484965225</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr.mean(axis = <span class="number">1</span>)    <span class="comment"># 统计每行平均值</span></span><br><span class="line">array([ <span class="number">0.08975288</span>, <span class="number">-0.15410792</span>, <span class="number">-0.15042654</span>, <span class="number">-1.14427638</span>, <span class="number">-0.25200241</span>])</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr = np.array([<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>])       </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr.cumsum()          <span class="comment"># 累计求和</span></span><br><span class="line">array([ <span class="number">0</span>,  <span class="number">1</span>,  <span class="number">3</span>,  <span class="number">6</span>, <span class="number">10</span>, <span class="number">15</span>, <span class="number">21</span>, <span class="number">28</span>])</span><br></pre></td></tr></table></figure>
+
+<h1 id="排序"><a href="#排序" class="headerlink" title="排序"></a>排序</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr = np.random.randn(<span class="number">5</span>, <span class="number">3</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr</span><br><span class="line">array([[ <span class="number">0.0530892</span> , <span class="number">-0.70252698</span>, <span class="number">-0.77107098</span>],</span><br><span class="line">       [ <span class="number">0.30892347</span>,  <span class="number">0.00240163</span>,  <span class="number">1.3532379</span> ],</span><br><span class="line">       [<span class="number">-0.7730191</span> , <span class="number">-0.12694854</span>, <span class="number">-0.78421781</span>],</span><br><span class="line">       [<span class="number">-0.13738111</span>,  <span class="number">0.36921011</span>, <span class="number">-0.23199189</span>],</span><br><span class="line">       [ <span class="number">0.56530187</span>,  <span class="number">0.71018939</span>,  <span class="number">0.569272</span>  ]])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr.sort()        <span class="comment"># 排序</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr.sort(<span class="number">1</span>)       <span class="comment"># 按行排序</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>arr</span><br><span class="line">array([[<span class="number">-0.77107098</span>, <span class="number">-0.70252698</span>,  <span class="number">0.0530892</span> ],</span><br><span class="line">       [ <span class="number">0.00240163</span>,  <span class="number">0.30892347</span>,  <span class="number">1.3532379</span> ],</span><br><span class="line">       [<span class="number">-0.78421781</span>, <span class="number">-0.7730191</span> , <span class="number">-0.12694854</span>],</span><br><span class="line">       [<span class="number">-0.23199189</span>, <span class="number">-0.13738111</span>,  <span class="number">0.36921011</span>],</span><br><span class="line">       [ <span class="number">0.56530187</span>,  <span class="number">0.569272</span>  ,  <span class="number">0.71018939</span>]])</span><br></pre></td></tr></table></figure>
+
+<h1 id="唯一化"><a href="#唯一化" class="headerlink" title="唯一化"></a>唯一化</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>names = np.array([<span class="string">"bob"</span>, <span class="string">"joe"</span>, <span class="string">"aoa"</span>, <span class="string">"chili"</span>, <span class="string">"joe"</span>, <span class="string">"bob"</span>, <span class="string">"joe"</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>np.unique(names)          <span class="comment"># 取集合操作（无重复），并返回排序后的, 等同于 sorted(set(names))</span></span><br><span class="line">array([<span class="string">'aoa'</span>, <span class="string">'bob'</span>, <span class="string">'chili'</span>, <span class="string">'joe'</span>], dtype=<span class="string">'&lt;U5'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>values = np.array([<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">7</span>,<span class="number">5</span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>np.in1d(values, [<span class="number">2</span>,<span class="number">3</span>,<span class="number">6</span>])  <span class="comment"># 判断数组各位置上是否是这些值之一</span></span><br><span class="line">array([<span class="keyword">False</span>, <span class="keyword">False</span>,  <span class="keyword">True</span>,  <span class="keyword">True</span>,  <span class="keyword">True</span>, <span class="keyword">False</span>, <span class="keyword">False</span>, <span class="keyword">False</span>])</span><br></pre></td></tr></table></figure>
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/08/27/mysql-query/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1658,149 +1789,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/03/postman-flask/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/12/03/postman-flask/" itemprop="url">Flask 处理通过 Postman 上传的文件</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-03T14:11:13+08:00">
-                2019-12-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="Postman-post-request-body"><a href="#Postman-post-request-body" class="headerlink" title="Postman post request body"></a>Postman post request body</h1><p>postman 模拟 post 请求，输入的 body 体中有以下几种方式：</p>
-<h3 id="form-data"><a href="#form-data" class="headerlink" title="form-data:"></a>form-data:</h3><p>http 请求中的 <code>multipart/form-data</code>， 它会将表单的数据处理为一条消息，以标签为单元，用分隔符分开。既可以上传键值对，也可以上传文件。当上传的字段是文件时，会有Content-Type来说明文件类型；content-disposition，用来说明字段的一些信息；</p>
-<p>由于有 boundary 隔离，所以 <code>multipart/form-data</code> 既可以上传文件，也可以上传键值对，它采用了键值对的方式，所以可以上传多个文件。</p>
-<h3 id="x-www-form-urlencoded"><a href="#x-www-form-urlencoded" class="headerlink" title="x-www-form-urlencoded:"></a>x-www-form-urlencoded:</h3><p>就是 <code>application/x-www-from-urlencoded</code>，会将表单内的数据转换为键值对，比如,name=java&amp;age = 23</p>
-<h3 id="raw"><a href="#raw" class="headerlink" title="raw:"></a>raw:</h3><p>可以上传任意格式的文本，可以上传 Text，Javascript，Json，Xml，Html等</p>
-<h3 id="binary"><a href="#binary" class="headerlink" title="binary:"></a>binary:</h3><p>相当于 <code>Content-Type:application/octet-stream</code>，从字面意思得知，只可以上传二进制数据，通常用来上传文件，由于没有键值，所以，一次只能上传一个文件。</p>
-<h1 id="Flask"><a href="#Flask" class="headerlink" title="Flask"></a>Flask</h1><h3 id="form"><a href="#form" class="headerlink" title="form:"></a>form:</h3><p>处理通过 POST / PUT 请求的参数，默认返回 ImmutableMultiDict</p>
-<h3 id="args"><a href="#args" class="headerlink" title="args:"></a>args:</h3><p>处理通过 URL (?key=value) 请求的参数，默认返回 ImmutableMultiDict</p>
-<h3 id="values"><a href="#values" class="headerlink" title="values:"></a>values:</h3><p>返回请求中的参数和form，可以替代 form 和 args 返回 CombinedMultiDict</p>
-<h3 id="files"><a href="#files" class="headerlink" title="files:"></a>files:</h3><p>包含所有上传文件的 MultiDict 对象，处理请求方式是 post/put/patch 并且设置为 <code>enctype=&quot;multipart/form-data</code>的请求，<code>&lt;input type=&quot;file&quot; name=&quot;&quot;&gt;</code> 每个key 取自前面的name 值，值存储在 Werkzeug FileStorage 中。</p>
-<h3 id="最后提一句，Postwoman-出来了"><a href="#最后提一句，Postwoman-出来了" class="headerlink" title="最后提一句，Postwoman 出来了"></a>最后提一句，Postwoman 出来了</h3><ol>
-<li>支持自定义换肤</li>
-<li>支持权限</li>
-<li>支持参数，请求体</li>
-<li>支持PWA</li>
-<li>支持历史</li>
-<li>支持 web sockey</li>
-<li>支持 GraphQL</li>
-<li>支持导入 cURL</li>
-<li>支持 PUT POST 中添加原生域</li>
-<li>支持集合，可以把请求放入集合</li>
-<li>支持代理</li>
-<li>支持 Docker</li>
-</ol>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1853,7 +1841,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">75</span>
+                  <span class="site-state-item-count">76</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1865,7 +1853,7 @@
               
               
               <div class="site-state-item site-state-tags">
-                <a href="/categories/index.html">
+                <a href="/tags/index.html">
                   <span class="site-state-item-count">29</span>
                   <span class="site-state-item-name">tags</span>
                 </a>

@@ -729,6 +729,165 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/06/17/ray-use/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="sichuyoudang">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/06/17/ray-use/" itemprop="url">Ray 使用经验</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-06-17T11:45:38+08:00">
+                2021-06-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>Ray 是一个分布式执行引擎，多 worker 进程执行多个任务并将结果存储在对象存储中，每个 worker 都是一个独立的进程。</p>
+<p>每个节点上的对象存储都将不可变的对象存储存储在共享内存中，允许 worker 以少量的复制和并行化有效的共享同一节点上的存储对象。远程对象不可变，它们的值在创建之后不能更改，这样只需在多个对象存储中复制远程对象，而不需要同步副本。</p>
+<p>ray.get 和 ray.put 是用作 python 对象和对象 ID 之间的转换。</p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> ray</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="meta">@ray.remote(memory=500 * 1024 * 1024)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(df)</span>:</span></span><br><span class="line">	df[<span class="number">2</span>] = df[<span class="number">0</span>] + df[<span class="number">1</span>]</span><br><span class="line">	<span class="keyword">return</span> df</span><br><span class="line">	</span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">		df = pd.DataFrame(np.random.randint(<span class="number">0</span>, <span class="number">100</span>, size=(<span class="number">100</span>, <span class="number">2</span>)), columns=[<span class="string">'cols%d'</span> %i <span class="keyword">for</span> i <span class="keyword">in</span> range(n_cols)])</span><br><span class="line">		df_add = [add.remote(df) <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">5</span>)]</span><br></pre></td></tr></table></figure>
+
+<h3 id="进程存储和共享存储"><a href="#进程存储和共享存储" class="headerlink" title="进程存储和共享存储"></a>进程存储和共享存储</h3><h4 id="生成"><a href="#生成" class="headerlink" title="生成"></a>生成</h4><ol>
+<li>由 worker 进程通过 ray.get 或 ray.wait 请求的。一旦 worker 完成 ray.get 请求，并且Python 对对象值的引用超出范围，就可以释放这些对象</li>
+<li>由在该节点上执行的任务返回，一旦不再有对对象的引用或者对象被溢出，就可以释放这些引用</li>
+<li>由该节点上的 worker 进程通过 ray.put 创建的。一旦不再引用对象，就可以释放这些对象</li>
+<li>该节点上排队的任务的参数，一旦任务完成或不再排队，就可以释放它们</li>
+<li>以前这个节点上需要的</li>
+</ol>
+<h4 id="内存分配"><a href="#内存分配" class="headerlink" title="内存分配"></a>内存分配</h4><p>内存分配从低到高，内存释放从 6 开始，直至有足够计算的内存：</p>
+<ol>
+<li>worker 中使用的对象（ ray.get 请求或运行 task 的参数）（任务完成之前不能释放参数。默认上限是对象存储内存的70%）</li>
+<li>创建对象的主副本 （ray.put 生成或 task 返回）</li>
+<li>ray.get 或 ray.wait 请求参数</li>
+<li>队列任务的参数</li>
+<li>以前使用的对象</li>
+<li>未分配内存</li>
+</ol>
+<h4 id="主拷贝和可回收拷贝"><a href="#主拷贝和可回收拷贝" class="headerlink" title="主拷贝和可回收拷贝"></a>主拷贝和可回收拷贝</h4><ol>
+<li>主副本是唯一的，因为只要所有者对对象的引用计数大于0，它就不会被释放。对象的其他副本可能在本地内存压力下被 LRU 逐出。</li>
+<li>在大多数情况下，主副本是要创建的对象的第一个副本。如果初始副本因故障而丢失，所有者将尝试根据对象的可用位置指定新的主副本。</li>
+<li>一旦对象引用计数变为0，对象的所有副本最终都会被自动垃圾收集。所有者会立即从进程内存储中删除小对象。raylet 从分布式对象存储中异步擦除大型对象。</li>
+<li>raylet 还管理分布式对象传输，它根据当前需要对象的位置创建对象的附加副本，例如，如果依赖对象的任务被调度到远程节点。</li>
+</ol>
+<h4 id="对象溢出和持久性"><a href="#对象溢出和持久性" class="headerlink" title="对象溢出和持久性"></a>对象溢出和持久性</h4><p>Ray 1.3.0+默认支持在对象存储的容量用完后将对象溢出到外部存储。这使得核心外数据处理和内存密集型分布式应用程序成为可能。</p>
+<p>两种类型的外部存储：</p>
+<ol>
+<li>本地存储。默认情况下选择”本地磁盘”，以便 Ray 用户可以使用对象溢出功能，而无需任何其他配置。</li>
+<li>分布式存储（S3）。访问速度可能较慢，但这可以提供更好的容错性，因为数据将在 worker 节点故障后继续存在。</li>
+</ol>
+<h3 id="调度"><a href="#调度" class="headerlink" title="调度"></a>调度</h3><p>Ray使用了混合任务调度的思路。在集群部署模式下，Ray 启动了以下关键组件：</p>
+<p><strong>GlobalScheduler</strong>：Master 上启动了一个全局调度器，用于接收本地调度器提交的任务，并将任务分发给合适的本地任务调度器执行</p>
+<p><strong>RedisServer</strong>：Master 上启动了一到多个 RedisServer 用于保存分布式任务的状态信息（ControlState），包括对象机器的映射、任务描述、任务 debug 信息等。</p>
+<p><strong>LocalScheduler</strong>：每个 Slave 上启动了一个本地调度器，用于提交任务到全局调度器，以及分配任务给当前机器的 Worker 进程</p>
+<p><strong>Worker</strong>：每个 Slave 上可以启动多个 Worker 进程执行分布式任务，并将计算结果存储到ObjectStore</p>
+<p><strong>ObjectStore</strong>：每个 Slave 上启动了一个 ObjectStore 存储只读数据对象，Worker 可以通过共享内存的方式访问这些对象数据，这样可以有效地减少内存拷贝和对象序列化成本。ObjectStore 底层由Apache Arrow 实现</p>
+<p><strong>Plasma</strong>：每个 Slave 上的 ObjectStore 都由一个名为 Plasma 的对象管理器进行管理，它可以在 Worker 访问本地 ObjectStore 上不存在的远程数据对象时，主动拉取其它 Slave 上的对象数据到当前机器</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/06/02/pandas-use/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1569,141 +1728,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/11/16/sqoop/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="sichuyoudang">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="我想，吃饭睡觉，走走停停">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/11/16/sqoop/" itemprop="url">Sqoop 的使用经验</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-11-16T11:48:57+08:00">
-                2020-11-16
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>sqoop 是 Apache 旗下一款 Hadoop 和关系数据库服务器之间传送数据的工具。<br><strong>导入数据</strong>：MySQL，Oracle 导入数据到 Hadoop 的 HDFS、HIVE、HBASE 等数据存储系统<br><strong>导出数据</strong>：从 Hadoop 的文件系统中导出数据到关系数据库 mysql 等。</p>
-<p>下列是从 mysql 导入到 hdfs 上</p>
-<h1 id="全量导入"><a href="#全量导入" class="headerlink" title="全量导入"></a>全量导入</h1><p>指定表的部分字段</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">sqoop import </span><br><span class="line">--connect jdbc:mysql://127.0.0.1:3306/db_name \ </span><br><span class="line">--username root  \</span><br><span class="line">--table table_name  \ </span><br><span class="line">--target-dir /table_name  \</span><br><span class="line">--delete-target-dir \</span><br><span class="line">--split-by &quot;updatetime&quot; \</span><br><span class="line">--columns &quot;id, name, updatetime&quot;  \</span><br><span class="line">--password password</span><br></pre></td></tr></table></figure>
-
-<p>添加条件查询</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sqoop import </span><br><span class="line">--connect jdbc:mysql://127.0.0.1:3306/db_name \ </span><br><span class="line">--username root  \</span><br><span class="line">--target-dir /table_name  \</span><br><span class="line">--delete-target-dir \</span><br><span class="line">--split-by &quot;updatetime&quot; \</span><br><span class="line">--query &quot;select id, name, updatetime from table_name where name=xx and $CONDITIONS &quot;  \</span><br><span class="line">--password password</span><br></pre></td></tr></table></figure>
-
-<h1 id="增量导入"><a href="#增量导入" class="headerlink" title="增量导入"></a>增量导入</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">sqoop import </span><br><span class="line">--connect jdbc:mysql://127.0.0.1:3306/db_name \ </span><br><span class="line">--username root  \</span><br><span class="line">--table table_name  \ </span><br><span class="line">--target-dir /table_name  \</span><br><span class="line">--delete-target-dir \</span><br><span class="line">--split-by &quot;updatetime&quot; \</span><br><span class="line">--incremental lastmodified \</span><br><span class="line">--merge-key id \</span><br><span class="line">--check-column &quot;updatetime&quot;  \</span><br><span class="line">--last-value &quot;2020-11-11 11:11:11&quot; \</span><br><span class="line">--columns &quot;id, name, updatetime&quot;  \</span><br><span class="line">--password password</span><br></pre></td></tr></table></figure>
-
-<h1 id="job-管理"><a href="#job-管理" class="headerlink" title="job 管理"></a>job 管理</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sqoop job --list</span><br><span class="line">sqoop job --delete  job_name</span><br><span class="line">sqoop job --exec  job_name   # 运行</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">sqoop job --create append_db_name \</span><br><span class="line">-- import  \</span><br><span class="line">--connect jdbc:mysql://127.0.0.1:3306/db_name \ </span><br><span class="line">--username root  \</span><br><span class="line">--table table_name  \ </span><br><span class="line">--target-dir /table_name  \</span><br><span class="line">--delete-target-dir \</span><br><span class="line">--split-by &quot;updatetime&quot; \</span><br><span class="line">--incremental lastmodified \</span><br><span class="line">--merge-key id \</span><br><span class="line">--check-column &quot;updatetime&quot;  \</span><br><span class="line">--last-value &quot;2020-11-11 11:11:11&quot; \</span><br><span class="line">--columns &quot;id, name, updatetime&quot;  \</span><br><span class="line">--password password</span><br></pre></td></tr></table></figure>
-
-
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1756,7 +1780,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">75</span>
+                  <span class="site-state-item-count">76</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1768,7 +1792,7 @@
               
               
               <div class="site-state-item site-state-tags">
-                <a href="/categories/index.html">
+                <a href="/tags/index.html">
                   <span class="site-state-item-count">29</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
